@@ -1,0 +1,117 @@
+h1 {
+    padding: 0 1rem;
+}
+
+h2 {padding: 1rem;}
+
+mat-toolbar{
+    position:fixed;
+    top:0;
+    z-index: 2;
+}
+.toolbar{
+    display: flex;
+    justify-content: space-between;
+}
+
+mat-sidenav-container {
+    height:100%;
+}
+
+// Move the content down so that it won't be hidden by the toolbar
+mat-sidenav {
+    padding-top: 3.5rem;
+    transition: width 0.3s ease;
+    @media screen and (min-width: 600px) {
+      padding-top: 4rem;
+    }
+    .mat-mdc-list-base{
+        display: contents;
+    }
+    .entry{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding:0.75rem;
+    }
+    .entry-multi-menu{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+       
+    }
+    .entry-sub-menu{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding:0.75rem;
+    }
+    .mdc-list-item{
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+  }
+
+// Move the content down so that it won't be hidden by the toolbar
+mat-sidenav-content{
+    padding-top: 3.5rem;
+    @media screen and (min-width: 600px) {
+        padding-top: 4rem;
+    }
+}
+
+.expanded {
+    width: 250px;   
+}
+
+.active-link {
+    background-color: #e0f7fa; /* Light blue background */
+    color: #00796b; /* Dark teal text color */
+    font-weight: bold; /* Bold text */
+    border-left: 4px solid #00796b; /* Accent border */
+  }
+  
+  .active-link .mat-icon {
+    color: #00796b; /* Accent color for the icon */
+  }
+.active-link-sub {
+    background-color: #e0f7fac4;
+    border-bottom: 2px solid;
+    border-top: 2px solid;
+    color: #00796b;
+    font-weight: bold;
+    border-radius: 0px !important;
+   
+  }
+  
+  .active-link-sub .mat-icon {
+    color: #00796b; /* Accent color for the icon */
+  }
+
+
+  .menu-button {
+    transition: 300ms ease-in-out;
+    transform: rotate(0deg);
+}
+
+.menu-button.rotated {
+    transform: rotate(180deg);
+}
+
+.submenu {
+    overflow-y: hidden;
+    transition: transform 300ms ease;
+    transform: scaleY(0);
+    transform-origin: top;
+    padding-left: 30px;
+    height: 0px;
+    span{
+        padding-left: 10px;
+    }
+}
+
+.submenu.expanded {
+    transform: scaleY(1);
+    height: auto;
+}

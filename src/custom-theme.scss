@@ -1,0 +1,60 @@
+@use '@angular/material' as mat;
+
+// Color palettes
+$custom-primary: mat.define-palette(mat.$indigo-palette);
+$custom-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$custom-warn: mat.define-palette(mat.$red-palette);
+
+// Typography configuration
+$custom-typography: mat.define-typography-config((
+  font-family: 'Roboto, sans-serif',
+  headline1: (font-size: 112px, line-height: 112px, letter-spacing: -1.5px),
+  display-3: (font-size: 56px, line-height: 64px, letter-spacing: -0.5px),
+  headline2: (font-size: 40px, font-weight: 300, line-height: 48px),
+  headline3: (font-size: 32px, font-weight: 400, line-height: 40px),
+  body1: (font-size: 16px, line-height: 24px),
+  body2: (font-size: 14px, line-height: 20px),
+  button: (font-size: 14px, text-transform: uppercase, font-weight: 500),
+  caption: (font-size: 12px, line-height: 16px),
+  overline: (font-size: 10px, line-height: 12px, text-transform: uppercase),
+));
+
+// Light theme
+$custom-light-theme: mat.define-light-theme((
+  color: (
+    primary: $custom-primary,
+    accent: $custom-accent,
+    warn: $custom-warn,
+  ),
+  typography: $custom-typography,
+));
+
+// Apply the theme
+@include mat.all-component-themes($custom-light-theme);
+
+// Custom styles for sidenav and toolbar
+.mat-sidenav-container {
+  height: 100vh;
+
+  .mat-sidenav {
+    background-color: #37474f;
+    color: white;
+    width: 280px;
+    .mat-list-item {
+      padding: 8px;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .mat-drawer-content {
+    background-color: white;
+    padding: 2rem;
+  }
+}
+
+.mat-toolbar {
+  background-color: mat.get-color-from-palette($custom-primary);
+  color: white;
+}
