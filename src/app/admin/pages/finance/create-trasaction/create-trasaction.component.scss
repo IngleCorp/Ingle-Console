@@ -1,0 +1,94 @@
+.actiontype-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 1px 5px 0px lightgrey;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    margin-right: auto;
+    margin-left: auto;
+    overflow-x: scroll;
+    width: 100%;
+}
+
+.action {
+    background-color: #efefef;
+    padding: 10px;
+    border-radius: 10px;
+    width: 120px;
+    text-align: center;
+    font-weight: 600;
+    margin-right: 10px;
+    color: rgba(128, 128, 128, 0.631372549);
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.a-active {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    box-shadow: 1px 3px 5px 2px black;
+    /* color: red; */
+}
+
+.date-box {
+    padding: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.add-block {
+    position: absolute;
+    bottom: 0px;
+    color: rgb(0, 0, 0);
+    background: #ffffff;
+    width: 100%;
+    left: 0;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.bx {
+    height: calc(100vh - 244px)!important;
+}
+
+.cst-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.d-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todayIn {
+    background-color: green;
+    padding: 5px;
+    color: white;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    column-gap: 3px;
+    font-weight: 700;
+    border-radius: 4px;
+}
+
+.todayOut {
+    background-color: red;
+    padding: 5px;
+    color: white;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    column-gap: 3px;
+    font-weight: 700;
+    border-radius: 4px;
+}

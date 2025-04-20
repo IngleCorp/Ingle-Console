@@ -7,10 +7,14 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { environment } from '../environments/environment'; 
-import { AgGridModule } from 'ag-grid-angular'; 
+import { AgGridModule } from 'ag-grid-angular';
+import { MatSpinnerComponent } from './core/elements/mat-spinner/mat-spinner.component'; 
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MatSpinnerComponent,
   ],
   imports: [
     BrowserModule,
@@ -19,10 +23,14 @@ import { AgGridModule } from 'ag-grid-angular';
     AngularFirestoreModule,
     BrowserAnimationsModule,
     AgGridModule,
+    MatProgressSpinnerModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
   ],
   providers: [
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [
+    MatSpinnerComponent
+  ]
 })
 export class AppModule { }

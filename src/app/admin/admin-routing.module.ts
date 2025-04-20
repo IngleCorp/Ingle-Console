@@ -4,6 +4,9 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { RoleGuard } from '../core/guard/role-guard.guard';
 import { UsersComponent } from './pages/users/users.component';
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
+import { CreateTrasactionComponent } from './pages/finance/create-trasaction/create-trasaction.component';
+import { TypesComponent } from './pages/types/types.component';
+import { TypesformComponent } from './pages/types/typesform/typesform.component';
 
 const routes: Routes = [
   {
@@ -11,6 +14,10 @@ const routes: Routes = [
     children: [
       { path: 'users', component: UsersComponent },
       { path: 'quill', component: QuillEditorComponent },
+      { path: 'finance/create', component: CreateTrasactionComponent },
+      { path: 'types', component: TypesComponent },
+      { path: 'types/form', component: TypesformComponent },  // Assuming this is the form for types
+      
 
         // http://localhost:4200/admin/users
     ],

@@ -1,0 +1,120 @@
+<div class="card-box-with-head bx">
+    <!-- <app-mat-spinner [overlay]="true" *ngIf="loading" showText="Creating ....">
+    </app-mat-spinner> -->
+    <div class="date-box">
+        <div class="d-box">
+            <div class="todayIn">
+                <mat-icon class="mat-ico">arrow_upward</mat-icon> {{todayIn}} </div>
+            <div (click)="editDate=!editDate">{{date | date:'fullDate'}}</div>
+            <div class="todayOut">
+                <mat-icon class="mat-ico">arrow_downward</mat-icon> {{todayOut}}</div>
+        </div>
+        <div class="cst-date" *ngIf="editDate">
+            <mat-form-field color="accent" appearance="fill">
+                <input matInput [(ngModel)]="date" [matDatepicker]="picker1">
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+
+            </mat-form-field>
+            <input type="checkbox" [(ngModel)]="datePin" class="form-check-input">
+        </div>
+
+    </div>
+
+    <div class="actiontype-box">
+        <div class="action" [ngClass]="{'a-active':action=='OUT'}" (click)="action='OUT';type='EXPENCE'">OUT</div>
+        <div class="action" [ngClass]="{'a-active':action=='IN'}" (click)="action='IN';type='INCOME'">IN</div>
+
+    </div>
+
+    <div class="actiontype-box" *ngIf="action=='OUT'">
+        <div class="action" *ngFor="let item of typeListOut" [ngClass]="{'a-active':type==item}" (click)="type=item;expenceof=''">{{item}}</div>
+    </div>
+    <div class="actiontype-box" *ngIf="action=='IN'">
+        <div class="action" *ngFor="let item of typeListIn" [ngClass]="{'a-active':type==item}" (click)="type=item">{{item}}</div>
+    </div>
+    <div class="actiontype-box" *ngIf="type=='EXPENCE'">
+        <div class="action" *ngFor="let item of expencetypes" [ngClass]="{'a-active':expenceof==item?.expencetype}" (click)="expenceof=item?.expencetype">{{item?.expencetype}}</div>
+    </div>
+    <div class="actiontype-box" *ngIf="type=='INCOME'">
+        <div class="action" *ngFor="let item of incometypes" [ngClass]="{'a-active':incomeof==item?.incometype}" (click)="incomeof=item?.incometype">{{item?.incometype}}</div>
+    </div>
+    <div class="actiontype-box" *ngIf="type=='EXPENCE'">
+        <div class="action" *ngFor="let item of expenceOutcome" [ngClass]="{'a-active':outcome==item}" (click)="outcome=item">{{item}}</div>
+    </div>
+    <div class="actiontype-box">
+        <div class="action" *ngFor="let item of consumedList" [ngClass]="{'a-active':consumedFrom==item.id}" (click)="consumedFrom=item.id">{{item.shortname}}</div>
+    </div>
+
+    <div *ngIf="type=='LENDING'">
+        <mat-form-field class="example-full-width" appearance="fill">
+            <mat-label>Select lender</mat-label>
+            <input #autoInput (input)="onChange()" [(ngModel)]="loanTo" type="text" placeholder="Pick one" aria-label="Number" matInput [matAutocomplete]="auto">
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (selectedChange)="onSelectionChange($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                    {{option?.name}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+    <div *ngIf="type=='LOAN'">
+        <mat-form-field class="example-full-width" appearance="fill">
+            <mat-label>Select person</mat-label>
+            <input #autoInput (input)="onChange()" [(ngModel)]="loanFrom" type="text" placeholder="Pick one" aria-label="Number" matInput [matAutocomplete]="auto">
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (selectedChange)="onSelectionChange($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                    {{option?.name}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </div>
+    <div *ngIf="type=='RETURN'">
+        <mat-form-field class="example-full-width" appearance="fill">
+            <mat-label>Select person</mat-label>
+            <input #autoInput (input)="onChange()" [(ngModel)]="loanReturn" type="text" placeholder="Pick one" aria-label="Number" matInput [matAutocomplete]="auto">
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (selectedChange)="onSelectionChange($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option" (click)="onselect()">
+                    {{option?.name}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-label>Select loan</mat-label>
+        <!-- <mat-select [(ngModel)]="loanToClear" name="loanToClear">
+            <mat-option *ngFor="let option of lendedList" [value]="option" (click)="clearOne()">
+                {{option?.loanTo}} | {{option?.amount}} | {{option?.createdAt.seconds*1000 | date:'shortDate'}}
+            </mat-option>
+        </mat-select> -->
+        <select class="form-control mb-3" [(ngModel)]="loanToClear">
+            <option *ngFor="let option of lendedList" [value]="option?.id">
+                {{option?.createdAt.seconds*1000 | date:'shortDate'}} : {{option?.loanTo}} : {{option?.amount}} 
+            </option>
+          </select>
+
+
+
+
+    </div>
+
+
+    <mat-form-field appearance="outline">
+        <mat-label>Notes</mat-label>
+        <input [(ngModel)]="notes" type="text" autocomplete="off" matInput placeholder="Enter notes">
+        <mat-icon matSuffix>description</mat-icon>
+
+    </mat-form-field>
+
+
+
+</div>
+
+<div class="add-block">
+
+    <mat-form-field appearance="outline">
+        <mat-label>Amount</mat-label>
+        <input [(ngModel)]="amount" autocomplete="off" type="number" matInput placeholder="Enter Amount">
+        <mat-icon matSuffix>currency_rupee</mat-icon>
+
+    </mat-form-field>
+    <button class="btn btn-primary mx-3" (click)="add()">ADD</button>
+</div>

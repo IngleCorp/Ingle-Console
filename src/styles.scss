@@ -36,3 +36,134 @@ body { margin: 0;
   color: white !important;
   font-weight: 900 !important;
 }
+
+
+.table-ngx2 {
+
+ 
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    font-family: 'Poppins', sans-serif;
+    background-color: transparent;
+
+    th.angular2-smart-actions-title-add a.angular2-smart-action-add-add {
+      color: #ffffff;
+      background-color: #009bff;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: none;
+      padding: 4px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    thead{
+      background-color: #4388cd;
+      color: #1e293b;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 10px;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      background-color: #ffffff;
+    }
+
+    th {
+      background-color: #f4f7fa;
+      color: #1e293b;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    td {
+      border-top: none;
+      font-size: 14px;
+      color: #334155;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    tr {
+      transition: background-color 0.3s ease;
+      border-radius: 8px;
+      border-bottom: 1px solid lightgrey;
+
+      &:hover {
+        background-color: #f1faff;
+      }
+    }
+  }
+
+
+  
+
+  // Pagination container
+  .angular2-smart-pagination {
+    height: 60px;
+    margin-top: 20px;
+  }
+  
+
+  // Pagination nav styling
+  .angular2-smart-pagination-nav {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 0.875em;
+    width: 100%;
+
+    .angular2-smart-page-item {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background-color: #ffffff;
+      color: #3b82f6;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.is-active {
+        background-color: #3b82f6;
+        color: #ffffff;
+        font-weight: bold;
+      }
+
+      &:hover:not(.is-active) {
+        background-color: #e0f0ff;
+      }
+    }
+
+    .page-link-next,
+    .page-link-prev {
+      font-size: 20px !important;
+      padding: 0 12px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      color: #3b82f6;
+    }
+
+    nav {
+      background-color: transparent;
+      width: 100%;
+      display: flex !important;
+      justify-content: center !important;
+      margin-top: 20px;
+    }
+  }
+}
+
+  

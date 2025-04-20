@@ -2,7 +2,7 @@
     <button mat-icon-button aria-label="Menu icon" (click)="toggleMenu()">
       <mat-icon>menu</mat-icon>
     </button>
-    <h1>FIREBASE APP</h1>
+    <h1>INGLE CONSOLE</h1>
 
 
     <span class="example-spacer"></span>
@@ -25,6 +25,24 @@
           <span class="entry" routerLink="users" routerLinkActive="active-link">
             <mat-icon>group</mat-icon>
             <span *ngIf="!isCollapsed">Users</span>
+          </span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item>
+          <span class="entry" routerLink="finance/create" routerLinkActive="active-link">
+            <mat-icon>Money</mat-icon>
+           
+            <span *ngIf="!isCollapsed">Accounts</span>
+          </span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item>
+          <span class="entry" routerLink="types" routerLinkActive="active-link">
+            <mat-icon>category</mat-icon>
+           
+            <span *ngIf="!isCollapsed">Type</span>
           </span>
         </a>
       </mat-nav-list>

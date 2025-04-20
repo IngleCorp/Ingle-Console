@@ -6,6 +6,8 @@ import { UsersComponent } from './pages/users/users.component';
 import { NavComponent } from './nav/nav.component';
 import { UserFormComponent } from './pages/users/user-form/user-form.component';
 
+// import { AppModule } from '../app.module';
+
 // Angular Material Modules
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -31,6 +33,11 @@ import { AgGridModule } from 'ag-grid-angular';
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
 
 import { QuillModule } from 'ngx-quill';
+import { TranasctionsComponent } from './pages/finance/tranasctions/tranasctions.component';
+import { CreateTrasactionComponent } from './pages/finance/create-trasaction/create-trasaction.component';
+import { TypesComponent } from './pages/types/types.component';
+import { Angular2SmartTableModule } from 'angular2-smart-table';
+import { TypesformComponent } from './pages/types/typesform/typesform.component';
 
 @NgModule({
   declarations: [
@@ -38,12 +45,18 @@ import { QuillModule } from 'ngx-quill';
     UsersComponent,
     NavComponent,
     UserFormComponent,
-    QuillEditorComponent
+    QuillEditorComponent,
+    TranasctionsComponent,
+    CreateTrasactionComponent,
+    TypesComponent,
+    TypesformComponent,
   ],
   imports: [
     CommonModule,
     AdminRoutingModule,
     QuillModule.forRoot(),
+    Angular2SmartTableModule,
+    // AppModule,
 
     // Angular Material Modules
     MatToolbarModule,

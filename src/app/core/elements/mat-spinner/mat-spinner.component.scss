@@ -1,0 +1,30 @@
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.overlay {
+    height: 100vh;
+    width: 100%;
+    background-color: rgb(0 0 0 / 45%);
+    z-index: 10;
+    top: 64px;
+    left: 0;
+    position: fixed;
+}
+
+:host ::ng-deep .custom-spinner circle {
+    stroke: #ffffff;
+}
+
+.text-loading {
+    position: relative;
+    top: -60px;
+    color: white;
+    left: 110px;
+    font-weight: 600;
+}

@@ -1,0 +1,40 @@
+<!-- create a reactive form with filed  name category position is_active is_deleted  with bootstrap class -->
+
+<div class="container">
+  <form [formGroup]="typesForm" (ngSubmit)="onSubmit()" class="mt-4">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" id="name" formControlName="name" class="form-control" />
+      <div *ngIf="typesForm.get('name')?.invalid && typesForm.get('name')?.touched" class="text-danger">
+        Name is required
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="category" class="form-label">Category</label>
+      <input type="text" id="category" formControlName="category" class="form-control" />
+      <div *ngIf="typesForm.get('category')?.invalid && typesForm.get('category')?.touched" class="text-danger">
+        Category is required
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="position" class="form-label">Position</label>
+      <input type="number" id="position" formControlName="position" class="form-control" />
+      <div *ngIf="typesForm.get('position')?.invalid && typesForm.get('position')?.touched" class="text-danger">
+        Position is required
+      </div>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" id="is_active" formControlName="is_active" class="form-check-input" />
+      <label for="is_active" class="form-check-label">Is Active</label>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" id="is_deleted" formControlName="is_deleted" class="form-check-input" />
+      <label for="is_deleted" class="form-check-label">Is Deleted</label>
+    </div>
+
+    <button type="submit" [disabled]="typesForm.invalid || loading" class="btn btn-primary">Submit</button>
+  </form>

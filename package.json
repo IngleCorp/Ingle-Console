@@ -23,6 +23,7 @@
     "@angular/router": "^18.0.0",
     "ag-grid-angular": "^33.1.0",
     "ag-grid-community": "^33.1.0",
+    "angular2-smart-table": "^3.6.1",
     "bootstrap": "^5.3.3",
     "firebase": "^11.1.0",
     "ngx-quill": "^26.0.10",
