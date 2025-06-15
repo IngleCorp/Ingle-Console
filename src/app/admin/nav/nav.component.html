@@ -58,6 +58,22 @@
     
       <mat-nav-list>
         <a mat-list-item>
+          <span class="entry" routerLink="todo" routerLinkActive="active-link">
+            <mat-icon>task</mat-icon>
+            <span *ngIf="!isCollapsed">Tasks</span>
+          </span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item>
+          <span class="entry" routerLink="invoice" routerLinkActive="active-link">
+            <mat-icon>receipt_long</mat-icon>
+            <span *ngIf="!isCollapsed">Invoices</span>
+          </span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item>
           <span class="entry" routerLink="banners" routerLinkActive="active-link">
             <mat-icon>photo_library</mat-icon>
            

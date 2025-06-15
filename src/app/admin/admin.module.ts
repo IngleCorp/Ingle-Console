@@ -28,6 +28,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 // ✅ Import AgGridModule Correctly (No need for `ClientSideRowModelModule`)
 import { AgGridModule } from 'ag-grid-angular';
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
@@ -38,6 +40,10 @@ import { CreateTrasactionComponent } from './pages/finance/create-trasaction/cre
 import { TypesComponent } from './pages/types/types.component';
 import { Angular2SmartTableModule } from 'angular2-smart-table';
 import { TypesformComponent } from './pages/types/typesform/typesform.component';
+import { TodoComponent } from './pages/todo/todo.component';
+import { TodoFormComponent } from './pages/todo/todo-form/todo-form.component';
+import { InvoiceComponent } from './pages/invoice/invoice.component';
+import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +56,10 @@ import { TypesformComponent } from './pages/types/typesform/typesform.component'
     CreateTrasactionComponent,
     TypesComponent,
     TypesformComponent,
+    TodoComponent,
+    TodoFormComponent,
+    InvoiceComponent,
+    InvoiceFormComponent,
   ],
   imports: [
     CommonModule,
@@ -80,7 +90,9 @@ import { TypesformComponent } from './pages/types/typesform/typesform.component'
     MatSortModule,
     MatPaginatorModule,
     // ✅ Keep only AgGridModule (Do NOT import `ClientSideRowModelModule`)
-    AgGridModule
+    AgGridModule,
+    MatDialogModule,
+    MatDividerModule
   ],
 })
 export class AdminModule {}

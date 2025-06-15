@@ -1,0 +1,33 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" required />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" required></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Labels</mat-label>
+    <input matInput formControlName="labels" placeholder="Comma separated" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Assignees</mat-label>
+    <input matInput formControlName="assignees" placeholder="Comma separated" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="w-100">
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="status">
+      <mat-option *ngFor="let status of statuses" [value]="status">{{ status | titlecase }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="actions">
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+  </div>
+</form>

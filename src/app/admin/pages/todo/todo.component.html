@@ -1,0 +1,23 @@
+<div class="todo-board">
+  <h2>Task Manager</h2>
+  <button mat-raised-button color="primary" (click)="openForm()">Add Task</button>
+
+  <div class="kanban-board">
+    <div class="kanban-column" *ngFor="let status of statuses">
+      <div class="kanban-column-header">{{ status | titlecase }}</div>
+      <div class="kanban-tasks">
+        <div class="kanban-task" *ngFor="let task of getTasksByStatus(status); let i = index">
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-desc">{{ task.description }}</div>
+          <div class="task-labels">Labels: <span *ngFor="let label of task.labels; let last = last">{{ label }}<span *ngIf="!last">, </span></span></div>
+          <div class="task-assignees">Assignees: <span *ngFor="let assignee of task.assignees; let last = last">{{ assignee }}<span *ngIf="!last">, </span></span></div>
+          <div class="task-status">Status: {{ task.status | titlecase }}</div>
+          <div class="task-actions">
+            <button mat-stroked-button color="accent" (click)="openForm(task, tasks.indexOf(task))">Edit</button>
+            <button *ngFor="let moveStatus of statuses" mat-button (click)="moveTask(tasks.indexOf(task), moveStatus)" [disabled]="task.status === moveStatus">{{ moveStatus | titlecase }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,145 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="h-100 d-flex flex-column">
+  <!-- TEMPORARY: Demo Data Button -->
+  <div class="mb-2">
+    <button type="button" class="btn btn-warning btn-sm" (click)="fillWithDemoData()">
+      Fill with Demo Data
+    </button>
+  </div>
+  <div class="modal-header bg-primary text-white py-2 px-3 rounded-top">
+    <h5 class="modal-title m-0">GST Invoice</h5>
+  </div>
+  <div class="modal-body flex-grow-1 overflow-auto px-3 py-2" style="max-height: 65vh;">
+    <div class="row g-3 mb-2" formGroupName="company">
+  <div class="col-md-6">
+    <label class="form-label">Company Name</label>
+    <input class="form-control" formControlName="name" />
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">GSTIN</label>
+    <input class="form-control" formControlName="gstin" />
+  </div>
+  <div class="col-12">
+    <label class="form-label">Company Address</label>
+    <textarea class="form-control" formControlName="address"></textarea>
+  </div>
+</div>
+
+<!-- Add placeOfSupply outside the formGroupName="company" -->
+<div class="row mb-2">
+  <div class="col-md-3">
+    <label class="form-label">Place of Supply</label>
+    <input class="form-control" formControlName="placeOfSupply" />
+  </div>
+</div>
+
+
+   
+    <div class="row g-3 mb-2">
+      <div class="col-md-3">
+        <label class="form-label">Invoice Number</label>
+        <input class="form-control" formControlName="invoiceNumber" required />
+        <div *ngIf="form.get('invoiceNumber')?.invalid && (form.get('invoiceNumber')?.touched || form.get('invoiceNumber')?.dirty)" class="invalid-feedback d-block">Invoice Number is required.</div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Invoice Date</label>
+        <input class="form-control" type="date" formControlName="invoiceDate" required />
+        <div *ngIf="form.get('invoiceDate')?.invalid && (form.get('invoiceDate')?.touched || form.get('invoiceDate')?.dirty)" class="invalid-feedback d-block">Invoice Date is required.</div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Due Date</label>
+        <input class="form-control" type="date" formControlName="dueDate" required />
+        <div *ngIf="form.get('dueDate')?.invalid && (form.get('dueDate')?.touched || form.get('dueDate')?.dirty)" class="invalid-feedback d-block">Due Date is required.</div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Terms</label>
+        <input class="form-control" formControlName="terms" />
+      </div>
+    </div>
+    <div class="row g-3 mb-2">
+     <div formGroupName="billTo">
+  <div class="col-md-4">
+    <label class="form-label">Client Name</label>
+    <input class="form-control" formControlName="company" required />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Client GSTIN</label>
+    <input class="form-control" formControlName="gstin" required />
+  </div>
+  <div class="col-12">
+    <label class="form-label">Client Address</label>
+    <textarea class="form-control" formControlName="address" required></textarea>
+  </div>
+</div>
+      <div class="col-md-4">
+        <label class="form-label">Subject / Project</label>
+        <input class="form-control" formControlName="subject" required />
+        <div *ngIf="form.get('subject')?.invalid && (form.get('subject')?.touched || form.get('subject')?.dirty)" class="invalid-feedback d-block">Subject/Project is required.</div>
+      </div>
+    
+    </div>
+    <div class="mb-2">
+      <h6>Line Items</h6>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle invoice-items-table">
+          <thead class="table-light">
+            <tr>
+              <th>Description</th>
+              <th>HSN/SAC</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Per</th>
+              <th>IGST %</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of items.controls; let i = index">
+              <td><input class="form-control form-control-sm" [formControl]="getFormControl(row, 'description')" placeholder="Description" />
+                <div *ngIf="getFormControl(row, 'description').invalid && (getFormControl(row, 'description').touched || getFormControl(row, 'description').dirty)" class="invalid-feedback d-block">Required</div></td>
+              <td>
+                <select class="form-select form-select-sm" [formControl]="getFormControl(row, 'hsn')">
+                  <option value="" disabled selected>Select HSN/SAC</option>
+                  <option *ngFor="let code of hsnCodes" [value]="code.SAC">{{code.SAC}} - {{code.Description}}</option>
+                </select>
+                <div *ngIf="getFormControl(row, 'hsn').invalid && (getFormControl(row, 'hsn').touched || getFormControl(row, 'hsn').dirty)" class="invalid-feedback d-block">Required</div>
+              </td>
+              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'qty')" min="1" />
+                <div *ngIf="getFormControl(row, 'qty').invalid && (getFormControl(row, 'qty').touched || getFormControl(row, 'qty').dirty)" class="invalid-feedback d-block">Qty must be at least 1</div></td>
+              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'rate')" min="0" />
+                <div *ngIf="getFormControl(row, 'rate').invalid && (getFormControl(row, 'rate').touched || getFormControl(row, 'rate').dirty)" class="invalid-feedback d-block">Rate must be 0 or more</div></td>
+              <td><input class="form-control form-control-sm" [formControl]="getFormControl(row, 'per')" placeholder="Per" />
+                <div *ngIf="getFormControl(row, 'per').invalid && (getFormControl(row, 'per').touched || getFormControl(row, 'per').dirty)" class="invalid-feedback d-block">Required</div></td>
+              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'igst')" min="0" max="100" />
+                <div *ngIf="getFormControl(row, 'igst').invalid && (getFormControl(row, 'igst').touched || getFormControl(row, 'igst').dirty)" class="invalid-feedback d-block">0-100</div></td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeItem(i)" [disabled]="items.length === 1">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()">Add Item</button>
+    </div>
+    <div class="row g-3 mb-2">
+      <div class="col-md-4"><b>Sub Total:</b> ₹{{ subtotal | number:'1.2-2' }}</div>
+      <div class="col-md-4"><b>IGST:</b> ₹{{ igst | number:'1.2-2' }}</div>
+      <div class="col-md-4"><b>Total:</b> ₹{{ totalAmount | number:'1.2-2' }}</div>
+    </div>
+    <div class="row g-3 mb-2">
+      <div class="col-md-6">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" formControlName="notes"></textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Payment Options</label>
+        <textarea class="form-control" formControlName="paymentOptions"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer d-flex justify-content-end gap-2 py-2 px-3 bg-light rounded-bottom" style="border-top: 1px solid #eee;">
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+  </div>
+</form>

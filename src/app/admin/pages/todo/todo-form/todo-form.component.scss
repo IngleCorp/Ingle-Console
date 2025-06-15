@@ -1,0 +1,38 @@
+.mat-dialog-content, form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 8px 0 0 0;
+}
+
+form {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px 18px 18px 18px;
+  box-shadow: 0 2px 12px rgba(63,81,181,0.08);
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.mat-form-field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+button[mat-raised-button] {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+  form {
+    min-width: 0;
+    padding: 16px 6px 12px 6px;
+  }
+}

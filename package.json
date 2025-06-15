@@ -26,6 +26,8 @@
     "angular2-smart-table": "^3.6.1",
     "bootstrap": "^5.3.3",
     "firebase": "^11.1.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "ngx-quill": "^26.0.10",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",

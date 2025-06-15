@@ -7,6 +7,8 @@ import { QuillEditorComponent } from './pages/quill-editor/quill-editor.componen
 import { CreateTrasactionComponent } from './pages/finance/create-trasaction/create-trasaction.component';
 import { TypesComponent } from './pages/types/types.component';
 import { TypesformComponent } from './pages/types/typesform/typesform.component';
+import { TodoComponent } from './pages/todo/todo.component';
+import { InvoiceComponent } from './pages/invoice/invoice.component';
 
 const routes: Routes = [
   {
@@ -17,6 +19,8 @@ const routes: Routes = [
       { path: 'finance/create', component: CreateTrasactionComponent },
       { path: 'types', component: TypesComponent },
       { path: 'types/form', component: TypesformComponent },  // Assuming this is the form for types
+      { path: 'todo', component: TodoComponent },
+      { path: 'invoice', component: InvoiceComponent },
       
 
         // http://localhost:4200/admin/users
