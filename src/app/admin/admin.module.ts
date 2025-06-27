@@ -44,6 +44,8 @@ import { TodoComponent } from './pages/todo/todo.component';
 import { TodoFormComponent } from './pages/todo/todo-form/todo-form.component';
 import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.component';
+import { SignaturePadModule } from 'angular2-signaturepad';
+import { InvoicePdfDialogComponent } from './pages/invoice/invoice-pdf-dialog/invoice-pdf-dialog.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,7 @@ import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.
     TodoFormComponent,
     InvoiceComponent,
     InvoiceFormComponent,
+    InvoicePdfDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -92,7 +95,8 @@ import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.
     // ✅ Keep only AgGridModule (Do NOT import `ClientSideRowModelModule`)
     AgGridModule,
     MatDialogModule,
-    MatDividerModule
+    MatDividerModule,
+    SignaturePadModule
   ],
 })
 export class AdminModule {}

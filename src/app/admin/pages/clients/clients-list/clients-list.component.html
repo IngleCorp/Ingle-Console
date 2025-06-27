@@ -1,0 +1,99 @@
+<div class="clients-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">people</mat-icon>
+          Clients
+        </h1>
+        <p class="page-subtitle">Manage your client relationships and projects</p>
+      </div>
+      <div class="actions-section">
+        <button class="add-client-btn" (click)="addClient()">
+          <mat-icon>add</mat-icon>
+          Add Client
+        </button>
+        <div class="back-btn" routerLink="../..">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clients Grid -->
+  <div class="clients-grid" *ngIf="clientList && clientList.length > 0">
+    <div class="client-card" *ngFor="let client of clientList" (click)="gotoClientHome(client.id)">
+      <div class="card-header">
+        <div class="client-avatar">
+          <img *ngIf="client?.image" [src]="client?.image" [alt]="client.name" class="avatar-image">
+          <div *ngIf="!client?.image" class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        </div>
+        <div class="client-status" [class.active]="client?.status === 'active'">
+          <span class="status-dot"></span>
+          {{ client?.status || 'Active' }}
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <h3 class="client-name">{{ client.name }}</h3>
+        <p class="client-manager" *ngIf="client?.manageby">
+          <mat-icon class="manager-icon">person_outline</mat-icon>
+          Managed by {{ client.manageby }}
+        </p>
+        <p class="client-email" *ngIf="client?.email">
+          <mat-icon class="email-icon">email</mat-icon>
+          {{ client.email }}
+        </p>
+        <p class="client-phone" *ngIf="client?.phone">
+          <mat-icon class="phone-icon">phone</mat-icon>
+          {{ client.phone }}
+        </p>
+      </div>
+      
+      <div class="card-footer">
+        <div class="client-stats">
+          <div class="stat-item" *ngIf="client?.projectCount">
+            <span class="stat-number">{{ client.projectCount }}</span>
+            <span class="stat-label">Projects</span>
+          </div>
+          <div class="stat-item" *ngIf="client?.totalRevenue">
+            <span class="stat-number">${{ client.totalRevenue | number:'1.0-0' }}</span>
+            <span class="stat-label">Revenue</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn delete-btn" (click)="deleteClient(client.id); $event.stopPropagation()" 
+                  matTooltip="Delete Client">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+          <button class="action-btn view-btn" matTooltip="View Details">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!clientList || clientList.length === 0">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">people_outline</mat-icon>
+      <h3 class="empty-title">No Clients Yet</h3>
+      <p class="empty-description">Start building your client base by adding your first client.</p>
+      <button class="empty-action-btn" (click)="addClient()">
+        <mat-icon>add</mat-icon>
+        Add Your First Client
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="!clientList">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading clients...</p>
+  </div>
+</div>

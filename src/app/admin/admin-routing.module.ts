@@ -21,9 +21,10 @@ const routes: Routes = [
       { path: 'types/form', component: TypesformComponent },  // Assuming this is the form for types
       { path: 'todo', component: TodoComponent },
       { path: 'invoice', component: InvoiceComponent },
-      
-
-        // http://localhost:4200/admin/users
+      {
+        path: 'clients',
+        loadChildren: () => import('./pages/clients/clients.module').then(m => m.ClientsModule)
+      },
     ],
     component: AdminDashboardComponent,  // http://localhost:4200/admin
     canActivate: [RoleGuard],

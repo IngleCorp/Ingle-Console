@@ -1,0 +1,17 @@
+.image-icon {
+    margin: 10px;
+    border: 5px solid lightgray;
+    width: 90px;
+    position: relative;
+}
+
+.image-label {
+    position: absolute;
+    bottom: -17px;
+    right: -5px;
+}
+
+.out-box {
+    height: calc(100vh - 105px);
+    overflow: scroll;
+}

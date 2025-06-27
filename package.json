@@ -21,8 +21,10 @@
     "@angular/platform-browser": "^18.0.0",
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "ag-grid-angular": "^33.1.0",
     "ag-grid-community": "^33.1.0",
+    "angular2-signaturepad": "^4.0.2",
     "angular2-smart-table": "^3.6.1",
     "bootstrap": "^5.3.3",
     "firebase": "^11.1.0",
@@ -31,6 +33,7 @@
     "ngx-quill": "^26.0.10",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
+    "signature_pad": "^5.0.9",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
   },

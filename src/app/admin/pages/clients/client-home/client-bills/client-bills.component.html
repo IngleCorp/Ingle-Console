@@ -1,0 +1,31 @@
+<div class="bd-bx">
+    <div class="bitem" *ngIf="bills?.length<1">
+        <div class="text-center">
+            No Bills Found
+        </div>
+    </div>
+    <div class="bitem" *ngFor="let item of bills">
+        <div>
+            {{item?.billname}}<br>
+            <span style="font-size:10px; color:grey;">{{item.createdAt?.seconds*1000|date:'longDate'}}</span>
+            <br>
+            <div class="d-flex">
+                <span class="clientinfo">{{item?.projectname}}</span>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div>
+                <span style="font-size:10px; font-weight: 900; color:#26b267;">₹ {{item?.billtotal}}</span>
+            </div>
+            <button type="button" class="btn" (click)="createInvoice(item,'download')">
+                <mat-icon aria-hidden="false" class="icon-menu" aria-label="Example home icon">download</mat-icon>
+            </button>
+            <button type="button" class="btn" (click)="createInvoice(item,'print')">
+                <mat-icon aria-hidden="false" class="icon-menu" aria-label="Example home icon">print</mat-icon>
+            </button>
+            <button type="submit" class="btn" (click)="createInvoice(item,'open')">
+                <mat-icon aria-hidden="false" class="icon-menu" aria-label="Example home icon">open_in_new</mat-icon> 
+            </button>
+        </div>
+    </div>
+</div>

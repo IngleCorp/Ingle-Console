@@ -1,0 +1,81 @@
+<div class="container mt-2 out-box">
+    <div class="image-icon">
+        <img src="{{clientInfo?.image}}" width="80px" height="80px" alt="">
+        <label class="image-label" for="image">
+            <mat-icon aria-hidden="false" class="icon-img" aria-label="Example home icon">image_outline</mat-icon>
+        </label>
+        <input type="file" class="form-control" id="image" (change)="uploadFile($event)" accept="image/*" hidden>
+    </div>
+    <table class="table">
+        <tr>
+            <th>name</th>
+            <td *ngIf="editmode!='name'" (dblclick)="editmode='name'">{{clientInfo?.name?clientInfo?.name:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='name'"><input class="form-control" [(ngModel)]="clientInfo.name" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>username</th>
+            <td *ngIf="editmode!='username'" (dblclick)="editmode='username'">{{username?username:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='username'"><input class="form-control" [(ngModel)]="username" type="text"> <button class="btn-secondary" (click)="updateClientLoginInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>portel password</th>
+            <td *ngIf="editmode!='password'" (dblclick)="editmode='password'">{{password?password:'not set'}}</td>
+            <td class="d-flex" *ngIf="editmode=='password'"><input class="form-control" [(ngModel)]="password" type="text"> <button class="btn-secondary" (click)="updateClientLoginInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>email</th>
+            <td *ngIf="editmode!='email'" (dblclick)="editmode='email'">{{clientInfo?.email?clientInfo?.email:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='email'"><input class="form-control" [(ngModel)]="clientInfo.email" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
+        </tr>
+        <tr>
+            <th>company</th>
+            <td *ngIf="editmode!='compani'" (dblclick)="editmode='compani'">{{clientInfo?.company?clientInfo?.company:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='compani'"><input class="form-control" [(ngModel)]="clientInfo.company" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>address</th>
+            <td *ngIf="editmode!='address'" (dblclick)="editmode='address'">{{clientInfo?.address?clientInfo?.address:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='address'"><input class="form-control" [(ngModel)]="clientInfo.address" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
+        </tr>
+        <tr>
+            <th>city</th>
+            <td *ngIf="editmode!='city'" (dblclick)="editmode='city'">{{clientInfo?.city?clientInfo?.city:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='city'"><input class="form-control" [(ngModel)]="clientInfo.city" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>state</th>
+            <td *ngIf="editmode!='state'" (dblclick)="editmode='state'">{{clientInfo?.state?clientInfo?.state:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='state'"><input class="form-control" [(ngModel)]="clientInfo.state" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>country</th>
+            <td *ngIf="editmode!='country'" (dblclick)="editmode='country'">{{clientInfo?.country?clientInfo?.country:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='country'"><input class="form-control" [(ngModel)]="clientInfo.country" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>zip</th>
+            <td *ngIf="editmode!='zip'" (dblclick)="editmode='zip'">{{clientInfo?.zip?clientInfo?.zip:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='zip'"><input class="form-control" [(ngModel)]="clientInfo.zip" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>phone</th>
+            <td *ngIf="editmode!='phone'" (dblclick)="editmode='phone'">{{clientInfo?.phone?clientInfo?.phone:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='phone'"><input class="form-control" [(ngModel)]="clientInfo.phone" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>website</th>
+            <td *ngIf="editmode!='website'" (dblclick)="editmode='website'">{{clientInfo?.website?clientInfo?.website:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='website'"><input class="form-control" [(ngModel)]="clientInfo.website" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>notes</th>
+            <td *ngIf="editmode!='notes'" (dblclick)="editmode='notes'">{{clientInfo?.notes?clientInfo?.notes:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='notes'"><input class="form-control" [(ngModel)]="clientInfo.notes" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
+        </tr>
+        <tr>
+            <th>Managed By</th>
+            <td *ngIf="editmode!='manageby'" (dblclick)="editmode='manageby'">{{clientInfo?.manageby?clientInfo?.manageby:'.....'}}</td>
+            <td class="d-flex" *ngIf="editmode=='manageby'"><input class="form-control" [(ngModel)]="clientInfo.manageby" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
+        </tr>
+    </table>
+</div>

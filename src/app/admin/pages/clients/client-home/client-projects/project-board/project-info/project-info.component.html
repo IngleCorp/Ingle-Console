@@ -1,0 +1,26 @@
+<div class="card-box">
+    <button class="btn add-btn" (click)="add=true" *ngIf="!add" style="display: flex;">
+        <mat-icon aria-hidden="false" class="icon-menu" aria-label="Example home icon">add</mat-icon> add new
+    </button>
+    <div class="create-block" *ngIf="add">
+        <div class="form-group">
+            <input type="text" placeholder="label" [(ngModel)]="label" class="form-control" id="task" />
+        </div>
+        <div class="form-group">
+            <select name="user" id="user" class="form-control" [(ngModel)]="type">
+                <option value="" selected disabled>Select type</option>
+                <option value="link">Link</option>
+                <option value="text">Text</option>
+                <option value="date">Date</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input [type]="type=='date'?'date':'text'" [(ngModel)]="value" placeholder="value" class="form-control" id="name" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" (click)="addInfo()">ADD</button> &nbsp;
+            <button class="btn btn-danger" (click)="add=false">x</button>
+        </div>
+    </div>
+    <!-- ng2-smart-table omitted for now -->
+</div>

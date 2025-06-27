@@ -1,45 +1,74 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-          <div class="card-header text-center bg-primary text-white">
-            <h2 class="mb-0">Login</h2>
-          </div>
-          <div class="card-body">
-            <form (submit)="login()">
-              <!-- Email Input -->
-              <div class="form-group mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input
-                  type="email"
-                  id="email"
-                  [(ngModel)]="email"
-                  name="email"
-                  class="form-control"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-              <!-- Password Input -->
-              <div class="form-group mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input
-                  type="password"
-                  id="password"
-                  [(ngModel)]="password"
-                  name="password"
-                  class="form-control"
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
-              <!-- Error Message -->
-              <p *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
-              <!-- Submit Button -->
-              <button type="submit" class="btn btn-primary w-100">Login</button>
-            </form>
-          </div>
-        </div>
-      </div>
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-container">
+      <img src="/ingle_logo.png" alt="Ingle Logo" class="ingle-logo" />
     </div>
+
+    <h2 class="title">Welcome Back</h2>
+
+    <form (ngSubmit)="login()" autocomplete="on" novalidate>
+      
+      <!-- Email Floating Label -->
+      <div class="input-group">
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="email"
+          class="form-control"
+          placeholder=" "
+          required
+          aria-label="Email address"
+        />
+        <label for="email">Email Address</label>
+        <span class="icon"><i class="fas fa-envelope"></i></span>
+      </div>
+
+      <!-- Password Floating Label + Toggle -->
+      <div class="input-group">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          class="form-control"
+          placeholder=" "
+          required
+          aria-label="Password"
+        />
+        <label for="password">Password</label>
+        <button type="button" class="password-toggle" (click)="togglePassword()" aria-label="Toggle password visibility">
+          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+      </div>
+
+      <!-- Forgot & Error -->
+      <div class="options">
+        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Log In</span>
+        <span *ngIf="isLoading"><i class="fas fa-spinner fa-spin"></i> Logging in…</span>
+      </button>
+
+      <!-- Divider -->
+      <div class="divider"><span>OR</span></div>
+
+      <!-- Social Login -->
+      <div class="social-login">
+        <button type="button" class="btn btn-social google" (click)="loginWithGoogle()">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+      </div>
+
+      <!-- Sign Up Link -->
+      <p class="signup-text">
+        Don't have an account?
+        <a routerLink="/signup">Sign Up</a>
+      </p>
+    </form>
   </div>
+</div>

@@ -1,0 +1,83 @@
+.client-tab {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    background-color: #cfcfcf;
+    position: sticky;
+    top: 50px;
+    z-index: 998;
+}
+
+.tab-actions {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 0;
+    overflow: auto;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    padding: 5px;
+    margin-right: 3px;
+}
+
+.btn-back:hover {
+    background-color: #f9fcff6e;
+    cursor: pointer;
+}
+
+.tab-item {
+    color: #000;
+    font-size: 15px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.tab-item:hover {
+    text-decoration: underline;
+}
+
+.tab-item-active {
+    color: #000;
+    font-size: 15px;
+    padding: 10px;
+    background-color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.nav-link {
+    margin-bottom: 0px;
+}
+
+.box-bx {
+    padding-top: 60px;
+}
+
+.tab-actions::-webkit-scrollbar {
+    width: 1px!important;
+    height: 1px!important;
+}
+
+.tab-actions::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    width: 1px!important;
+}
+
+.tab-actions::-webkit-scrollbar-thumb {
+    background: #000000;
+    width: 1px!important;
+}
+
+.tab-actions::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.bd-bx-c1 {
+    height: calc(100vh - 92px);
+    overflow: auto;
+}

@@ -1,0 +1,155 @@
+.add-form-out {
+    height: 80vh;
+    overflow-y: scroll;
+}
+
+.fields {
+    padding: auto;
+}
+
+.img-box {
+    position: relative;
+    border: 1px solid black;
+    width: 83px;
+    height: 83px;
+    padding: 1px;
+    font-size: 13px
+}
+
+.image-label {
+    cursor: pointer;
+    position: absolute;
+    bottom: -8px;
+    left: 0px;
+    background-color: #0000007d;
+    color: #fff;
+    width: 82px;
+    height: 21px;
+    text-align: center;
+    opacity: .1;
+}
+
+.image-label:hover {
+    opacity: 1;
+}
+
+.icon-img {
+    font-size: 15px;
+    padding: 6px 0px;
+}
+
+.head {
+    font-size: 15px;
+    background-color: white;
+    position: sticky;
+    top: 0px;
+    z-index: 998;
+    font-weight: bold;
+}
+
+// Dialog Title
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3f51b5;
+  margin-bottom: 16px;
+
+  .dialog-icon {
+    font-size: 2.2rem;
+    color: #3f51b5;
+  }
+}
+
+.client-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 320px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row-fields {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.half-width {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.required {
+  color: #f44336;
+  font-size: 1.1em;
+}
+
+.form-upload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+
+  .upload-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f5f5;
+    color: #3f51b5;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+    border: 1px solid #e0e0e0;
+    &:hover {
+      background: #e3e8f0;
+    }
+    mat-icon {
+      font-size: 1.3rem;
+    }
+  }
+
+  .preview-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(63,81,181,0.08);
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .client-form {
+    min-width: 0;
+    max-width: 100%;
+    padding: 0 8px;
+  }
+}

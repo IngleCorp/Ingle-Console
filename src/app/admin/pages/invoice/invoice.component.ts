@@ -4,6 +4,7 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { InvoicePdfDialogComponent } from './invoice-pdf-dialog/invoice-pdf-dialog.component';
 // import jsPDF from 'jspdf'; // Uncomment when jsPDF is installed
 
 export interface Invoice {
@@ -34,6 +35,7 @@ export interface Invoice {
   notes: string;
   paymentOptions: string;
   total: number;
+  signature?: string;
 }
 
 @Component({
@@ -67,6 +69,7 @@ export class InvoiceComponent implements OnInit {
   }
 
   async exportToPDF(invoice: Invoice) {
+    console.log('Exporting invoice:', invoice);
     this.pdfInvoice = invoice;
     await new Promise(resolve => setTimeout(resolve, 100)); // Wait for template to render
     const element = this.pdfInvoiceTemplate.nativeElement;
@@ -79,6 +82,14 @@ export class InvoiceComponent implements OnInit {
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
       this.pdfInvoice = null;
+    });
+  }
+
+  viewInvoicePDF(invoice: Invoice) {
+    console.log('Opening dialog', invoice);
+    this.dialog.open(InvoicePdfDialogComponent, {
+      width: '850px',
+      data: { invoice }
     });
   }
 

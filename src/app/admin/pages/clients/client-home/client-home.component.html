@@ -1,0 +1,114 @@
+<div class="client-home-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="client-info-section">
+        <div class="client-avatar">
+          <img *ngIf="clientInfo?.image" [src]="clientInfo?.image" [alt]="clientInfo?.name" class="avatar-image">
+          <div *ngIf="!clientInfo?.image" class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        </div>
+        <div class="client-details">
+          <h1 class="client-name">{{ clientInfo?.name || 'Client Name' }}</h1>
+          <p class="client-subtitle">{{ clientInfo?.email || 'client@example.com' }}</p>
+          <div class="client-meta">
+            <span class="meta-item" *ngIf="clientInfo?.phone">
+              <mat-icon>phone</mat-icon>
+              {{ clientInfo.phone }}
+            </span>
+            <span class="meta-item" *ngIf="clientInfo?.manageby">
+              <mat-icon>person_outline</mat-icon>
+              Managed by {{ clientInfo.manageby }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn edit-btn" (click)="editClient()" matTooltip="Edit Client">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <div class="back-btn" routerLink="..">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="navigation-section">
+    <nav class="nav-tabs">
+      <a class="nav-tab" 
+         [class.active]="activetab === 'projects'" 
+         (click)="activetab = 'projects'"
+         routerLink="projects"
+         routerLinkActive="active">
+        <mat-icon>folder</mat-icon>
+        <span>Projects</span>
+        <span class="tab-badge" *ngIf="getProjectsCount() > 0">{{ getProjectsCount() }}</span>
+      </a>
+      <a class="nav-tab" 
+         [class.active]="activetab === 'info'" 
+         (click)="activetab = 'info'"
+         routerLink="info"
+         routerLinkActive="active">
+        <mat-icon>info</mat-icon>
+        <span>Info</span>
+      </a>
+      <a class="nav-tab" 
+         [class.active]="activetab === 'bills'" 
+         (click)="activetab = 'bills'"
+         routerLink="bills"
+         routerLinkActive="active">
+        <mat-icon>receipt</mat-icon>
+        <span>Bills</span>
+        <span class="tab-badge" *ngIf="getBillsCount() > 0">{{ getBillsCount() }}</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-section">
+    <div class="content-wrapper">
+      <!-- Projects Tab Content -->
+      <div class="tab-content" *ngIf="activetab === 'projects'">
+        <div class="content-header">
+          <h2 class="content-title">
+            <mat-icon>folder</mat-icon>
+            Projects Overview
+          </h2>
+          <p class="content-subtitle">Manage and track all projects for this client</p>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
+
+      <!-- Info Tab Content -->
+      <div class="tab-content" *ngIf="activetab === 'info'">
+        <div class="content-header">
+          <h2 class="content-title">
+            <mat-icon>info</mat-icon>
+            Client Information
+          </h2>
+          <p class="content-subtitle">View and manage client details and preferences</p>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
+
+      <!-- Bills Tab Content -->
+      <div class="tab-content" *ngIf="activetab === 'bills'">
+        <div class="content-header">
+          <h2 class="content-title">
+            <mat-icon>receipt</mat-icon>
+            Billing & Invoices
+          </h2>
+          <p class="content-subtitle">Manage client billing, invoices, and payments</p>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+
+
+</div>

@@ -1,7 +1,8 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { SignaturePad } from 'angular2-signaturepad';
 
 @Component({
   selector: 'app-invoice-form',
@@ -21,6 +22,15 @@ export class InvoiceFormComponent implements OnInit {
     { SAC: '998421', Description: 'Software publishing services – includes packaged software, ready-to-use' },
     { SAC: '998423', Description: 'Licensing of software (other than custom software) – includes right to use standard software products' }
   ];
+
+  @ViewChild('signaturePad') signaturePad!: SignaturePad;
+  signatureImage: string | null = null;
+  signaturePadOptions: Object = {
+    minWidth: 1,
+    maxWidth: 2.5,
+    penColor: 'rgb(0, 0, 0)',
+    backgroundColor: 'rgb(255,255,255)'
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -51,20 +61,54 @@ export class InvoiceFormComponent implements OnInit {
       notes: [this.data.invoice?.notes || ''],
       paymentOptions: [this.data.invoice?.paymentOptions || ''],
       total: [this.data.invoice?.total || 0],
+      signature: new FormControl(''),
     });
     this.form.get('items')!.valueChanges.subscribe(() => this.updateTotal());
   }
 
- createItem(item: any = {}) {
-  return this.fb.group({
-    description: [item.description || '', Validators.required],
-    hsn: [item.hsn || '', Validators.required],
-    qty: [item.qty ?? 1, [Validators.required, Validators.min(1)]],
-    rate: [item.rate ?? 0, [Validators.required, Validators.min(0)]],
-    per: [item.per || 'Unit', Validators.required],
-    igst: [item.igst ?? 18, [Validators.required, Validators.min(0), Validators.max(100)]],
-  });
-}
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.signaturePad) {
+        this.signaturePad.clear();
+        this.signaturePad.resizeCanvas();
+        if (this.form.value.signature) {
+          this.signaturePad.fromDataURL(this.form.value.signature);
+          this.signatureImage = this.form.value.signature;
+        }
+      }
+    }, 0);
+  }
+
+  saveSignature() {
+    if (this.signaturePad) {
+      if (!this.signaturePad.isEmpty()) {
+        this.signatureImage = this.signaturePad.toDataURL();
+        this.form.patchValue({ signature: this.signatureImage });
+      } else {
+        this.signatureImage = null;
+        this.form.patchValue({ signature: null });
+      }
+    }
+  }
+
+  clearSignature() {
+    if (this.signaturePad) {
+      this.signaturePad.clear();
+      this.signatureImage = null;
+      this.form.patchValue({ signature: null });
+    }
+  }
+
+  createItem(item: any = {}) {
+    return this.fb.group({
+      description: [item.description || '', Validators.required],
+      hsn: [item.hsn || '', Validators.required],
+      qty: [item.qty ?? 1, [Validators.required, Validators.min(1)]],
+      rate: [item.rate ?? 0, [Validators.required, Validators.min(0)]],
+      per: [item.per || 'Unit', Validators.required],
+      igst: [item.igst ?? 18, [Validators.required, Validators.min(0), Validators.max(100)]],
+    });
+  }
 
   get items() {
     return this.form.get('items') as FormArray;
@@ -100,6 +144,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   async onSubmit() {
+    this.saveSignature();
     if (this.form.valid) {
       try {
         await this.afs.collection('invoices').add({
@@ -187,5 +232,7 @@ export class InvoiceFormComponent implements OnInit {
     itemsArray.push(this.createItem({ description: 'Website Design', hsn: '9983', qty: 1, rate: 20000, per: 'Job', igst: 18 }));
     itemsArray.push(this.createItem({ description: 'Hosting (1 year)', hsn: '9983', qty: 1, rate: 5000, per: 'Year', igst: 18 }));
     this.updateTotal();
+    this.signatureImage = null;
+    this.form.patchValue({ signature: null });
   }
 }

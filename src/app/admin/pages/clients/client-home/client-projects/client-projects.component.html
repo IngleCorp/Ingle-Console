@@ -1,0 +1,148 @@
+<div class="projects-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">folder</mat-icon>
+          Projects
+        </h1>
+        <p class="page-subtitle">Manage and track project progress for {{ clientName }}</p>
+      </div>
+      <div class="actions-section">
+        <button class="add-project-btn" (click)="addProject()">
+          <mat-icon>add</mat-icon>
+          Add Project
+        </button>
+        <div class="back-btn" routerLink="..">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Stats -->
+  <div class="stats-section" *ngIf="clientProjects && clientProjects.length > 0">
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <mat-icon>play_circle</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getActiveProjectsCount() }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getCompletedProjectsCount() }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <mat-icon>schedule</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getPendingProjectsCount() }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <mat-icon>folder</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-number">{{ clientProjects.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="projects-grid" *ngIf="clientProjects && clientProjects.length > 0">
+    <div class="project-card" *ngFor="let project of clientProjects" (click)="gotoProjectBoard(project.id)">
+      <div class="card-header">
+        <div class="project-avatar">
+          <div class="avatar-placeholder" [class]="getProjectStatusClass(project.status)">
+            <mat-icon>{{ getProjectIcon(project.status) }}</mat-icon>
+          </div>
+        </div>
+        <div class="project-status" [class]="getProjectStatusClass(project.status)">
+          <span class="status-dot"></span>
+          {{ project.status || 'Active' }}
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <h3 class="project-name">{{ project.name }}</h3>
+        <p class="project-description" *ngIf="project.description">
+          {{ project.description }}
+        </p>
+        <div class="project-meta">
+          <div class="meta-item" *ngIf="project.startDate">
+            <mat-icon class="meta-icon">event</mat-icon>
+            <span>Started: {{ project.startDate | date:'MMM dd, yyyy' }}</span>
+          </div>
+          <div class="meta-item" *ngIf="project.endDate">
+            <mat-icon class="meta-icon">event_available</mat-icon>
+            <span>Due: {{ project.endDate | date:'MMM dd, yyyy' }}</span>
+          </div>
+          <div class="meta-item" *ngIf="project.budget">
+            <mat-icon class="meta-icon">attach_money</mat-icon>
+            <span>Budget: ${{ project.budget | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-footer">
+        <div class="project-progress" *ngIf="project.progress !== undefined">
+          <div class="progress-info">
+            <span class="progress-label">Progress</span>
+            <span class="progress-percentage">{{ project.progress }}%</span>
+          </div>
+          <mat-progress-bar 
+            [value]="project.progress" 
+            [color]="getProgressColor(project.progress)"
+            mode="determinate">
+          </mat-progress-bar>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn edit-btn" (click)="editProject(project.id); $event.stopPropagation()" 
+                  matTooltip="Edit Project">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="action-btn delete-btn" (click)="deleteProject(project.id); $event.stopPropagation()" 
+                  matTooltip="Delete Project">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+          <button class="action-btn view-btn" matTooltip="View Details">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!clientProjects || clientProjects.length === 0">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <h3 class="empty-title">No Projects Yet</h3>
+      <p class="empty-description">Start managing this client's projects by creating your first project.</p>
+      <button class="empty-action-btn" (click)="addProject()">
+        <mat-icon>add</mat-icon>
+        Create First Project
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="!clientProjects">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading projects...</p>
+  </div>
+</div>

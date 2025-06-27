@@ -1,33 +1,278 @@
+// 1. Theme Variables
+:root {
+  --primary-gradient: linear-gradient(120deg, #1976d2 0%, #63a4ff 100%);
+  --card-bg: rgba(255, 255, 255, 0.96);
+  --input-bg: #f7faff;
+  --input-border: #b3c6e0;
+  --focus-ring: rgba(33, 150, 243, 0.18);
+  --error-color: #d32f2f;
+  --text-color: #232946;
+  --font-family: 'Inter', sans-serif;
+}
+
+// 2. Container & Card
 .login-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--primary-gradient);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--card-bg);
+  border-radius: 1rem;
+  padding: 2.2rem 2rem 2rem 2rem;
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.10);
+  position: relative;
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+}
+
+// 3. Logo & Title
+.logo-container {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.ingle-logo {
+      width: 200px;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    padding: 0;
+    box-shadow: 0 8px 24px -8px rgba(25, 118, 210, 0.18);
+    animation: _ngcontent-ng-c1494605062_logo-fade-in 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+@keyframes logo-fade-in {
+  from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+// 4. Floating Labels & Inputs
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-direction: column;
+
+  .form-control {
+    width: 100%;
+    padding: 1.3rem 3rem 0.7rem 1.1rem;
+    background: var(--input-bg);
+    border: 1.5px solid var(--input-border);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    margin-bottom: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: none;
+    z-index: 1;
   }
-  
+  .form-control:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.10);
+    background: #fff;
+  }
+
   label {
-    display: block;
-    margin-bottom: 8px;
+    position: absolute;
+    left: 1.1rem;
+    top: 1.1rem;
+    font-size: 1rem;
+    color: #666;
+    background: var(--card-bg);
+    padding: 0 0.3rem;
+    border-radius: 0.3rem;
+    pointer-events: none;
+    transition: 0.2s cubic-bezier(0.4,0,0.2,1) all;
+    z-index: 2;
   }
-  
-  input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 16px;
+  .form-control:focus + label,
+  .form-control:not(:placeholder-shown) + label {
+    top: -0.7rem;
+    left: 0.9rem;
+    font-size: 0.82rem;
+    color: #1976d2;
+    background: var(--card-bg);
+    padding: 0 0.4rem;
+    z-index: 3;
+    box-shadow: 0 2px 8px -6px #1976d2;
   }
-  
-  button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
+
+  .icon {
+    position: absolute;
+    right: 2.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #b3c6e0;
+    pointer-events: none;
+    font-size: 1.1rem;
+    z-index: 2;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
     border: none;
-    border-radius: 4px;
+    font-size: 1.2rem;
+    color: #888;
     cursor: pointer;
+    z-index: 4;
+    padding: 0 0.2rem;
+    display: flex;
+    align-items: center;
+    height: 2rem;
   }
-  
-  button:hover {
-    background-color: #0056b3;
+}
+
+// 5. Options Row
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  .forgot-link {
+    font-size: 0.92rem;
+    color: #1976d2;
+    text-decoration: none;
   }
+  .forgot-link:hover {
+    text-decoration: underline;
+  }
+  .error-message {
+    color: var(--error-color);
+    font-size: 0.92rem;
+    margin-left: 1rem;
+  }
+}
+
+// 6. Buttons
+.btn {
+  width: 100%;
+  padding: 1.1rem;
+  font-size: 1.15rem;
+  border-radius: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s, transform 0.12s;
+  margin: 1.2rem 0 1.2rem 0;
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+.btn:focus {
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
+  outline: none;
+}
+.btn-primary {
+  background: linear-gradient(120deg, #1565c0 0%, #42a5f5 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(33, 150, 243, 0.22);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+.btn-primary:hover:not(:disabled),
+.btn-primary:active:not(:disabled) {
+  box-shadow: 0 10px 24px rgba(33, 150, 243, 0.28);
+  transform: scale(1.03);
+}
+
+// 7. Divider
+.divider {
+  text-align: center;
+  position: relative;
+  margin: 1.2rem 0 1.1rem 0;
+  span {
+    background: var(--card-bg);
+    padding: 0 1rem;
+    color: #777;
+    font-size: 0.95rem;
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e3eaf7;
+    transform: translateY(-50%);
+    z-index: -1;
+  }
+}
+
+// 8. Social Login
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  .btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    background: #fff;
+    color: #444;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1.5px solid #e3eaf7;
+    padding: 0.8rem 0;
+    border-radius: 0.75rem;
+    font-size: 1.05rem;
+  }
+  .google:hover {
+    background: #f5faff;
+  }
+}
+
+// 9. Signup Text
+.signup-text {
+  text-align: center;
+  font-size: 0.97rem;
+  color: #555;
+  margin-top: 0.7rem;
+  a {
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 600;
+  }
+}
+
+// 10. Responsive Tweaks
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.1rem;
+    max-width: 98vw;
+  }
+  .input-group .form-control {
+    padding: 1rem 2.2rem 0.6rem 1rem;
+  }
+  .title {
+    font-size: 1.25rem;
+  }
+  .btn {
+    padding: 1rem 0.5rem;
+    font-size: 1rem;
+    margin: 1rem 0 1rem 0;
+  }
+}

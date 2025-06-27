@@ -1,0 +1,26 @@
+.bitem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 1px 2px #f7f5f5;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 1%;
+}
+
+.clientinfo {
+    padding: 0px 5px 0px 3px;
+    background: #1f6a9f;
+    font-size: 8px;
+    margin-right: 3px;
+    color: #fff;
+    border-radius: 2px;
+}
+
+.bd-bx {
+    height: calc(100vh - 120px);
+    overflow: auto;
+}

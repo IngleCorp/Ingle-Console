@@ -1,0 +1,90 @@
+<ng-container *ngIf="invoice; else noData">
+  <div class="pdf-dialog-container" style="max-height: 95vh; overflow-y: auto; margin: 24px; padding: 24px; box-sizing: border-box;">
+    <button mat-icon-button class="close-btn" (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="pdf-invoice-content" style="padding: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="display: flex; align-items: flex-start; gap: 16px;">
+          <img src="/ingle_logo.png" alt="Ingle Logo" style="height: 56px; width: auto; object-fit: contain; margin-right: 12px;" />
+          <div>
+            <h2 style="margin: 0 0 8px 0; font-size: 1.5rem;">{{invoice.company.name}}</h2>
+            <div style="font-size: 0.95rem;">
+              <div>Company ID : INC</div>
+              <div>13/38, KOTTUPURATH</div>
+              <div>Kozhikode Edavanna Road, Masjid, Kakkad</div>
+              <div>Kozhikode Kerala 673602</div>
+              <div>GSTIN: {{invoice.company.gstin}}</div>
+              <div>Address: {{invoice.company.address}}</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <h3 style="margin: 0;">TAX INVOICE</h3>
+          <div style="font-size: 0.95rem;">Place Of Supply: {{invoice.placeOfSupply}}</div>
+        </div>
+      </div>
+      <hr />
+      <div style="display: flex; justify-content: space-between; font-size: 0.98rem; margin-bottom: 8px;">
+        <div>
+          <div><b>Invoice #:</b> {{invoice.invoiceNumber}}</div>
+          <div><b>Invoice Date:</b> {{invoice.invoiceDate}}</div>
+          <div><b>Due Date:</b> {{invoice.dueDate}}</div>
+          <div><b>Terms:</b> {{invoice.terms}}</div>
+        </div>
+        <div>
+          <div><b>Bill To:</b></div>
+          <div>{{invoice.billTo.company}}</div>
+          <div>{{invoice.billTo.address}}</div>
+          <div>GSTIN: {{invoice.billTo.gstin}}</div>
+        </div>
+      </div>
+      <div style="margin-bottom: 8px;"><b>Subject:</b> {{invoice.subject}}</div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.97rem; margin-bottom: 12px;">
+        <thead>
+          <tr style="background: #f5f5f5;">
+            <th style="border: 1px solid #ccc; padding: 4px;">#</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">Description</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">HSN/SAC</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">Qty</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">Rate</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">Per</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">IGST %</th>
+            <th style="border: 1px solid #ccc; padding: 4px;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of invoice.items; let i = index">
+            <td style="border: 1px solid #ccc; padding: 4px;">{{i+1}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.description}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.hsn}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.qty}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.rate}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.per}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">{{item.igst}}</td>
+            <td style="border: 1px solid #ccc; padding: 4px;">₹{{(item.qty * item.rate) + ((item.qty * item.rate) * (item.igst/100)) | number:'1.2-2'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display: flex; justify-content: flex-end;">
+        <table style="font-size: 1rem;">
+          <tr><td style="padding: 2px 8px;">Sub Total:</td><td style="padding: 2px 8px; text-align: right;">₹{{ getSubtotal() | number:'1.2-2' }}</td></tr>
+          <tr><td style="padding: 2px 8px;">IGST:</td><td style="padding: 2px 8px; text-align: right;">₹{{ getIGST() | number:'1.2-2' }}</td></tr>
+          <tr><td style="padding: 2px 8px; font-weight: bold;">Total:</td><td style="padding: 2px 8px; text-align: right; font-weight: bold;">₹{{invoice.total | number:'1.2-2'}}</td></tr>
+        </table>
+      </div>
+      <div style="margin-top: 12px; font-size: 0.97rem;"><b>Notes:</b> {{invoice.notes}}</div>
+      <div style="margin-top: 4px; font-size: 0.97rem;"><b>Payment Options:</b> {{invoice.paymentOptions}}</div>
+      <div style="margin-top: 32px; text-align: right;">
+        <span style="font-size: 1rem;">Authorized Signature</span>
+        <div *ngIf="invoice.signature">
+          <img [src]="invoice.signature" alt="Signature" style="height: 48px; border: 1px solid #ccc; background: #fff; margin-top: 4px;" />
+        </div>
+        <div style="height: 40px;"></div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-template #noData>
+  <div style="padding: 32px; color: #c00;">No invoice data available.</div>
+</ng-template> 
