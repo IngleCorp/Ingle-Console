@@ -39,6 +39,15 @@
       </mat-nav-list>
       <mat-nav-list>
         <a mat-list-item>
+          <span class="entry" routerLink="clients" routerLinkActive="active-link">
+            <mat-icon>group</mat-icon>
+           
+            <span *ngIf="!isCollapsed">Clients</span>
+          </span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item>
           <span class="entry" routerLink="types" routerLinkActive="active-link">
             <mat-icon>category</mat-icon>
            
