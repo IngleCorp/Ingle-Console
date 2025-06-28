@@ -10,23 +10,33 @@ import { ProjectInfoComponent } from './client-home/client-projects/project-boar
 import { ProjectTasksComponent } from './client-home/client-projects/project-board/project-tasks/project-tasks.component';
 import { TimetakenComponent } from './client-home/client-projects/project-board/project-tasks/timetaken/timetaken.component';
 import { ClientBillsComponent } from './client-home/client-bills/client-bills.component';
+import { ProjectFilesComponent } from './client-home/client-projects/project-board/project-files/project-files.component';
 
 const routes: Routes = [
   { path: '', component: ClientsListComponent },
   { path: 'add', component: ClientAddComponent },
-  { path: ':id', component: ClientHomeComponent, children: [
-    { path: '', redirectTo: 'projects', pathMatch: 'full' },
-    { path: 'info', component: ClientInfoComponent },
-    { path: 'projects', component: ClientProjectsComponent },
-    { path: 'bills', component: ClientBillsComponent },
-    { path: 'projects/:pid', component: ProjectBoardComponent, children: [
-      { path: '', redirectTo: 'tasks', pathMatch: 'full' },
-      { path: 'info', component: ProjectInfoComponent },
-      { path: 'tasks', component: ProjectTasksComponent },
-      { path: 'tasksdetail/:tid', component: TimetakenComponent },
-      // Add more child routes for worksheet, accounts, files, etc. as needed
-    ]},
-  ]},
+  { 
+    path: ':id', 
+    component: ClientHomeComponent, 
+    children: [
+      { path: '', redirectTo: 'projects', pathMatch: 'full' },
+      { path: 'info', component: ClientInfoComponent },
+      { path: 'projects', component: ClientProjectsComponent },
+      { path: 'bills', component: ClientBillsComponent },
+      { 
+        path: 'projects/:projectId', 
+        component: ProjectBoardComponent, 
+        children: [
+          { path: '', redirectTo: 'tasks', pathMatch: 'full' },
+          { path: 'info', component: ProjectInfoComponent },
+          { path: 'tasks', component: ProjectTasksComponent },
+          { path: 'tasksdetail/:tid', component: TimetakenComponent },
+          { path: 'files', component: ProjectFilesComponent },
+          // Add more child routes for worksheet, accounts, files, etc. as needed
+        ]
+      },
+    ]
+  },
 ];
 
 @NgModule({

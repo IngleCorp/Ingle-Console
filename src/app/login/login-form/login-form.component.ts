@@ -30,8 +30,9 @@ export class LoginFormComponent {
     this.isLoading = true;
     try {
       await this.authService.login(this.email, this.password);
+      
       // navigate to the protected area on success
-      this.router.navigate(['/admin']);
+      // this.router.navigate(['/admin']);
     } catch (error: any) {
       this.errorMessage = error.message || 'Login failed. Please try again.';
     } finally {

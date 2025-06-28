@@ -1,17 +1,96 @@
-<div>
-    <div class="form-group" *ngIf="worksheetCollections?.length>0">
-        <label for="time" class="label" style="font-weight: 600;">Select Worksheet</label>
-        <select name="worksheet" class="form-control" id="woksheet" [(ngModel)]="sheet">
-            <option value="">None</option>
-            <option [value]="worksheet.name" *ngFor="let worksheet of worksheetCollections">{{worksheet.name}}</option>
-        </select>
+<div class="timetaken-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">schedule</mat-icon>
+      <h2 class="dialog-title">Time Tracking</h2>
     </div>
-    <div class="form-group">
-        <label for="time" class="label" style="font-weight: 600;">Time taken in minutes</label>
-        <input type="number" class="form-control" [(ngModel)]="time">
+    <p class="dialog-subtitle">Record time spent on this task</p>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <!-- Worksheet Selection -->
+    <div class="form-section" *ngIf="worksheetCollections?.length > 0">
+      <div class="form-group">
+        <label for="worksheet" class="form-label">
+          <mat-icon class="label-icon">description</mat-icon>
+          Select Worksheet
+        </label>
+        <div class="select-wrapper">
+          <select 
+            name="worksheet" 
+            class="form-select" 
+            id="worksheet" 
+            [(ngModel)]="sheet"
+            [class.has-value]="sheet">
+            <option value="">Choose a worksheet...</option>
+            <option 
+              [value]="worksheet.name" 
+              *ngFor="let worksheet of worksheetCollections"
+              [selected]="worksheet.name === sheet">
+              {{ worksheet.name }}
+            </option>
+          </select>
+          <mat-icon class="select-arrow">expand_more</mat-icon>
+        </div>
+      </div>
     </div>
-    <div class="form-group float-right">
-        <button class="btn btn-danger mx-2" (click)="close(false)">Cancel</button>
-        <button class="btn btn-success mx-2" (click)="close(true)">Done</button>
+
+    <!-- Time Input -->
+    <div class="form-section">
+      <div class="form-group">
+        <label for="time" class="form-label">
+          <mat-icon class="label-icon">timer</mat-icon>
+          Time Taken (minutes)
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="number" 
+            class="form-input" 
+            id="time"
+            [(ngModel)]="time"
+            placeholder="Enter time in minutes"
+            min="0"
+            step="1">
+          <mat-icon class="input-icon">schedule</mat-icon>
+        </div>
+        <div class="input-helper">
+          <span class="helper-text">Enter the time spent on this task in minutes</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Time Display -->
+    <div class="time-display" *ngIf="time > 0">
+      <div class="time-card">
+        <div class="time-value">
+          <span class="time-number">{{ time }}</span>
+          <span class="time-unit">minutes</span>
+        </div>
+        <div class="time-conversion">
+          <span class="conversion-text">{{ getTimeDisplay(time) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog Actions -->
+  <div class="dialog-actions">
+    <button 
+      class="btn btn-secondary" 
+      (click)="close(false)"
+      type="button">
+      <mat-icon>close</mat-icon>
+      Cancel
+    </button>
+    <button 
+      class="btn btn-primary" 
+      (click)="close(true)"
+      type="button"
+      [disabled]="!time || time <= 0">
+      <mat-icon>check</mat-icon>
+      Save Time
+    </button>
+  </div>
 </div>

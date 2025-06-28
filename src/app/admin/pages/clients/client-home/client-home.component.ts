@@ -2,11 +2,29 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../../../../core/services/general.service';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-client-home',
   templateUrl: './client-home.component.html',
-  styleUrls: ['./client-home.component.scss']
+  styleUrls: ['./client-home.component.scss'],
+  animations: [
+    trigger('slideInOut', [
+      state('expanded', style({
+        opacity: 1,
+        transform: 'translateY(0)',
+        height: '*'
+      })),
+      state('collapsed', style({
+        opacity: 0,
+        transform: 'translateY(-10px)',
+        height: '0'
+      })),
+      transition('expanded <=> collapsed', [
+        animate('300ms ease-in-out')
+      ])
+    ])
+  ]
 })
 export class ClientHomeComponent implements OnInit {
   // Client data properties
@@ -15,6 +33,9 @@ export class ClientHomeComponent implements OnInit {
   clientInfo: any = {};
   clientProjects: any[] = [];
   clientBills: any[] = [];
+  isHeaderCollapsed: boolean = true;
+  currentProjectId: string | null = null;
+  currentProjectInfo: any = null;
 
   constructor(
     private afs: AngularFirestore,
@@ -28,6 +49,43 @@ export class ClientHomeComponent implements OnInit {
     this.getClientInfo();
     this.getClientProjects();
     this.getClientBills();
+    this.detectProjectRoute();
+  }
+
+  toggleHeader(): void {
+    this.isHeaderCollapsed = !this.isHeaderCollapsed;
+  }
+
+  isInProject(): boolean {
+    const currentUrl = this.router.url;
+    // Check if we're in a project route (e.g., /admin/clients/123/projects/456)
+    return currentUrl.includes('/projects/') && currentUrl.split('/').length > 5;
+  }
+
+  detectProjectRoute(): void {
+    const currentUrl = this.router.url;
+    const urlParts = currentUrl.split('/');
+    
+    // Check if we're in a project route
+    const projectIndex = urlParts.findIndex(part => part === 'projects');
+    if (projectIndex !== -1 && urlParts[projectIndex + 1]) {
+      this.currentProjectId = urlParts[projectIndex + 1];
+      this.getCurrentProjectInfo();
+    }
+  }
+
+  getCurrentProjectInfo(): void {
+    if (!this.currentProjectId) return;
+    
+    this.afs.collection('projects').doc(this.currentProjectId).valueChanges().subscribe((res: any) => {
+      this.currentProjectInfo = res;
+    }, (err: any) => {
+      console.log('Error fetching project info:', err);
+    });
+  }
+
+  getCurrentProjectName(): string {
+    return this.currentProjectInfo?.name || 'Project';
   }
 
   getClientInfo(): void {

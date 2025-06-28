@@ -1,23 +1,112 @@
-<div class="client-tab">
-    <div class="tab-actions">
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="tasks">Tasks</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="worksheet">Worksheet</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="accounts">Accounts</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="files">Files</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="bills">Bills</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="info">Info</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="tickets">Tickets</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="library">Library</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="revenue">Revenue</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="meetings">Meetings</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="requirement">Requirement</div>
-        <div class="tab-item" routerLinkActive="tab-item-active" routerLink="packages">Packages</div>
+<div class="project-dashboard">
+  <!-- Project Header -->
+  <div class="project-header" [class.collapsed]="isHeaderCollapsed">
+    <!-- Collapsed State -->
+    <div class="header-content collapsed-content" *ngIf="isHeaderCollapsed">
+      <div class="project-name-compact">
+        <h1 class="project-name">{{ projectInfo?.name || 'Project Name' }}</h1>
+      </div>
+      <div class="header-actions-compact">
+        <button class="action-btn edit-btn" (click)="editProject()" matTooltip="Edit Project">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <div class="back-btn" routerLink=".." matTooltip="Back to Projects">
+          <mat-icon>arrow_back</mat-icon>
+        </div>
+        <div class="expand-btn" (click)="toggleHeader()" matTooltip="Expand">
+          <mat-icon>expand_more</mat-icon>
+        </div>
+      </div>
     </div>
-    <div class="btn-back" routerLink="../..">
-        <mat-icon aria-hidden="false" class="icon-menu" aria-label="Example home icon">arrow_back</mat-icon>
-        Back &nbsp;
+
+    <!-- Expanded State -->
+    <div class="header-content expanded-content" *ngIf="!isHeaderCollapsed">
+      <div class="project-info">
+        <div class="project-avatar">
+          <div class="avatar-placeholder" [class]="getProjectStatusClass(projectInfo?.status)">
+            <mat-icon>{{ getProjectIcon(projectInfo?.status) }}</mat-icon>
+          </div>
+        </div>
+        <div class="project-details" [@slideInOut]="isHeaderCollapsed ? 'collapsed' : 'expanded'">
+          <h1 class="project-name">{{ projectInfo?.name || 'Project Name' }}</h1>
+          <p class="project-subtitle">{{ projectInfo?.description || 'Project description' }}</p>
+          <div class="project-meta">
+            <span class="meta-item" *ngIf="projectInfo?.startDate">
+              <mat-icon>event</mat-icon>
+              Started: {{ projectInfo.startDate | date:'MMM dd, yyyy' }}
+            </span>
+            <span class="meta-item" *ngIf="projectInfo?.endDate">
+              <mat-icon>event_available</mat-icon>
+              Due: {{ projectInfo.endDate | date:'MMM dd, yyyy' }}
+            </span>
+            <span class="meta-item" *ngIf="projectInfo?.budget">
+              <mat-icon>attach_money</mat-icon>
+              Budget: ${{ projectInfo.budget | number:'1.0-0' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn edit-btn" (click)="editProject()" matTooltip="Edit Project">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <div class="back-btn" routerLink=".." matTooltip="Back to Projects">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Projects
+        </div>
+        <div class="collapse-btn" (click)="toggleHeader()" matTooltip="Collapse">
+          <mat-icon>expand_less</mat-icon>
+        </div>
+      </div>
     </div>
-</div>
-<div class="bd-bx-c1">
+  </div>
+
+  <!-- Project Navigation -->
+  <div class="project-navigation">
+    <nav class="project-nav">
+      <a class="nav-item" 
+         routerLink="tasks"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}">
+        <mat-icon>assignment</mat-icon>
+        <span>Tasks</span>
+      </a>
+      <a class="nav-item" 
+         routerLink="info"
+         routerLinkActive="active">
+        <mat-icon>info</mat-icon>
+        <span>Info</span>
+      </a>
+      <a class="nav-item" 
+         routerLink="worksheet"
+         routerLinkActive="active">
+        <mat-icon>description</mat-icon>
+        <span>Worksheet</span>
+      </a>
+      <a class="nav-item" 
+         routerLink="accounts"
+         routerLinkActive="active">
+        <mat-icon>account_balance</mat-icon>
+        <span>Accounts</span>
+      </a>
+      <a class="nav-item" 
+         routerLink="files"
+         routerLinkActive="active">
+        <mat-icon>folder</mat-icon>
+        <span>Files</span>
+      </a>
+      <a class="nav-item" 
+         routerLink="bills"
+         routerLinkActive="active">
+        <mat-icon>receipt</mat-icon>
+        <span>Bills</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Project Content -->
+  <div class="project-content">
     <router-outlet></router-outlet>
+  </div>
 </div>

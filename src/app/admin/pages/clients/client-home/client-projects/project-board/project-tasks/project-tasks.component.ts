@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { TimetakenComponent } from './timetaken/timetaken.component';
 // import { ToastrService } from 'ngx-toastr'; // Uncomment if available
 // import { AssignComponent } from '...'; // Uncomment if available
 // import { TimetakenComponent } from './timetaken/timetaken.component'; // Uncomment if available
@@ -30,16 +31,19 @@ export class ProjectTasksComponent implements OnInit {
 
   ngOnInit(): void {
     localStorage.setItem('pactivetab', 'tasks');
-    this.projectId = this.route.parent?.snapshot.paramMap.get('pid') ?? null;
+    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+    console.log('Project ID:', this.projectId);
     this.getTasks();
     if (this.projectId) {
       this.afs.collection('projects').doc(this.projectId).valueChanges().subscribe((res: any) => {
         this.projectname = res?.name;
+        console.log('Project Name:', this.projectname);
       });
     }
   }
 
   getTasks(): void {
+    console.log('Fetching tasks for project ID:', this.projectId);
     if (!this.projectId) return;
     this.afs.collection('tasks', ref => ref.where('projecttaged', '==', this.projectId).orderBy('createdAt', 'desc')).valueChanges({ idField: 'id' }).subscribe((res: any) => {
       this.taskdata = res;
@@ -106,32 +110,34 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   updateTask(task: any): void {
-    // Uncomment and update TimetakenComponent usage if available
-    // const dia = this.dialog.open(TimetakenComponent, {
-    //   width: '500px',
-    //   disableClose: true,
-    //   data: { task: task }
-    // });
-    // dia.afterClosed().subscribe(res => {
-    //   if (res.sts) {
-    //     this.afs.doc('tasks/' + task.id).update({
-    //       status: 'done',
-    //       timeTaken: res.time
-    //     });
-    //     if(res?.worksheet){
-    //       let worksheet = res?.worksheet;
-    //       this.afs.collection('projects').doc(this.projectId).collection(worksheet).add({
-    //         task: task.task,
-    //         status: "Completed",
-    //         doneby: localStorage.getItem('username'),
-    //         remarks: 'none',
-    //         time: res.time,
-    //         createdAt: new Date(),
-    //         taskId: task.id,
-    //       });
-    //     }
-    //   }
-    // });
+   // Uncomment and update TimetakenComponent usage if available
+    const dia = this.dialog.open(TimetakenComponent, {
+      width: '500px',
+      disableClose: true,
+      data: { task: task }
+    });
+    dia.afterClosed().subscribe(res => {
+      if (res.sts) {
+        this.afs.doc('tasks/' + task.id).update({
+          status: 'done',
+          timeTaken: res.time
+        });
+        if(res?.worksheet){
+          let worksheet = res?.worksheet;
+          if(this.projectId) {
+          this.afs.collection('projects').doc(this.projectId).collection(worksheet).add({
+            task: task.task,
+            status: "Completed",
+            doneby: localStorage.getItem('username'),
+            remarks: 'none',
+            time: res.time,
+            createdAt: new Date(),
+            taskId: task.id,
+          });
+        }
+        }
+      }
+    });
   }
 
   holdTask(task: string): void {
@@ -154,7 +160,8 @@ export class ProjectTasksComponent implements OnInit {
 
   addTask(): void {
     if (this.task.length > 0 && this.projectId) {
-      this.afs.collection('tasks').add({
+
+      let data = {
         task: this.task,
         createdAt: new Date(),
         status: 'todo',
@@ -163,7 +170,11 @@ export class ProjectTasksComponent implements OnInit {
         projecttaged: this.projectId,
         projectname: this.projectname,
         assigns: []
-      }).then(() => {
+      };
+
+      console.log('Adding task:', data);
+
+      this.afs.collection('tasks').add(data).then(() => {
         this.task = '';
         // this.toastr.success('Task added', 'Action'); // Uncomment if available
       });
@@ -183,5 +194,21 @@ export class ProjectTasksComponent implements OnInit {
     // dialogRef.afterClosed().subscribe(result => {
     //   // handle result
     // });
+  }
+
+  getCreatedDateTooltip(createdAt: any): string {
+    if (!createdAt?.seconds) {
+      return 'Date not available';
+    }
+    const date = new Date(createdAt.seconds * 1000);
+    return date.toLocaleString();
+  }
+
+  getCreatedDateDisplay(createdAt: any): string {
+    if (!createdAt?.seconds) {
+      return 'N/A';
+    }
+    const date = new Date(createdAt.seconds * 1000);
+    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
   }
 }

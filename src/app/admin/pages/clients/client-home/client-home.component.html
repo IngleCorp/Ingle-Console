@@ -1,7 +1,50 @@
 <div class="client-home-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="header-content">
+  <div class="header-section" [class.collapsed]="isHeaderCollapsed">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-section">
+      <nav class="breadcrumb-nav">
+        <a class="breadcrumb-item" routerLink="/admin/clients">
+          <mat-icon>people</mat-icon>
+          <span>Clients</span>
+        </a>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <a class="breadcrumb-item" *ngIf="isInProject()" [routerLink]="['/admin/clients', clientId, 'projects']">
+          <mat-icon>person</mat-icon>
+          <span>{{ clientInfo?.name || 'Client' }}</span>
+        </a>
+        <span class="breadcrumb-item current" *ngIf="!isInProject()">
+          <mat-icon>person</mat-icon>
+          <span>{{ clientInfo?.name || 'Client' }}</span>
+        </span>
+        <mat-icon class="breadcrumb-separator" *ngIf="isInProject()">chevron_right</mat-icon>
+        <span class="breadcrumb-item current" *ngIf="isInProject()">
+          <mat-icon>folder</mat-icon>
+          <span>{{ getCurrentProjectName() || 'Project' }}</span>
+        </span>
+      </nav>
+    </div>
+
+    <!-- Collapsed State -->
+    <div class="header-content collapsed-content" *ngIf="isHeaderCollapsed">
+      <div class="client-name-compact">
+        <h1 class="client-name">{{ clientInfo?.name || 'Client Name' }}</h1>
+      </div>
+      <div class="header-actions-compact">
+        <button class="action-btn edit-btn" (click)="editClient()" matTooltip="Edit Client">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <div class="back-btn" routerLink="../.." matTooltip="Back to Clients">
+          <mat-icon>arrow_back</mat-icon>
+        </div>
+        <div class="expand-btn" (click)="toggleHeader()" matTooltip="Expand">
+          <mat-icon>expand_more</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expanded State -->
+    <div class="header-content expanded-content" *ngIf="!isHeaderCollapsed">
       <div class="client-info-section">
         <div class="client-avatar">
           <img *ngIf="clientInfo?.image" [src]="clientInfo?.image" [alt]="clientInfo?.name" class="avatar-image">
@@ -9,7 +52,7 @@
             <mat-icon>person</mat-icon>
           </div>
         </div>
-        <div class="client-details">
+        <div class="client-details" [@slideInOut]="isHeaderCollapsed ? 'collapsed' : 'expanded'">
           <h1 class="client-name">{{ clientInfo?.name || 'Client Name' }}</h1>
           <p class="client-subtitle">{{ clientInfo?.email || 'client@example.com' }}</p>
           <div class="client-meta">
@@ -29,86 +72,46 @@
           <mat-icon>edit</mat-icon>
           Edit
         </button>
-        <div class="back-btn" routerLink="..">
+        <div class="back-btn" routerLink="../..">
           <mat-icon>arrow_back</mat-icon>
           Back
+        </div>
+        <div class="collapse-btn" (click)="toggleHeader()" matTooltip="Collapse">
+          <mat-icon>expand_less</mat-icon>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
-  <div class="navigation-section">
-    <nav class="nav-tabs">
-      <a class="nav-tab" 
-         [class.active]="activetab === 'projects'" 
-         (click)="activetab = 'projects'"
+  <!-- Navigation Menu -->
+  <div class="navigation-section" *ngIf="!isInProject()">
+    <nav class="nav-menu">
+      <a class="nav-item" 
          routerLink="projects"
-         routerLinkActive="active">
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}">
         <mat-icon>folder</mat-icon>
         <span>Projects</span>
-        <span class="tab-badge" *ngIf="getProjectsCount() > 0">{{ getProjectsCount() }}</span>
+        <span class="item-badge" *ngIf="getProjectsCount() > 0">{{ getProjectsCount() }}</span>
       </a>
-      <a class="nav-tab" 
-         [class.active]="activetab === 'info'" 
-         (click)="activetab = 'info'"
+      <a class="nav-item" 
          routerLink="info"
          routerLinkActive="active">
         <mat-icon>info</mat-icon>
         <span>Info</span>
       </a>
-      <a class="nav-tab" 
-         [class.active]="activetab === 'bills'" 
-         (click)="activetab = 'bills'"
+      <a class="nav-item" 
          routerLink="bills"
          routerLinkActive="active">
         <mat-icon>receipt</mat-icon>
         <span>Bills</span>
-        <span class="tab-badge" *ngIf="getBillsCount() > 0">{{ getBillsCount() }}</span>
+        <span class="item-badge" *ngIf="getBillsCount() > 0">{{ getBillsCount() }}</span>
       </a>
     </nav>
   </div>
 
-  <!-- Content Area -->
-  <div class="content-section">
-    <div class="content-wrapper">
-      <!-- Projects Tab Content -->
-      <div class="tab-content" *ngIf="activetab === 'projects'">
-        <div class="content-header">
-          <h2 class="content-title">
-            <mat-icon>folder</mat-icon>
-            Projects Overview
-          </h2>
-          <p class="content-subtitle">Manage and track all projects for this client</p>
-        </div>
-        <router-outlet></router-outlet>
-      </div>
-
-      <!-- Info Tab Content -->
-      <div class="tab-content" *ngIf="activetab === 'info'">
-        <div class="content-header">
-          <h2 class="content-title">
-            <mat-icon>info</mat-icon>
-            Client Information
-          </h2>
-          <p class="content-subtitle">View and manage client details and preferences</p>
-        </div>
-        <router-outlet></router-outlet>
-      </div>
-
-      <!-- Bills Tab Content -->
-      <div class="tab-content" *ngIf="activetab === 'bills'">
-        <div class="content-header">
-          <h2 class="content-title">
-            <mat-icon>receipt</mat-icon>
-            Billing & Invoices
-          </h2>
-          <p class="content-subtitle">Manage client billing, invoices, and payments</p>
-        </div>
-        <router-outlet></router-outlet>
-      </div>
-    </div>
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <router-outlet></router-outlet>
   </div>
-
-
 </div>

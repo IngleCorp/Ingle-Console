@@ -1,3 +1,414 @@
+// Variables
+$primary-color: #3f51b5;
+$primary-light: #757de8;
+$primary-dark: #002984;
+$secondary-color: #ff4081;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$info-color: #2196f3;
+$text-primary: #212121;
+$text-secondary: #757575;
+$background-light: #fafafa;
+$background-white: #ffffff;
+$border-color: #e0e0e0;
+$shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.15);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Global mat-icon fixes
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  font-feature-settings: 'liga' !important;
+  width: 1em !important;
+  height: 1em !important;
+  overflow: visible !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  box-sizing: content-box !important;
+}
+
+// Main Dialog Container
+.timetaken-dialog {
+  min-width: 400px;
+  max-width: 500px;
+  background: $background-white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-heavy;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  
+  @media (max-width: 768px) {
+    min-width: 320px;
+    max-width: 90vw;
+  }
+}
+
+// Dialog Header
+.dialog-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: white;
+  padding: 24px;
+  text-align: center;
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    
+    .header-icon {
+      font-size: 2rem !important;
+      width: 2rem !important;
+      height: 2rem !important;
+      color: white !important;
+    }
+    
+    .dialog-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+  }
+  
+  .dialog-subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+  }
+}
+
+// Dialog Content
+.dialog-content {
+  padding: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+}
+
+// Form Sections
+.form-section {
+  margin-bottom: 24px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+  
+  .label-icon {
+    font-size: 1.1rem !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    color: $primary-color !important;
+  }
+}
+
+// Select Wrapper
+.select-wrapper {
+  position: relative;
+  
+  .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    padding-right: 48px;
+    border: 2px solid $border-color;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    background: $background-white;
+    color: $text-primary;
+    transition: $transition;
+    appearance: none;
+    cursor: pointer;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+    
+    &.has-value {
+      border-color: $success-color;
+    }
+    
+    option {
+      padding: 8px;
+      font-size: 1rem;
+    }
+  }
+  
+  .select-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    color: $text-secondary !important;
+    pointer-events: none;
+    transition: $transition;
+  }
+  
+  &:hover .select-arrow {
+    color: $primary-color !important;
+  }
+}
+
+// Input Wrapper
+.input-wrapper {
+  position: relative;
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    padding-right: 48px;
+    border: 2px solid $border-color;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    background: $background-white;
+    color: $text-primary;
+    transition: $transition;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+    
+    &::placeholder {
+      color: $text-secondary;
+      opacity: 0.7;
+    }
+    
+    &:invalid {
+      border-color: $error-color;
+    }
+  }
+  
+  .input-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    color: $text-secondary !important;
+    pointer-events: none;
+  }
+}
+
+.input-helper {
+  .helper-text {
+    font-size: 0.8rem;
+    color: $text-secondary;
+    font-weight: 400;
+  }
+}
+
+// Time Display
+.time-display {
+  margin-top: 20px;
+  
+  .time-card {
+    background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.05) 100%);
+    border: 2px solid rgba($success-color, 0.2);
+    border-radius: $border-radius;
+    padding: 20px;
+    text-align: center;
+    transition: $transition;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-light;
+    }
+    
+    .time-value {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      
+      .time-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: $success-color;
+        line-height: 1;
+      }
+      
+      .time-unit {
+        font-size: 1rem;
+        color: $text-secondary;
+        font-weight: 500;
+      }
+    }
+    
+    .time-conversion {
+      .conversion-text {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Dialog Actions
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 20px 24px;
+  background: $background-light;
+  border-top: 1px solid $border-color;
+  
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    flex-direction: column-reverse;
+  }
+  
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+    text-decoration: none;
+    min-width: 100px;
+    justify-content: center;
+    
+    mat-icon {
+      font-size: 1.1rem !important;
+      width: 1.1rem !important;
+      height: 1.1rem !important;
+      color: inherit !important;
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    &.btn-secondary {
+      background: $background-white;
+      color: $text-secondary;
+      border: 2px solid $border-color;
+      
+      &:hover:not(:disabled) {
+        background: $background-light;
+        border-color: $text-secondary;
+        transform: translateY(-1px);
+        box-shadow: $shadow-light;
+      }
+    }
+    
+    &.btn-primary {
+      background: $primary-color;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background: $primary-dark;
+        transform: translateY(-1px);
+        box-shadow: $shadow-light;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .timetaken-dialog {
+    min-width: 280px;
+  }
+  
+  .dialog-header {
+    padding: 20px;
+    
+    .header-content {
+      .dialog-title {
+        font-size: 1.3rem;
+      }
+    }
+  }
+  
+  .dialog-content {
+    padding: 16px;
+  }
+  
+  .dialog-actions {
+    padding: 12px 16px;
+    
+    .btn {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .time-display .time-card {
+    padding: 16px;
+    
+    .time-value .time-number {
+      font-size: 2rem;
+    }
+  }
+}
+
+// Animation
+.timetaken-dialog {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 
 

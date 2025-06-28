@@ -1,127 +1,340 @@
-<div class="bd-bx-cs">
-    <div class="form-group input-box">
-        <input class="form-control" [(ngModel)]="task" name="task-name" id="task-name" placeholder="Add a task">
-        <button class="btn btn-primary add-btn" (click)="addTask()">+</button>
+<div class="project-tasks-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="title-section">
+                <h1 class="page-title">
+                    <mat-icon class="title-icon">assignment</mat-icon>
+                    Project Tasks
+                </h1>
+                <p class="page-subtitle">Manage and track tasks for this project</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-icon todo">
+                        <mat-icon>pending</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">{{ tasktodo?.length || 0 }}</span>
+                        <span class="stat-label">To Do</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon completed">
+                        <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">{{ taskdone?.length || 0 }}</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon onhold">
+                        <mat-icon>pause_circle</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">{{ taskonhold?.length || 0 }}</span>
+                        <span class="stat-label">On Hold</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-4 " style="padding: 0px!important;">
-            <div class="task-container">
-                <div class="heading d-flex justify-content-between align-center">
-                    <span style="cursor:pointer;" title="copy all todo" (click)="copyTodoTaskList()">To Do</span>
-                    <div class="filter">
-                        <div class="f-item" (click)="filtertask('all')">#</div>
-                        <div class="f-item" (click)="filtertask('Jasmal')">JJ</div>
-                        <div class="f-item" (click)="filtertask('Ramshin')">MR</div>
-                        <div class="f-item" (click)="filtertask('Ajmal')">AJ</div>
+
+    <!-- Task Management -->
+    <div class="task-management">
+        <div class="add-task-section">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <mat-icon class="input-icon">add_task</mat-icon>
+                    <input 
+                        class="task-input" 
+                        [(ngModel)]="task" 
+                        name="task-name" 
+                        id="task-name" 
+                        placeholder="Add a new task..."
+                        (keyup.enter)="addTask()">
+                </div>
+                <button class="add-task-btn" (click)="addTask()" [disabled]="!task?.trim()">
+                    <mat-icon>add</mat-icon>
+                    <span>Add Task</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Kanban Board -->
+        <div class="kanban-board">
+            <!-- To Do Column -->
+            <div class="kanban-column todo-column">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="title-content">
+                            <mat-icon class="column-icon">pending</mat-icon>
+                            <h3>To Do</h3>
+                            <span class="task-count">{{ tasktodo?.length || 0 }}</span>
+                        </div>
+                        <button class="copy-btn" (click)="copyTodoTaskList()" matTooltip="Copy all tasks">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                    <div class="filter-section">
+                        <span class="filter-label">Filter by:</span>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" (click)="filtertask('all')" matTooltip="Show all">
+                                <span>All</span>
+                            </button>
+                            <button class="filter-btn" (click)="filtertask('Jasmal')" matTooltip="Jasmal's tasks">
+                                <span>JJ</span>
+                            </button>
+                            <button class="filter-btn" (click)="filtertask('Ramshin')" matTooltip="Ramshin's tasks">
+                                <span>MR</span>
+                            </button>
+                            <button class="filter-btn" (click)="filtertask('Ajmal')" matTooltip="Ajmal's tasks">
+                                <span>AJ</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="list-group">
-                    <div *ngFor="let task of tasktodo">
-                        <div class="taskbox" style="border-top: 5px solid #6c757d;">
-                            <mat-progress-bar style="margin-bottom: 5px;" *ngIf="task?.progress" mode="buffer" color="warn" value="50" [bufferValue]="buffervalue"></mat-progress-bar>
-                            <div class="action-out">
-                                <div class="assigners">
-                                    <div *ngFor="let user of task?.assigns">
-                                        <span class="badge badge-primary " style="margin-right: 5px;z-index: 10;">{{user.name}}</span>
+                
+                <div class="task-list">
+                    <div *ngFor="let task of tasktodo" class="task-item">
+                        <div class="task-card" [class.in-progress]="task?.progress">
+                            <!-- Progress Bar -->
+                            <mat-progress-bar 
+                                *ngIf="task?.progress" 
+                                class="progress-bar" 
+                                mode="determinate" 
+                                [value]="task.progress || 0"
+                                color="accent">
+                            </mat-progress-bar>
+                            
+                            <!-- Task Header -->
+                            <div class="task-header">
+                                <div class="assignees">
+                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
+                                        <span class="assignee-name">{{ user.name }}</span>
                                     </div>
                                 </div>
-                                <div class="action">
-                                    <button (click)="setProgress(task)" title="{{task?.progress?'Stop progress':' Mark as progress'}}" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">
-                                            {{task?.progress?'hourglass_disabled':'hourglass_top'}}
-                                        </mat-icon>
+                                <div class="task-actions">
+                                    <button 
+                                        class="action-btn progress-btn" 
+                                        (click)="setProgress(task)" 
+                                        [matTooltip]="task?.progress ? 'Stop progress' : 'Mark as in progress'">
+                                        <mat-icon>{{ task?.progress ? 'pause_circle' : 'play_circle' }}</mat-icon>
                                     </button>
-                                    <button (click)="updateTask(task)" title="Mark as done" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">done_outline</mat-icon>
+                                    <button 
+                                        class="action-btn complete-btn" 
+                                        (click)="updateTask(task)" 
+                                        matTooltip="Mark as completed">
+                                        <mat-icon>check_circle</mat-icon>
                                     </button>
-                                    <button (click)="holdTask(task.id)" title="Hold task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">pause_circle_outline</mat-icon>
+                                    <button 
+                                        class="action-btn hold-btn" 
+                                        (click)="holdTask(task.id)" 
+                                        matTooltip="Put on hold">
+                                        <mat-icon>pause</mat-icon>
                                     </button>
-                                    <button (click)="removeTask(task.id)" title="remove task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">delete</mat-icon>
+                                    <button 
+                                        class="action-btn delete-btn" 
+                                        (click)="removeTask(task.id)" 
+                                        matTooltip="Delete task">
+                                        <mat-icon>delete</mat-icon>
                                     </button>
                                 </div>
                             </div>
-                            <h4 class="list-group-item-heading">{{task.task}}</h4>
-                            <div class="footer">
-                                <div class="createdby" title="created: {{task?.createdby}}">{{task.createdby[0]}}</div>
-                                <div class="createdat"> {{task.createdAt.seconds * 1000 | date:'medium'}}</div>
-                                <div class="assign" (click)="assignTask(task?.id)">
-                                    <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">person</mat-icon>
+                            
+                            <!-- Task Content -->
+                            <div class="task-content">
+                                <h4 class="task-title">{{ task.task }}</h4>
+                            </div>
+                            
+                            <!-- Task Footer -->
+                            <div class="task-footer">
+                                <div class="task-meta">
+                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
+                                        <mat-icon>person</mat-icon>
+                                        <span>{{ task.createdby?.[0] || '?' }}</span>
+                                    </div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
+                                        <mat-icon>schedule</mat-icon>
+                                        <span>{{ getCreatedDateDisplay(task.createdAt) }}</span>
+                                    </div>
                                 </div>
-                                <div class="btn-details" title="more details" routerLink="tasksdetail/{{task.id}}">
-                                    <mat-icon aria-hidden="false" class="more-btn" aria-label="Example home icon">launch</mat-icon>
+                                <div class="task-actions-footer">
+                                    <button 
+                                        class="assign-btn" 
+                                        (click)="assignTask(task?.id)" 
+                                        matTooltip="Assign task">
+                                        <mat-icon>person_add</mat-icon>
+                                    </button>
+                                    <button 
+                                        class="details-btn" 
+                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
+                                        matTooltip="View details">
+                                        <mat-icon>launch</mat-icon>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div *ngIf="!tasktodo?.length" class="empty-state">
+                        <mat-icon class="empty-icon">assignment</mat-icon>
+                        <p>No tasks to do</p>
+                        <span>Add a new task to get started</span>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-12 col-md-12 col-lg-4 " style="padding: 0px!important;">
-            <div class="task-container">
-                <h2 class="heading" style="background: #28a745!important;">Completed</h2>
-                <div class="list-group">
-                    <div *ngFor="let task of taskdone">
-                        <div class="taskbox" style="border-top: 5px solid #28a745;">
-                            <div class="action-out">
-                                <div class="assigners">
-                                    <div *ngFor="let user of task?.assigns">
-                                        <span class="badge badge-primary " style="margin-right: 5px;">{{user.name}}</span>
+            
+            <!-- Completed Column -->
+            <div class="kanban-column completed-column">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="title-content">
+                            <mat-icon class="column-icon">check_circle</mat-icon>
+                            <h3>Completed</h3>
+                            <span class="task-count">{{ taskdone?.length || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-list">
+                    <div *ngFor="let task of taskdone" class="task-item">
+                        <div class="task-card completed">
+                            <!-- Task Header -->
+                            <div class="task-header">
+                                <div class="assignees">
+                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
+                                        <span class="assignee-name">{{ user.name }}</span>
                                     </div>
                                 </div>
-                                <div class="action">
-                                    <button (click)="undoTask(task.id)" title="undo task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">undo</mat-icon>
+                                <div class="task-actions">
+                                    <button 
+                                        class="action-btn undo-btn" 
+                                        (click)="undoTask(task.id)" 
+                                        matTooltip="Move back to To Do">
+                                        <mat-icon>undo</mat-icon>
                                     </button>
-                                    <button (click)="removeTask(task.id)" title="remove task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">delete</mat-icon>
+                                    <button 
+                                        class="action-btn delete-btn" 
+                                        (click)="removeTask(task.id)" 
+                                        matTooltip="Delete task">
+                                        <mat-icon>delete</mat-icon>
                                     </button>
                                 </div>
                             </div>
-                            <h4 class="list-group-item-heading">{{task.task}}</h4>
-                            <div class="footer">
-                                <div class="createdby" title="created: {{task?.createdby}}">{{task.createdby[0]}}</div>
-                                <div class="createdat"> {{task.createdAt.seconds * 1000 | date:'medium'}}</div>
-                                <div class="btn-details" title="more details" routerLink="tasksdetail/{{task.id}}">
-                                    <mat-icon aria-hidden="false" class="more-btn" aria-label="Example home icon">launch</mat-icon>
+                            
+                            <!-- Task Content -->
+                            <div class="task-content">
+                                <h4 class="task-title">{{ task.task }}</h4>
+                            </div>
+                            
+                            <!-- Task Footer -->
+                            <div class="task-footer">
+                                <div class="task-meta">
+                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
+                                        <mat-icon>person</mat-icon>
+                                        <span>{{ task.createdby?.[0] || '?' }}</span>
+                                    </div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
+                                        <mat-icon>schedule</mat-icon>
+                                        <span>{{ getCreatedDateDisplay(task.createdAt) }}</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions-footer">
+                                    <button 
+                                        class="details-btn" 
+                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
+                                        matTooltip="View details">
+                                        <mat-icon>launch</mat-icon>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Empty State -->
+                    <div *ngIf="!taskdone?.length" class="empty-state">
+                        <mat-icon class="empty-icon">check_circle</mat-icon>
+                        <p>No completed tasks</p>
+                        <span>Complete tasks to see them here</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-12 col-md-12 col-lg-4 " style="padding: 0px!important;">
-            <div class="task-container">
-                <h2 class="heading" style="background-color: #f9ab00!important;">On Hold</h2>
-                <div class="list-group">
-                    <div *ngFor="let task of taskonhold">
-                        <div class="taskbox" style="border-top: 5px solid #f9ab00;">
-                            <div class="action-out">
-                                <div class="assigners">
-                                    <div *ngFor="let user of task?.assigns">
-                                        <span class="badge badge-primary " title="assigned to :{{user.name}}" style="margin-right: 5px;">{{user.name}}</span>
+            
+            <!-- On Hold Column -->
+            <div class="kanban-column onhold-column">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="title-content">
+                            <mat-icon class="column-icon">pause_circle</mat-icon>
+                            <h3>On Hold</h3>
+                            <span class="task-count">{{ taskonhold?.length || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="task-list">
+                    <div *ngFor="let task of taskonhold" class="task-item">
+                        <div class="task-card onhold">
+                            <!-- Task Header -->
+                            <div class="task-header">
+                                <div class="assignees">
+                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
+                                        <span class="assignee-name">{{ user.name }}</span>
                                     </div>
                                 </div>
-                                <div class="action">
-                                    <button (click)="undoTask(task.id)" title="undo task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">undo</mat-icon>
+                                <div class="task-actions">
+                                    <button 
+                                        class="action-btn undo-btn" 
+                                        (click)="undoTask(task.id)" 
+                                        matTooltip="Move back to To Do">
+                                        <mat-icon>undo</mat-icon>
                                     </button>
-                                    <button (click)="removeTask(task.id)" title="remove task" class="btn done-btn">
-                                        <mat-icon aria-hidden="false" class="icon-btn" aria-label="Example home icon">delete</mat-icon>
+                                    <button 
+                                        class="action-btn delete-btn" 
+                                        (click)="removeTask(task.id)" 
+                                        matTooltip="Delete task">
+                                        <mat-icon>delete</mat-icon>
                                     </button>
                                 </div>
                             </div>
-                            <h4 class="list-group-item-heading">{{task.task}}</h4>
-                            <div class="footer">
-                                <div class="createdby" title="created: {{task?.createdby}}">{{task.createdby[0]}}</div>
-                                <div class="createdat"> {{task.createdAt.seconds * 1000 | date:'medium'}}</div>
-                                <div class="btn-details" routerLink="tasksdetail/{{task.id}}">
-                                    <mat-icon aria-hidden="false" class="more-btn" aria-label="Example home icon">launch</mat-icon>
+                            
+                            <!-- Task Content -->
+                            <div class="task-content">
+                                <h4 class="task-title">{{ task.task }}</h4>
+                            </div>
+                            
+                            <!-- Task Footer -->
+                            <div class="task-footer">
+                                <div class="task-meta">
+                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
+                                        <mat-icon>person</mat-icon>
+                                        <span>{{ task.createdby?.[0] || '?' }}</span>
+                                    </div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
+                                        <mat-icon>schedule</mat-icon>
+                                        <span>{{ getCreatedDateDisplay(task.createdAt) }}</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions-footer">
+                                    <button 
+                                        class="details-btn" 
+                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
+                                        matTooltip="View details">
+                                        <mat-icon>launch</mat-icon>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div *ngIf="!taskonhold?.length" class="empty-state">
+                        <mat-icon class="empty-icon">pause_circle</mat-icon>
+                        <p>No tasks on hold</p>
+                        <span>Put tasks on hold to see them here</span>
                     </div>
                 </div>
             </div>

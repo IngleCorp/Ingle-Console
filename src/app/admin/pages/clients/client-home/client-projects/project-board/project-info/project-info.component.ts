@@ -12,6 +12,8 @@ export class ProjectInfoComponent implements OnInit {
   @Output() nameEvent = new EventEmitter<string>();
   projectId: string | null = null;
   infodata: any;
+  filteredInfodata: any;
+  selectedTypeFilter: string = '';
   showaction: any = '';
   user: any = null;
   add: boolean = false;
@@ -91,7 +93,8 @@ export class ProjectInfoComponent implements OnInit {
     localStorage.setItem('pactivetab', 'info');
     const url = this.route.snapshot.url;
     this.pathname = url[0]?.path;
-    this.projectId = this.route.parent?.snapshot.paramMap.get('pid') ?? null;
+     this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+     console.log('Project ID:', this.projectId);
     this.getInfos();
   }
 
@@ -100,6 +103,7 @@ export class ProjectInfoComponent implements OnInit {
   }
 
   addInfo(): void {
+    console.log('Adding info:', this.label, this.type, this.value, this.projectId);
     if (this.label && this.type && this.value && this.projectId) {
       this.afs.collection('projects').doc(this.projectId).collection('info').add({
         label: this.label,
@@ -119,16 +123,123 @@ export class ProjectInfoComponent implements OnInit {
   }
 
   getInfos(): void {
+    console.log('Fetching info for project ID:', this.projectId);
+
     if (!this.projectId) return;
     this.afs.collection('projects').doc(this.projectId).collection('info').valueChanges({ idField: 'id' }).subscribe((res: any) => {
       this.infodata = res;
+      this.filteredInfodata = res;
+      console.log('Info data:', this.infodata);
       // if (this.source) this.source.load(res); // Uncomment if ng2-smart-table is available
     });
+  }
+
+  filterByType(): void {
+    if (!this.selectedTypeFilter) {
+      this.filteredInfodata = this.infodata;
+    } else {
+      this.filteredInfodata = this.infodata?.filter((info: any) => info.type === this.selectedTypeFilter) || [];
+    }
   }
 
   removeinfo(event: any): void {
     const id = event.data?.id;
     if (!this.projectId || !id) return;
     this.afs.collection('projects').doc(this.projectId).collection('info').doc(id).delete();
+  }
+
+  // New methods for the redesigned component
+  toggleAddForm(): void {
+    this.add = !this.add;
+    if (!this.add) {
+      this.resetForm();
+    }
+  }
+
+  cancelAdd(): void {
+    this.add = false;
+    this.resetForm();
+  }
+
+  resetForm(): void {
+    this.label = '';
+    this.type = '';
+    this.value = '';
+  }
+
+  getValueIcon(): string {
+    switch (this.type) {
+      case 'link': return 'link';
+      case 'email': return 'email';
+      case 'phone': return 'phone';
+      case 'date': return 'event';
+      default: return 'text_fields';
+    }
+  }
+
+  getInputType(): string {
+    switch (this.type) {
+      case 'date': return 'date';
+      case 'email': return 'email';
+      case 'phone': return 'tel';
+      default: return 'text';
+    }
+  }
+
+  getValuePlaceholder(): string {
+    switch (this.type) {
+      case 'link': return 'https://example.com';
+      case 'email': return 'user@example.com';
+      case 'phone': return '+1 (555) 123-4567';
+      case 'date': return 'Select date';
+      default: return 'Enter value';
+    }
+  }
+
+  getTypeIcon(type: string): string {
+    switch (type) {
+      case 'link': return 'link';
+      case 'email': return 'email';
+      case 'phone': return 'phone';
+      case 'date': return 'event';
+      default: return 'text_fields';
+    }
+  }
+
+  trackByInfo(index: number, info: any): string {
+    return info.id || index;
+  }
+
+  editInfo(info: any): void {
+    // TODO: Implement edit functionality
+    console.log('Edit info:', info);
+    // For now, just populate the form for editing
+    this.label = info.label;
+    this.type = info.type;
+    this.value = info.value;
+    this.add = true;
+  }
+
+  deleteInfo(id: string): void {
+    if (confirm('Are you sure you want to delete this information?')) {
+      if (!this.projectId || !id) return;
+      this.afs.collection('projects').doc(this.projectId).collection('info').doc(id).delete();
+    }
+  }
+
+  getCreatedDateTooltip(createdAt: any): string {
+    if (!createdAt?.seconds) {
+      return 'Date not available';
+    }
+    const date = new Date(createdAt.seconds * 1000);
+    return date.toLocaleString();
+  }
+
+  getCreatedDateDisplay(createdAt: any): string {
+    if (!createdAt?.seconds) {
+      return 'N/A';
+    }
+    const date = new Date(createdAt.seconds * 1000);
+    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
   }
 }

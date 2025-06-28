@@ -1,23 +1,23 @@
-<div class="projects-container">
-  <!-- Header Section -->
-  <div class="header-section">
+<div class="projects-page">
+  <!-- Page Header -->
+  <div class="page-header">
     <div class="header-content">
       <div class="title-section">
         <h1 class="page-title">
           <mat-icon class="title-icon">folder</mat-icon>
           Projects
         </h1>
-        <p class="page-subtitle">Manage and track project progress for {{ clientName }}</p>
+        <p class="page-subtitle">Manage and track all projects for {{ clientName }}</p>
       </div>
       <div class="actions-section">
+        <div class="back-to-client-btn" routerLink=".." matTooltip="Back to Client">
+          <mat-icon>person</mat-icon>
+          Back to Client
+        </div>
         <button class="add-project-btn" (click)="addProject()">
           <mat-icon>add</mat-icon>
           Add Project
         </button>
-        <div class="back-btn" routerLink="..">
-          <mat-icon>arrow_back</mat-icon>
-          Back
-        </div>
       </div>
     </div>
   </div>
@@ -119,8 +119,8 @@
                   matTooltip="Delete Project">
             <mat-icon>delete_outline</mat-icon>
           </button>
-          <button class="action-btn view-btn" matTooltip="View Details">
-            <mat-icon>arrow_forward</mat-icon>
+          <button class="action-btn view-btn" matTooltip="View Dashboard">
+            <mat-icon>dashboard</mat-icon>
           </button>
         </div>
       </div>

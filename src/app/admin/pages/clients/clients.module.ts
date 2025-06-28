@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 // Import all client dashboard components
 import { ClientsListComponent } from './clients-list/clients-list.component';
 import { ClientAddComponent } from './client-add/client-add.component';
@@ -22,6 +23,7 @@ import { ProjectInfoComponent } from './client-home/client-projects/project-boar
 import { ProjectTasksComponent } from './client-home/client-projects/project-board/project-tasks/project-tasks.component';
 import { TimetakenComponent } from './client-home/client-projects/project-board/project-tasks/timetaken/timetaken.component';
 import { ClientBillsComponent } from './client-home/client-bills/client-bills.component';
+import { ProjectFilesComponent } from './client-home/client-projects/project-board/project-files/project-files.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 
 @NgModule({
@@ -35,7 +37,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectInfoComponent,
     ProjectTasksComponent,
     TimetakenComponent,
-    ClientBillsComponent
+    ClientBillsComponent,
+    ProjectFilesComponent
   ],
   imports: [
     CommonModule,
@@ -51,6 +54,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
     ClientsRoutingModule
   ],
   exports: [
@@ -63,7 +67,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectInfoComponent,
     ProjectTasksComponent,
     TimetakenComponent,
-    ClientBillsComponent
+    ClientBillsComponent,
+    ProjectFilesComponent
   ]
 })
 export class ClientsModule {}

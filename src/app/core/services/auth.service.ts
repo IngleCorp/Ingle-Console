@@ -26,8 +26,9 @@ export class AuthService {
           return of(null);  // No user is logged in
         }
       }),
-      tap((user) => {
+      tap((user:any) => {
         if (user) {
+          localStorage.setItem('username', user?.name);
           console.log('User logged in:', user);
         } else {
           console.log('No user logged in.');
@@ -44,7 +45,9 @@ export class AuthService {
     const user = userCredential.user;
     console.log('Logged in as:', user);
     if (user) {
-      const userDoc:any = await this.firestore.doc(`users/${user.uid}`).ref.get();
+      localStorage.setItem('userid', user.uid);
+      localStorage.setItem('ic_login', 'true');
+      const userDoc: any = await this.firestore.doc(`users/${user.uid}`).ref.get();
       const role = userDoc.data()?.['role'];
 
       if (role === 'admin') {
