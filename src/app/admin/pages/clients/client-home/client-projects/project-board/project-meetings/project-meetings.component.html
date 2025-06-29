@@ -1,0 +1,239 @@
+<div class="meetings-container">
+  <!-- Test Message -->
+ 
+
+  <!-- Header Section -->
+  <div class="meetings-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h2 class="page-title">
+          <mat-icon class="title-icon">meeting_room</mat-icon>
+          Project Meetings
+        </h2>
+        <p class="page-subtitle">Manage and schedule project meetings</p>
+      </div>
+      <div class="header-right">
+        <button class="add-meeting-btn" (click)="openAddMeetingDialog()" matTooltip="Add New Meeting">
+          <mat-icon>add</mat-icon>
+          <span>Add Meeting</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading meetings...</p>
+  </div>
+
+  <!-- Content Section -->
+  <div class="meetings-content" *ngIf="!isLoading">
+    <!-- Upcoming Meetings Section -->
+    <div class="meetings-section" *ngIf="getUpcomingMeetings().length > 0">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon class="section-icon">event</mat-icon>
+          Upcoming Meetings
+        </h3>
+        <span class="meeting-count">{{ getUpcomingMeetings().length }} meeting(s)</span>
+      </div>
+      
+      <div class="meetings-grid">
+        <div class="meeting-card upcoming" *ngFor="let meeting of getUpcomingMeetings()">
+          <div class="meeting-header">
+            <div class="meeting-date">
+              <div class="date-icon">
+                <mat-icon>event</mat-icon>
+              </div>
+              <div class="date-info">
+                <span class="date-text">{{ formatDate(meeting.date) }}</span>
+                <span class="duration-text">{{ meeting.duration }}</span>
+              </div>
+            </div>
+            <div class="meeting-actions">
+              <button class="action-btn edit-btn" (click)="openEditMeetingDialog(meeting)" matTooltip="Edit Meeting">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete-btn" (click)="deleteMeeting(meeting.id!)" matTooltip="Delete Meeting">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="meeting-content">
+            <div class="meeting-detail">
+              <mat-icon class="detail-icon">people</mat-icon>
+              <span class="detail-text">{{ meeting.participants }}</span>
+            </div>
+            <div class="meeting-detail">
+              <mat-icon class="detail-icon">description</mat-icon>
+              <span class="detail-text">{{ meeting.agenda }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Meetings Table -->
+    <div class="meetings-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon class="section-icon">list</mat-icon>
+          All Meetings
+        </h3>
+        <span class="meeting-count">{{ meetings.length }} total meeting(s)</span>
+      </div>
+      
+      <div class="table-container">
+        <table mat-table [dataSource]="meetings" class="meetings-table">
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date & Time</th>
+            <td mat-cell *matCellDef="let meeting">
+              <div class="date-cell">
+                <mat-icon class="date-icon">event</mat-icon>
+                <span>{{ formatDate(meeting.date) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Participants Column -->
+          <ng-container matColumnDef="participants">
+            <th mat-header-cell *matHeaderCellDef>Participants</th>
+            <td mat-cell *matCellDef="let meeting">
+              <div class="participants-cell">
+                <mat-icon class="participants-icon">people</mat-icon>
+                <span>{{ meeting.participants }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Agenda Column -->
+          <ng-container matColumnDef="agenda">
+            <th mat-header-cell *matHeaderCellDef>Agenda</th>
+            <td mat-cell *matCellDef="let meeting">
+              <div class="agenda-cell">
+                <mat-icon class="agenda-icon">description</mat-icon>
+                <span>{{ meeting.agenda }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Duration Column -->
+          <ng-container matColumnDef="duration">
+            <th mat-header-cell *matHeaderCellDef>Duration</th>
+            <td mat-cell *matCellDef="let meeting">
+              <div class="duration-cell">
+                <mat-icon class="duration-icon">schedule</mat-icon>
+                <span>{{ meeting.duration }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let meeting">
+              <div class="actions-cell">
+                <button class="action-btn edit-btn" (click)="openEditMeetingDialog(meeting)" matTooltip="Edit Meeting">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteMeeting(meeting.id!)" matTooltip="Delete Meeting">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="meetings.length === 0">
+          <mat-icon class="empty-icon">meeting_room</mat-icon>
+          <h3>No meetings scheduled</h3>
+          <p>Get started by adding your first project meeting</p>
+          <button class="add-meeting-btn" (click)="openAddMeetingDialog()">
+            <mat-icon>add</mat-icon>
+            <span>Add Meeting</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Meeting Dialog -->
+  <div class="meeting-dialog-overlay" *ngIf="isDialogOpen" (click)="closeDialog()">
+    <div class="meeting-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3 class="dialog-title">
+          <mat-icon class="dialog-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+          {{ isEditMode ? 'Edit Meeting' : 'Add New Meeting' }}
+        </h3>
+        <button class="close-btn" (click)="closeDialog()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <form [formGroup]="meetingForm" (ngSubmit)="saveMeeting()" class="meeting-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Meeting Date & Time</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-icon matSuffix>event</mat-icon>
+            <mat-error *ngIf="meetingForm.get('date')?.hasError('required')">
+              Meeting date is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Participants</mat-label>
+            <input matInput formControlName="participants" placeholder="Enter participant names" required>
+            <mat-icon matSuffix>people</mat-icon>
+            <mat-error *ngIf="meetingForm.get('participants')?.hasError('required')">
+              Participants are required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Agenda</mat-label>
+            <textarea matInput formControlName="agenda" placeholder="Enter meeting agenda" rows="3" required></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+            <mat-error *ngIf="meetingForm.get('agenda')?.hasError('required')">
+              Agenda is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Duration</mat-label>
+            <input matInput formControlName="duration" placeholder="e.g., 1 hour, 30 minutes" required>
+            <mat-icon matSuffix>schedule</mat-icon>
+            <mat-error *ngIf="meetingForm.get('duration')?.hasError('required')">
+              Duration is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" class="cancel-btn" (click)="closeDialog()">
+            <mat-icon>close</mat-icon>
+            <span>Cancel</span>
+          </button>
+          <button type="submit" class="save-btn" [disabled]="meetingForm.invalid">
+            <mat-icon>{{ isEditMode ? 'update' : 'save' }}</mat-icon>
+            <span>{{ isEditMode ? 'Update' : 'Save' }} Meeting</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

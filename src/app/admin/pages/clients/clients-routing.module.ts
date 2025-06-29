@@ -18,6 +18,7 @@ import { ProjectWorksheetComponent } from './client-home/client-projects/project
 import { ProjectTicketsComponent } from './client-home/client-projects/project-board/project-tickets/project-tickets.component';
 import { ProjectLibraryComponent } from './client-home/client-projects/project-board/project-library/project-library.component';
 import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
+import { ProjectMeetingsComponent } from './client-home/client-projects/project-board/project-meetings/project-meetings.component';
 
 const routes: Routes = [
   { path: '', component: ClientsListComponent },
@@ -46,6 +47,7 @@ const routes: Routes = [
           { path: 'tickets', component: ProjectTicketsComponent },
           { path: 'library', component: ProjectLibraryComponent },
           { path: 'library/document/:docId', component: OpenDocumentComponent },
+          { path: 'meetings', component: ProjectMeetingsComponent },
           // Add more child routes for worksheet, accounts, files, etc. as needed
         ]
       },

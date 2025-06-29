@@ -47,6 +47,7 @@ import { ProjectLibraryComponent } from './client-home/client-projects/project-b
 import { AddDocumentComponent } from './client-home/client-projects/project-board/project-library/add-document/add-document.component';
 import { ViewDocumentComponent } from './client-home/client-projects/project-board/project-library/view-document/view-document.component';
 import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
+import { ProjectMeetingsComponent } from './client-home/client-projects/project-board/project-meetings/project-meetings.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 
 @NgModule({
@@ -73,7 +74,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectLibraryComponent,
     AddDocumentComponent,
     ViewDocumentComponent,
-    OpenDocumentComponent
+    OpenDocumentComponent,
+    ProjectMeetingsComponent
   ],
   imports: [
     CommonModule,
@@ -126,7 +128,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectLibraryComponent,
     AddDocumentComponent,
     ViewDocumentComponent,
-    OpenDocumentComponent
+    OpenDocumentComponent,
+    ProjectMeetingsComponent
   ]
 })
 export class ClientsModule {}
