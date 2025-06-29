@@ -1,0 +1,451 @@
+<div class="milestones-container">
+  <!-- Header Section -->
+  <div class="milestones-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">flag</mat-icon>
+          Project Milestones
+        </h1>
+        <p class="page-subtitle">Track and manage key project milestones with deadlines</p>
+      </div>
+      
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="openAddMilestoneDialog()" class="add-milestone-btn">
+          <mat-icon>add</mat-icon>
+          Add Milestone
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="stats-grid" *ngIf="!isLoading">
+    <mat-card class="stat-card total">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">flag</mat-icon>
+          <div class="stat-details">
+            <span class="stat-number">{{ milestones.length }}</span>
+            <span class="stat-label">Total Milestones</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card upcoming">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">schedule</mat-icon>
+          <div class="stat-details">
+            <span class="stat-number">{{ upcomingMilestones.length }}</span>
+            <span class="stat-label">Upcoming</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card overdue">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">warning</mat-icon>
+          <div class="stat-details">
+            <span class="stat-number">{{ overdueMilestones.length }}</span>
+            <span class="stat-label">Overdue</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card completed">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">check_circle</mat-icon>
+          <div class="stat-details">
+            <span class="stat-number">{{ completedMilestones.length }}</span>
+            <span class="stat-label">Completed</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filters and View Controls -->
+  <div class="controls-section">
+    <div class="filters">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatusFilter">
+          <mat-option value="">All Statuses</mat-option>
+          <mat-option *ngFor="let status of milestoneStatuses" [value]="status.value">
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Type</mat-label>
+        <mat-select [(ngModel)]="selectedTypeFilter">
+          <mat-option value="">All Types</mat-option>
+          <mat-option *ngFor="let type of milestoneTypes" [value]="type.value">
+            {{ type.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Priority</mat-label>
+        <mat-select [(ngModel)]="selectedPriorityFilter">
+          <mat-option value="">All Priorities</mat-option>
+          <mat-option *ngFor="let priority of milestonePriorities" [value]="priority.value">
+            {{ priority.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="view-controls">
+      <mat-button-toggle-group [(ngModel)]="selectedView" class="view-toggle-group">
+        <mat-button-toggle value="list">
+          <mat-icon>list</mat-icon>
+          List
+        </mat-button-toggle>
+        <mat-button-toggle value="timeline">
+          <mat-icon>timeline</mat-icon>
+          Timeline
+        </mat-button-toggle>
+        <mat-button-toggle value="calendar">
+          <mat-icon>calendar_today</mat-icon>
+          Calendar
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading milestones...</p>
+  </div>
+
+  <!-- Content Based on Selected View -->
+  <div class="content-section" *ngIf="!isLoading">
+    
+    <!-- List View -->
+    <div class="list-view" *ngIf="selectedView === 'list'">
+      <div class="milestones-list">
+        <div class="milestone-item" *ngFor="let milestone of filteredMilestones" 
+             [class.overdue]="getDaysUntilDeadline(milestone.deadline) < 0"
+             [class.at-risk]="getMilestoneHealth(milestone) === 'at-risk'">
+          
+          <div class="milestone-header">
+            <div class="milestone-info">
+              <div class="milestone-title">
+                <mat-icon class="type-icon" [style.color]="getPriorityColor(milestone.priority)">
+                  {{ getMilestoneTypeIcon(milestone.type) }}
+                </mat-icon>
+                <h3>{{ milestone.title }}</h3>
+                <span class="priority-badge" [style.background-color]="getPriorityColor(milestone.priority)">
+                  {{ milestone.priority | titlecase }}
+                </span>
+              </div>
+              
+              <div class="milestone-meta">
+                <span class="deadline">
+                  <mat-icon>schedule</mat-icon>
+                  {{ formatDate(milestone.deadline) }}
+                  <span class="days-remaining" 
+                        [class.overdue]="getDaysUntilDeadline(milestone.deadline) < 0"
+                        [class.at-risk]="getDaysUntilDeadline(milestone.deadline) <= 7">
+                    ({{ getDaysUntilDeadline(milestone.deadline) < 0 ? 
+                        getDaysUntilDeadline(milestone.deadline) * -1 + ' days overdue' : 
+                        getDaysUntilDeadline(milestone.deadline) + ' days left' }})
+                  </span>
+                </span>
+                
+                <span class="owner">
+                  <mat-icon>person</mat-icon>
+                  {{ milestone.owner }}
+                </span>
+              </div>
+            </div>
+
+            <div class="milestone-actions">
+              <div class="status-controls">
+                <mat-form-field appearance="outline" class="status-select">
+                  <mat-select [value]="milestone.status" 
+                             (selectionChange)="updateMilestoneStatus(milestone.id!, $event.value)">
+                    <mat-option *ngFor="let status of milestoneStatuses" [value]="status.value">
+                      {{ status.label }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="progress-controls">
+                <div class="progress-slider-container">
+                  <input type="range" 
+                         [value]="milestone.progress" 
+                         (input)="onProgressChange($event, milestone.id!)"
+                         min="0" 
+                         max="100" 
+                         class="progress-slider">
+                </div>
+                <span class="progress-text">{{ milestone.progress }}%</span>
+              </div>
+
+              <div class="action-buttons">
+                <button mat-icon-button (click)="openEditMilestoneDialog(milestone)" 
+                        matTooltip="Edit Milestone">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteMilestone(milestone.id!)" 
+                        matTooltip="Delete Milestone" color="warn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="milestone-details" *ngIf="milestone.description">
+            <p class="description">{{ milestone.description }}</p>
+          </div>
+
+          <div class="milestone-footer" *ngIf="milestone.stakeholders?.length || milestone.tags?.length">
+            <div class="stakeholders" *ngIf="milestone.stakeholders?.length">
+              <mat-icon>group</mat-icon>
+              <span *ngFor="let stakeholder of milestone.stakeholders; let last = last">
+                {{ stakeholder }}{{ !last ? ', ' : '' }}
+              </span>
+            </div>
+            
+            <div class="tags" *ngIf="milestone.tags?.length">
+              <mat-icon>label</mat-icon>
+              <span class="tag" *ngFor="let tag of milestone.tags">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline View -->
+    <div class="timeline-view" *ngIf="selectedView === 'timeline'">
+      <div class="timeline-container">
+        <div class="timeline-item" *ngFor="let milestone of filteredMilestones; let i = index">
+          <div class="timeline-marker" [class.completed]="milestone.status === 'completed'"
+               [class.overdue]="getDaysUntilDeadline(milestone.deadline) < 0">
+            <mat-icon>{{ getMilestoneTypeIcon(milestone.type) }}</mat-icon>
+          </div>
+          
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <h3>{{ milestone.title }}</h3>
+              <span class="timeline-date">{{ formatDate(milestone.deadline) }}</span>
+            </div>
+            
+            <div class="timeline-progress">
+              <mat-progress-bar [value]="milestone.progress" 
+                               [color]="milestone.status === 'completed' ? 'accent' : 'primary'">
+              </mat-progress-bar>
+              <span class="progress-text">{{ milestone.progress }}%</span>
+            </div>
+            
+            <div class="timeline-meta">
+              <span class="owner">{{ milestone.owner }}</span>
+              <span class="status" [style.color]="getStatusColor(milestone.status)">
+                {{ getStatusLabel(milestone.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar View -->
+    <div class="calendar-view" *ngIf="selectedView === 'calendar'">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <h3>Milestone Calendar</h3>
+          <p>View milestones by their deadlines</p>
+        </div>
+        
+        <div class="calendar-grid">
+          <div class="calendar-day" *ngFor="let milestone of filteredMilestones">
+            <div class="day-header">
+              <span class="day-date">{{ formatDate(milestone.deadline) }}</span>
+            </div>
+            
+            <div class="day-milestones">
+              <div class="calendar-milestone" 
+                   [style.border-left-color]="getPriorityColor(milestone.priority)">
+                <h4>{{ milestone.title }}</h4>
+                <p>{{ milestone.owner }}</p>
+                <div class="milestone-status">
+                  <span class="status-dot" [style.background-color]="getStatusColor(milestone.status)"></span>
+                  {{ getStatusLabel(milestone.status) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredMilestones.length === 0">
+    <mat-icon class="empty-icon">flag</mat-icon>
+    <h3>No milestones found</h3>
+    <p>Create your first milestone to get started with project tracking</p>
+    <button mat-raised-button color="primary" (click)="openAddMilestoneDialog()">
+      <mat-icon>add</mat-icon>
+      Add First Milestone
+    </button>
+  </div>
+</div>
+
+<!-- Add/Edit Milestone Dialog -->
+<div class="dialog-overlay" *ngIf="isDialogOpen" (click)="closeDialog()"></div>
+<div class="milestone-dialog" *ngIf="isDialogOpen">
+  <div class="dialog-header">
+    <h2>{{ isEditMode ? 'Edit Milestone' : 'Add New Milestone' }}</h2>
+    <button mat-icon-button (click)="closeDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="milestoneForm" (ngSubmit)="saveMilestone()" class="dialog-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Milestone Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter milestone title">
+        <mat-error *ngIf="milestoneForm.get('title')?.hasError('required')">
+          Title is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3" 
+                  placeholder="Describe the milestone and its objectives"></textarea>
+        <mat-error *ngIf="milestoneForm.get('description')?.hasError('required')">
+          Description is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row three-columns">
+      <mat-form-field appearance="outline">
+        <mat-label>Deadline</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="deadline">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="milestoneForm.get('deadline')?.hasError('required')">
+          Deadline is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option *ngFor="let type of milestoneTypes" [value]="type.value">
+            <mat-icon>{{ type.icon }}</mat-icon>
+            {{ type.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="milestoneForm.get('type')?.hasError('required')">
+          Type is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option *ngFor="let priority of milestonePriorities" [value]="priority.value">
+            <span class="priority-option" [style.color]="priority.color">
+              {{ priority.label }}
+            </span>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="milestoneForm.get('priority')?.hasError('required')">
+          Priority is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row three-columns">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let status of milestoneStatuses" [value]="status.value">
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="milestoneForm.get('status')?.hasError('required')">
+          Status is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Progress (%)</mat-label>
+        <input matInput type="number" formControlName="progress" min="0" max="100">
+        <mat-error *ngIf="milestoneForm.get('progress')?.hasError('required')">
+          Progress is required
+        </mat-error>
+        <mat-error *ngIf="milestoneForm.get('progress')?.hasError('min') || milestoneForm.get('progress')?.hasError('max')">
+          Progress must be between 0 and 100
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Owner</mat-label>
+        <input matInput formControlName="owner" placeholder="Enter milestone owner">
+        <mat-error *ngIf="milestoneForm.get('owner')?.hasError('required')">
+          Owner is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Stakeholders (comma-separated)</mat-label>
+        <input matInput formControlName="stakeholders" 
+               placeholder="Enter stakeholders separated by commas">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Dependencies (comma-separated milestone IDs)</mat-label>
+        <input matInput formControlName="dependencies" 
+               placeholder="Enter dependent milestone IDs separated by commas">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tags (comma-separated)</mat-label>
+        <input matInput formControlName="tags" 
+               placeholder="Enter tags separated by commas">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" rows="3" 
+                  placeholder="Additional notes or comments"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="dialog-actions">
+      <button mat-button type="button" (click)="closeDialog()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" 
+              [disabled]="milestoneForm.invalid">
+        {{ isEditMode ? 'Update' : 'Create' }} Milestone
+      </button>
+    </div>
+  </form>
+</div> 

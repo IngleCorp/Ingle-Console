@@ -22,6 +22,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { QuillModule } from 'ngx-quill';
 // Import all client dashboard components
 import { ClientsListComponent } from './clients-list/clients-list.component';
@@ -48,6 +49,7 @@ import { AddDocumentComponent } from './client-home/client-projects/project-boar
 import { ViewDocumentComponent } from './client-home/client-projects/project-board/project-library/view-document/view-document.component';
 import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
 import { ProjectMeetingsComponent } from './client-home/client-projects/project-board/project-meetings/project-meetings.component';
+import { ProjectMilestonesComponent } from './client-home/client-projects/project-board/project-milestones/project-milestones.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 
 @NgModule({
@@ -75,7 +77,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     AddDocumentComponent,
     ViewDocumentComponent,
     OpenDocumentComponent,
-    ProjectMeetingsComponent
+    ProjectMeetingsComponent,
+    ProjectMilestonesComponent
   ],
   imports: [
     CommonModule,
@@ -103,6 +106,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
     MatPaginatorModule,
     MatMenuModule,
     MatBadgeModule,
+    MatButtonToggleModule,
     QuillModule.forRoot()
   ],
   exports: [
@@ -129,7 +133,8 @@ import { ClientsRoutingModule } from './clients-routing.module';
     AddDocumentComponent,
     ViewDocumentComponent,
     OpenDocumentComponent,
-    ProjectMeetingsComponent
+    ProjectMeetingsComponent,
+    ProjectMilestonesComponent
   ]
 })
 export class ClientsModule {}

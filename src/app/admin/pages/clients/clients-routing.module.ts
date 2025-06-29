@@ -19,6 +19,7 @@ import { ProjectTicketsComponent } from './client-home/client-projects/project-b
 import { ProjectLibraryComponent } from './client-home/client-projects/project-board/project-library/project-library.component';
 import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
 import { ProjectMeetingsComponent } from './client-home/client-projects/project-board/project-meetings/project-meetings.component';
+import { ProjectMilestonesComponent } from './client-home/client-projects/project-board/project-milestones/project-milestones.component';
 
 const routes: Routes = [
   { path: '', component: ClientsListComponent },
@@ -45,6 +46,7 @@ const routes: Routes = [
           { path: 'bills', component: ProjectBillsComponent },
           { path: 'worksheet', component: ProjectWorksheetComponent },
           { path: 'tickets', component: ProjectTicketsComponent },
+          { path: 'milestones', component: ProjectMilestonesComponent },
           { path: 'library', component: ProjectLibraryComponent },
           { path: 'library/document/:docId', component: OpenDocumentComponent },
           { path: 'meetings', component: ProjectMeetingsComponent },
