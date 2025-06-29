@@ -1,0 +1,100 @@
+<div class="ticket-view-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="header-icon">visibility</mat-icon>
+      Ticket Details
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <div class="ticket-info" *ngIf="ticket">
+      <!-- Ticket Header -->
+      <div class="ticket-header">
+        <div class="ticket-title">
+          <h3>{{ ticket.title }}</h3>
+          <div class="ticket-meta">
+            <span class="ticket-number">{{ ticket.number }}</span>
+            <div class="ticket-type">
+              <mat-icon [matTooltip]="ticket.type">{{ getTypeIcon(ticket.type) }}</mat-icon>
+              <span>{{ ticket.type | titlecase }}</span>
+            </div>
+            <div class="ticket-status">
+              <div class="status-badge" [style.background-color]="getStatusColor(ticket.status)">
+                {{ ticket.status | titlecase }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Info -->
+      <div class="project-info" *ngIf="projectInfo">
+        <h4>Project Information</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Project Name:</span>
+            <span class="value">{{ projectInfo.name || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Project ID:</span>
+            <span class="value">{{ projectInfo.id || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticket Details -->
+      <div class="ticket-details">
+        <h4>Ticket Information</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Created:</span>
+            <span class="value">{{ formatDate(ticket.createdAt) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Last Updated:</span>
+            <span class="value">{{ formatDate(ticket.updatedAt) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Type:</span>
+            <span class="value">
+              <mat-icon class="inline-icon">{{ getTypeIcon(ticket.type) }}</mat-icon>
+              {{ ticket.type | titlecase }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <span class="value">
+              <div class="status-badge inline" [style.background-color]="getStatusColor(ticket.status)">
+                {{ ticket.status | titlecase }}
+              </div>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="ticket-description">
+        <h4>Description</h4>
+        <div class="description-content" [innerHTML]="ticket.description"></div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="!ticket">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading ticket details...</p>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button color="primary" (click)="onClose()">
+      Close
+    </button>
+  </mat-dialog-actions>
+</div> 

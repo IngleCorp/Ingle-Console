@@ -1,0 +1,253 @@
+<div class="project-worksheet-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>Project Worksheet</h1>
+        <p>Manage time tracking and work assignments for this project</p>
+      </div>
+      <div class="header-actions">
+        <button class="add-collection-btn" (click)="showCollectionForm = true" matTooltip="Add Worksheet Collection">
+          <mat-icon>add</mat-icon>
+          <span>Add Collection</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Worksheet Collection Form -->
+  <div class="collection-form-overlay" *ngIf="showCollectionForm">
+    <div class="collection-form-modal">
+      <div class="form-header">
+        <h3>Add Worksheet Collection</h3>
+        <button class="close-btn" (click)="showCollectionForm = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <form [formGroup]="worksheetCollectionForm" (ngSubmit)="addWorksheetCollection()">
+        <div class="form-field">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Collection Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter collection name">
+            <mat-error *ngIf="worksheetCollectionForm.get('name')?.hasError('required')">
+              Collection name is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-field">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Position</mat-label>
+            <input matInput type="number" formControlName="position" placeholder="0">
+          </mat-form-field>
+        </div>
+        
+        <div class="form-field">
+          <mat-checkbox formControlName="isActive" color="primary">
+            Active Collection
+          </mat-checkbox>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="showCollectionForm = false">
+            Cancel
+          </button>
+          <button type="submit" class="submit-btn" [disabled]="worksheetCollectionForm.invalid">
+            Add Collection
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading worksheets...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && worksheetCollections.length === 0">
+    <mat-icon class="empty-icon">assignment</mat-icon>
+    <h3>No Worksheet Collections</h3>
+    <p>Create your first worksheet collection to start tracking work and time.</p>
+    <button class="add-collection-btn-large" (click)="showCollectionForm = true">
+      <mat-icon>add</mat-icon>
+      <span>Add First Collection</span>
+    </button>
+  </div>
+
+  <!-- Worksheet Tabs -->
+  <div class="worksheet-content" *ngIf="!isLoading && worksheetCollections.length > 0">
+    <mat-tab-group (selectedTabChange)="worksheetChange($event)" #tabGroup>
+      <!-- Worksheet Tabs -->
+      <mat-tab *ngFor="let worksheet of worksheetCollections; trackBy: trackByWorksheet">
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">assignment</mat-icon>
+          <span>{{ worksheet.name }}</span>
+        </ng-template>
+        
+        <div class="worksheet-tab" *ngIf="activeWorksheet?.id === worksheet.id">
+          <!-- Worksheet Header -->
+          <div class="worksheet-header">
+            <div class="worksheet-stats">
+              <div class="stat-item">
+                <mat-icon>schedule</mat-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ totalHours | number:'1.2-2' }}</span>
+                  <span class="stat-label">Total Hours</span>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <mat-icon>attach_money</mat-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ formatCurrency(costEstimate) }}</span>
+                  <span class="stat-label">Estimated Cost</span>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <mat-icon>rate_review</mat-icon>
+                <div class="stat-content">
+                  <input 
+                    type="number" 
+                    class="rate-input" 
+                    [(ngModel)]="workRate" 
+                    (change)="updateCost()"
+                    placeholder="Rate per hour">
+                  <span class="stat-label">Rate/Hour</span>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <button class="export-btn" (click)="exportExcel()" matTooltip="Export to Excel">
+                  <mat-icon>download</mat-icon>
+                  <span>Excel</span>
+                </button>
+              </div>
+              
+              <div class="stat-item">
+                <button class="export-btn pdf-btn" (click)="exportPdf()" matTooltip="Export to PDF">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  <span>PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Summary -->
+          <div class="user-summary" *ngIf="workHoursByUser.length > 0">
+            <h4>Work Hours by User</h4>
+            <div class="user-hours">
+              <div class="user-hour-item" *ngFor="let user of workHoursByUser">
+                <span class="user-name">{{ user.name }}</span>
+                <span class="user-hours-value">{{ (user.totalhours / 60) | number:'1.2-2' }} hours</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Worksheet Entries -->
+          <div class="worksheet-entries">
+            <div class="entries-header">
+              <h4>Worksheet Entries</h4>
+              <button class="add-entry-btn" (click)="addWorksheetEntry()" matTooltip="Add Entry">
+                <mat-icon>add</mat-icon>
+                <span>Add Entry</span>
+              </button>
+            </div>
+            
+            <div class="entries-table">
+              <table class="worksheet-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Task</th>
+                    <th>Done By</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let entry of worksheetData; trackBy: trackByEntry">
+                    <td>{{ getCreatedDateDisplay(entry.createdAt) }}</td>
+                    <td>{{ entry.task || 'N/A' }}</td>
+                    <td>{{ entry.doneby || 'N/A' }}</td>
+                    <td>
+                      <span class="status-badge" [ngClass]="'status-' + entry.status?.toLowerCase()">
+                        {{ entry.status || 'N/A' }}
+                      </span>
+                    </td>
+                    <td>{{ formatTime(entry.time || 0) }}</td>
+                    <td>{{ entry.remarks || 'N/A' }}</td>
+                    <td>
+                      <div class="entry-actions">
+                        <button class="action-btn edit-btn" (click)="addWorksheetEntry(entry)" matTooltip="Edit Entry">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button class="action-btn delete-btn" (click)="deleteWorksheetEntry(entry.id)" matTooltip="Delete Entry">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <div class="no-entries" *ngIf="worksheetData.length === 0">
+                <mat-icon>assignment</mat-icon>
+                <p>No worksheet entries found. Add your first entry to get started.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Settings Tab (Collections) - Now Last -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">settings</mat-icon>
+          <span>Collections</span>
+        </ng-template>
+        
+        <div class="collections-tab">
+          <div class="collections-header">
+            <h3>Worksheet Collections</h3>
+            <p>Manage worksheet collections for this project</p>
+          </div>
+          
+          <div class="collections-list">
+            <div class="collection-card" *ngFor="let collection of worksheetCollections; trackBy: trackByWorksheet">
+              <div class="collection-info">
+                <div class="collection-name">
+                  <h4>{{ collection.name }}</h4>
+                  <span class="collection-status" [class.active]="collection.isActive">
+                    {{ collection.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+                <div class="collection-meta">
+                  <span class="position">Position: {{ collection.position }}</span>
+                  <span class="created-date" *ngIf="collection.createdAt">
+                    Created: {{ getCreatedDateDisplay(collection.createdAt) }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="collection-actions">
+                <button class="action-btn edit-btn" (click)="updateWorksheetCollection(collection)" matTooltip="Edit Collection">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteWorksheetCollection(collection.id)" matTooltip="Delete Collection">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div> 

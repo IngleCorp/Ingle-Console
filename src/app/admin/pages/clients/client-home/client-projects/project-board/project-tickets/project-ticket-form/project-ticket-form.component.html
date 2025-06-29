@@ -1,0 +1,113 @@
+<div class="ticket-form-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="header-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Edit Ticket' : 'Add New Ticket' }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <!-- Ticket Type -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Ticket Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let type of ticketTypes" [value]="type.value">
+              <div class="option-content">
+                <mat-icon [matTooltip]="type.title">{{ getTypeIcon(type.value) }}</mat-icon>
+                <span>{{ type.title }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="ticketForm.get('type')?.hasError('required')">
+            Ticket type is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Ticket Status -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of ticketStatuses" [value]="status.value">
+              <div class="option-content">
+                <div class="status-indicator" [style.background-color]="getStatusColor(status.value)"></div>
+                <span>{{ status.title }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="ticketForm.get('status')?.hasError('required')">
+            Status is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Ticket Number -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Ticket Number</mat-label>
+          <input matInput formControlName="number" placeholder="e.g., PT-1234567890-123" [readonly]="isEditMode">
+          <mat-icon matSuffix>confirmation_number</mat-icon>
+          <mat-error *ngIf="ticketForm.get('number')?.hasError('required')">
+            Ticket number is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Ticket Title -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Ticket Title</mat-label>
+          <input matInput formControlName="title" placeholder="Enter a descriptive title for the ticket">
+          <mat-icon matSuffix>title</mat-icon>
+          <mat-error *ngIf="ticketForm.get('title')?.hasError('required')">
+            Title is required
+          </mat-error>
+          <mat-error *ngIf="ticketForm.get('title')?.hasError('minlength')">
+            Title must be at least 3 characters long
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Description -->
+        <div class="description-field full-width">
+          <label class="field-label">Description</label>
+          <div class="quill-container">
+            <quill-editor
+              formControlName="description"
+              [modules]="quillModules"
+              [styles]="quillStyles"
+              placeholder="Describe the ticket details, requirements, or issues..."
+            ></quill-editor>
+          </div>
+          <mat-error *ngIf="ticketForm.get('description')?.hasError('required') && ticketForm.get('description')?.touched">
+            Description is required
+          </mat-error>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="ticketForm.invalid || isLoading"
+      class="submit-btn"
+    >
+      <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+      <span *ngIf="!isLoading">{{ isEditMode ? 'Update' : 'Create' }} Ticket</span>
+    </button>
+  </mat-dialog-actions>
+</div> 

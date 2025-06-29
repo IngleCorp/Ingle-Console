@@ -1,0 +1,153 @@
+<div class="file-viewer-page">
+  <!-- Header -->
+  <div class="viewer-header">
+    <div class="header-content">
+      <div class="back-section">
+        <button class="back-btn" (click)="goBack()" matTooltip="Back to Files">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to Files</span>
+        </button>
+      </div>
+      
+      <div class="file-info" *ngIf="file">
+        <div class="file-icon" [ngStyle]="{'background': getFileTypeColor()}">
+          <mat-icon>{{ getFileIcon() }}</mat-icon>
+        </div>
+        <div class="file-details">
+          <h1 class="file-name">{{ file.name }}</h1>
+          <div class="file-meta">
+            <span class="file-type">{{ file.format | uppercase }}</span>
+            <span class="file-size" *ngIf="file.size">{{ file.size }}</span>
+            <span class="file-date" [matTooltip]="getCreatedDateTooltip(file.createdAt)">
+              <mat-icon>schedule</mat-icon>
+              {{ getCreatedDateDisplay(file.createdAt) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-actions" *ngIf="file">
+        <button class="action-btn download-btn" (click)="downloadFile()" matTooltip="Download File">
+          <mat-icon>download</mat-icon>
+          <span>Download</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading file...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error && !isLoading">
+    <mat-icon class="error-icon">error</mat-icon>
+    <h3>Error Loading File</h3>
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="getFile()">
+      <mat-icon>refresh</mat-icon>
+      <span>Retry</span>
+    </button>
+  </div>
+
+  <!-- File Preview -->
+  <div class="file-preview" *ngIf="file && !isLoading && !error">
+    <!-- Image Preview -->
+    <div class="image-preview" *ngIf="getFileType() === 'image'">
+      <div class="image-container">
+        <img 
+          [src]="file.url" 
+          [alt]="file.name" 
+          class="preview-image" 
+          [style.transform]="'scale(' + imageZoom + ')'"
+          (error)="onImageError($event)"
+          (load)="onImageLoad($event)" />
+      </div>
+      <div class="image-controls">
+        <button class="zoom-btn" (click)="zoomIn()" matTooltip="Zoom In">
+          <mat-icon>zoom_in</mat-icon>
+        </button>
+        <button class="zoom-btn" (click)="zoomOut()" matTooltip="Zoom Out">
+          <mat-icon>zoom_out</mat-icon>
+        </button>
+        <button class="zoom-btn" (click)="resetZoom()" matTooltip="Reset Zoom">
+          <mat-icon>crop_free</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- PDF Preview -->
+    <div class="pdf-preview" *ngIf="getFileType() === 'pdf'">
+      <div class="pdf-container">
+        <!-- PDF Loading State -->
+        <div class="pdf-loading" *ngIf="pdfLoading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading PDF...</p>
+        </div>
+        
+        <iframe 
+          [src]="getPdfViewerUrl()" 
+          class="pdf-iframe"
+          [class.hidden]="pdfLoading"
+          title="PDF Preview"
+          (load)="onPdfLoad($event)"
+          (error)="onPdfError($event)">
+        </iframe>
+      </div>
+      <div class="pdf-controls">
+        <button class="pdf-btn" (click)="downloadFile()" matTooltip="Download PDF">
+          <mat-icon>download</mat-icon>
+          <span>Download</span>
+        </button>
+        <button class="pdf-btn" (click)="openPdfInNewTab()" matTooltip="Open in New Tab">
+          <mat-icon>open_in_new</mat-icon>
+          <span>Open in New Tab</span>
+        </button>
+        <button class="pdf-btn" (click)="openPdfInBrowser()" matTooltip="Open in Browser">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>Browser View</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Document Preview (Google Docs Viewer) -->
+    <div class="document-preview" *ngIf="getFileType() === 'document'">
+      <iframe 
+        [src]="'https://docs.google.com/viewer?url=' + encodeURIComponent(file.url) + '&embedded=true'"
+        class="doc-iframe"
+        title="Document Preview">
+      </iframe>
+    </div>
+
+    <!-- Spreadsheet Preview -->
+    <div class="spreadsheet-preview" *ngIf="getFileType() === 'spreadsheet'">
+      <iframe 
+        [src]="'https://docs.google.com/spreadsheets/d/e/' + file.url + '/preview'"
+        class="sheet-iframe"
+        title="Spreadsheet Preview">
+      </iframe>
+    </div>
+
+    <!-- Presentation Preview -->
+    <div class="presentation-preview" *ngIf="getFileType() === 'presentation'">
+      <iframe 
+        [src]="'https://docs.google.com/presentation/d/e/' + file.url + '/embed?start=false&loop=false&delayms=3000'"
+        class="presentation-iframe"
+        title="Presentation Preview">
+      </iframe>
+    </div>
+
+    <!-- Unsupported File Type -->
+    <div class="unsupported-preview" *ngIf="!canPreviewFile()">
+      <mat-icon class="unsupported-icon">insert_drive_file</mat-icon>
+      <h3>Preview Not Available</h3>
+      <p>This file type cannot be previewed. Please download the file to view it.</p>
+      <button class="download-btn-large" (click)="downloadFile()">
+        <mat-icon>download</mat-icon>
+        <span>Download File</span>
+      </button>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,16 @@
+<div class="open-document-container">
+  <button mat-button (click)="back()">
+    <mat-icon>arrow_back</mat-icon>
+    Back to Library
+  </button>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading document...</p>
+  </div>
+
+  <div *ngIf="!isLoading && document">
+    <h2>{{ document.title }}</h2>
+    <div [innerHTML]="document.description"></div>
+  </div>
+</div> 

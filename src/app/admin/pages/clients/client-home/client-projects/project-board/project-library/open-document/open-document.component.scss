@@ -1,0 +1,28 @@
+.open-document-container {
+  max-width: 800px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+div[innerHTML] {
+  background: #fafbfc;
+  border-radius: 8px;
+  padding: 18px;
+  min-height: 120px;
+  font-size: 1.05rem;
+}
+
+.loading-state {
+  text-align: center;
+  margin-top: 60px;
+} 

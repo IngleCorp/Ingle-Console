@@ -55,7 +55,7 @@
                         placeholder="Add a new task..."
                         (keyup.enter)="addTask()">
                 </div>
-                <button class="add-task-btn" (click)="addTask()" [disabled]="!task?.trim()">
+                <button class="add-task-btn" (click)="addTask()" [disabled]="!task.trim()">
                     <mat-icon>add</mat-icon>
                     <span>Add Task</span>
                 </button>

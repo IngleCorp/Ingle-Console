@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-files',
@@ -32,6 +34,7 @@ export class ProjectFilesComponent implements OnInit {
 
   constructor(
     private afs: AngularFirestore,
+    private storage: AngularFireStorage,
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
@@ -110,22 +113,42 @@ export class ProjectFilesComponent implements OnInit {
 
     this.isLoading = true;
     
-    // For now, we'll simulate file upload
-    // In a real implementation, you'd use Firebase Storage
-    setTimeout(() => {
-      const fileData = {
-        name: file.name,
-        format: this.getFileExtension(file.name),
-        size: this.formatFileSize(file.size),
-        url: URL.createObjectURL(file), // Temporary URL for demo
-        fileref: null, // Would be Firebase Storage reference
-        createdAt: new Date(),
-        createdby: localStorage.getItem('userid') || 'unknown',
-        createdbyname: localStorage.getItem('username') || 'Unknown User'
-      };
+    // Create a unique file path
+    const filePath = `projects/${this.projectId}/files/${Date.now()}_${file.name}`;
+    const fileRef = this.storage.ref(filePath);
+    const uploadTask = this.storage.upload(filePath, file);
 
-      this.addFileToDatabase(fileData);
-    }, 1000);
+    uploadTask.snapshotChanges().pipe(
+      finalize(() => {
+        fileRef.getDownloadURL().subscribe(downloadURL => {
+          const fileData = {
+            name: file.name,
+            format: this.getFileExtension(file.name),
+            size: this.formatFileSize(file.size),
+            url: downloadURL,
+            fileref: filePath,
+            createdAt: new Date(),
+            createdby: localStorage.getItem('userid') || 'unknown',
+            createdbyname: localStorage.getItem('username') || 'Unknown User'
+          };
+
+          this.addFileToDatabase(fileData);
+        });
+      })
+    ).subscribe({
+      next: (snapshot) => {
+        // Upload progress can be tracked here if needed
+        if (snapshot) {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload progress:', progress);
+        }
+      },
+      error: (error) => {
+        console.error('Upload error:', error);
+        this.isLoading = false;
+        this.showNotification('Error uploading file', 'error');
+      }
+    });
   }
 
   addFileToDatabase(fileData: any): void {
@@ -148,16 +171,44 @@ export class ProjectFilesComponent implements OnInit {
     if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
       if (!this.projectId) return;
 
-      this.afs.collection('projects').doc(this.projectId).collection('files')
+      // First get the file data to get the storage reference
+      this.afs.collection('projects').doc(this.projectId!).collection('files')
         .doc(fileId)
-        .delete()
-        .then(() => {
-          this.showNotification('File deleted successfully', 'success');
-          this.getProjectFiles();
-        })
-        .catch((error) => {
-          console.error('Error deleting file:', error);
-          this.showNotification('Error deleting file', 'error');
+        .get()
+        .subscribe((doc) => {
+          if (doc.exists) {
+            const fileData = doc.data();
+            const fileRef = fileData?.['fileref'];
+            
+            // Delete from Firestore
+            this.afs.collection('projects').doc(this.projectId!).collection('files')
+              .doc(fileId)
+              .delete()
+              .then(() => {
+                // Delete from Firebase Storage if reference exists
+                if (fileRef) {
+                  this.storage.ref(fileRef).delete().subscribe({
+                    next: () => {
+                      this.showNotification('File deleted successfully', 'success');
+                      this.getProjectFiles();
+                    },
+                    error: (error) => {
+                      console.error('Error deleting from storage:', error);
+                      // Still show success if Firestore deletion worked
+                      this.showNotification('File deleted successfully', 'success');
+                      this.getProjectFiles();
+                    }
+                  });
+                } else {
+                  this.showNotification('File deleted successfully', 'success');
+                  this.getProjectFiles();
+                }
+              })
+              .catch((error) => {
+                console.error('Error deleting file:', error);
+                this.showNotification('Error deleting file', 'error');
+              });
+          }
         });
     }
   }

@@ -1,0 +1,197 @@
+<div class="project-bills-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>Project Bills</h1>
+        <p>Manage and track all bills for this project</p>
+      </div>
+      <div class="header-actions">
+        <button class="add-bill-btn" matTooltip="Add New Bill">
+          <mat-icon>add</mat-icon>
+          <span>Add Bill</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <div class="search-box">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search bills</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="searchTerm" 
+          (input)="searchBills()"
+          placeholder="Search by bill name, number, or customer..."
+          type="text">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+    
+    <div class="filter-controls">
+      <mat-form-field appearance="outline" class="status-filter">
+        <mat-label>Filter by status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="searchBills()">
+          <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <button class="clear-btn" (click)="clearSearch()" matTooltip="Clear filters">
+        <mat-icon>clear</mat-icon>
+        <span>Clear</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-overview" *ngIf="bills.length > 0">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <mat-icon>receipt</mat-icon>
+      </div>
+      <div class="stat-content">
+        <h3>{{ totalBills }}</h3>
+        <p>Total Bills</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <mat-icon>schedule</mat-icon>
+      </div>
+      <div class="stat-content">
+        <h3>{{ pendingBills }}</h3>
+        <p>Pending</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon paid">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="stat-content">
+        <h3>{{ paidBills }}</h3>
+        <p>Paid</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon overdue">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="stat-content">
+        <h3>{{ overdueBills }}</h3>
+        <p>Overdue</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading bills...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && bills.length === 0">
+    <mat-icon class="empty-icon">receipt_long</mat-icon>
+    <h3>No Bills Found</h3>
+    <p>This project doesn't have any bills yet. Create your first bill to get started.</p>
+    <button class="add-bill-btn-large">
+      <mat-icon>add</mat-icon>
+      <span>Add First Bill</span>
+    </button>
+  </div>
+
+  <!-- No Results State -->
+  <div class="empty-state" *ngIf="!isLoading && bills.length > 0 && filteredBills.length === 0">
+    <mat-icon class="empty-icon">search_off</mat-icon>
+    <h3>No Bills Match Your Search</h3>
+    <p>Try adjusting your search terms or filters to find what you're looking for.</p>
+    <button class="clear-btn-large" (click)="clearSearch()">
+      <mat-icon>clear</mat-icon>
+      <span>Clear Filters</span>
+    </button>
+  </div>
+
+  <!-- Bills List -->
+  <div class="bills-list" *ngIf="!isLoading && filteredBills.length > 0">
+    <div class="bill-card" *ngFor="let bill of filteredBills; trackBy: trackByBill">
+      <div class="bill-header">
+        <div class="bill-info">
+          <div class="bill-title">
+            <h3>{{ bill.billname || 'Untitled Bill' }}</h3>
+            <span class="bill-number" *ngIf="bill.billnumber">#{{ bill.billnumber }}</span>
+          </div>
+          <div class="bill-meta">
+            <span class="bill-date">
+              <mat-icon>schedule</mat-icon>
+              Created: {{ getCreatedDateDisplay(bill.createdAt) }}
+            </span>
+            <span class="bill-due" *ngIf="bill.dueDate">
+              <mat-icon>event</mat-icon>
+              Due: {{ getDueDateDisplay(bill.dueDate) }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="bill-status">
+          <span class="status-badge" [ngClass]="getBillStatusClass(bill.status)">
+            <mat-icon>{{ getBillStatusIcon(bill.status) }}</mat-icon>
+            {{ bill.status || 'Draft' }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="bill-content">
+        <div class="bill-details">
+          <div class="customer-info" *ngIf="bill.customerName">
+            <mat-icon>person</mat-icon>
+            <span>{{ bill.customerName }}</span>
+          </div>
+          
+          <div class="amount-info">
+            <span class="amount-label">Total Amount:</span>
+            <span class="amount-value">{{ formatCurrency(bill.billtotal) }}</span>
+          </div>
+          
+          <div class="balance-info" *ngIf="bill.balencedue">
+            <span class="balance-label">Balance Due:</span>
+            <span class="balance-value">{{ formatCurrency(bill.balencedue) }}</span>
+          </div>
+        </div>
+        
+        <div class="bill-actions">
+          <button class="action-btn download-btn" (click)="downloadBill(bill)" matTooltip="Download Invoice">
+            <mat-icon>download</mat-icon>
+          </button>
+          
+          <button class="action-btn print-btn" (click)="printBill(bill)" matTooltip="Print Invoice">
+            <mat-icon>print</mat-icon>
+          </button>
+          
+          <button class="action-btn open-btn" (click)="openBill(bill)" matTooltip="Open Invoice">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+          
+          <button class="action-btn edit-btn" (click)="editBill(bill)" matTooltip="Edit Bill">
+            <mat-icon>edit</mat-icon>
+          </button>
+          
+          <button class="action-btn delete-btn" (click)="deleteBill(bill.id, bill.billname)" matTooltip="Delete Bill">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="results-summary" *ngIf="!isLoading && filteredBills.length > 0">
+    <p>Showing {{ filteredBills.length }} of {{ bills.length }} bills</p>
+  </div>
+</div> 

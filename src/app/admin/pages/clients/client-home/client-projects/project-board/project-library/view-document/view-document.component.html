@@ -1,0 +1,86 @@
+<div class="view-document-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h2 class="dialog-title">
+          <mat-icon class="title-icon">visibility</mat-icon>
+          Document Viewer
+        </h2>
+        <p class="document-title">{{ data.document?.title }}</p>
+      </div>
+      <div class="header-right">
+        <button class="close-btn" (click)="close()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Content -->
+  <div class="dialog-content">
+    <div class="document-info">
+      <div class="info-card">
+        <div class="info-header">
+          <mat-icon class="info-icon">info</mat-icon>
+          <h3>Document Information</h3>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Type:</span>
+            <span class="info-value">
+              <mat-icon class="type-icon">{{ getDocumentIcon(data.document?.type) }}</mat-icon>
+              {{ data.document?.type || 'Document' }}
+            </span>
+          </div>
+          <div class="info-item" *ngIf="data.document?.tags?.length">
+            <span class="info-label">Tags:</span>
+            <div class="tags-container">
+              <span class="tag" *ngFor="let tag of data.document?.tags">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+          <div class="info-item" *ngIf="data.document?.createdAt">
+            <span class="info-label">Created:</span>
+            <span class="info-value">{{ formatDate(data.document?.createdAt) }}</span>
+          </div>
+          <div class="info-item" *ngIf="data.document?.updatedAt">
+            <span class="info-label">Updated:</span>
+            <span class="info-value">{{ formatDate(data.document?.updatedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="document-content">
+      <div class="content-header">
+        <mat-icon class="content-icon">description</mat-icon>
+        <h3>Document Content</h3>
+      </div>
+      <div class="content-body" [innerHTML]="data.document?.description"></div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="dialog-footer">
+    <div class="footer-content">
+      <button type="button" class="close-dialog-btn" (click)="close()">
+        <mat-icon>close</mat-icon>
+        <span>Close</span>
+      </button>
+      
+      <div class="action-buttons">
+        <button type="button" class="download-btn" (click)="downloadDocument()" matTooltip="Download Document">
+          <mat-icon>download</mat-icon>
+          <span>Download</span>
+        </button>
+        
+        <button type="button" class="print-btn" (click)="printDocument()" matTooltip="Print Document">
+          <mat-icon>print</mat-icon>
+          <span>Print</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

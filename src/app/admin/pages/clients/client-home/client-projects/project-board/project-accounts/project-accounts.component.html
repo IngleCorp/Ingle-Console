@@ -1,0 +1,218 @@
+<div class="project-accounts-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Project Accounts</h1>
+        <p class="page-subtitle">Manage credentials and access information for this project</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="add-btn" 
+          (click)="toggleAddForm()" 
+          [class.active]="showAddForm"
+          matTooltip="Add New Account">
+          <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
+          <span>{{ showAddForm ? 'Cancel' : 'Add Account' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Form -->
+  <div class="form-section" *ngIf="showAddForm">
+    <div class="form-container">
+      <h3 class="form-title">{{ editingAccount ? 'Edit Account' : 'Add New Account' }}</h3>
+      
+      <form [formGroup]="accountForm" (ngSubmit)="editingAccount ? updateAccount() : addAccount()">
+        <div class="form-row">
+          <mat-form-field class="form-field">
+            <mat-label>Account Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g., Admin Panel, Database, etc.">
+            <mat-error *ngIf="accountForm.get('name')?.hasError('required')">
+              Account name is required
+            </mat-error>
+            <mat-error *ngIf="accountForm.get('name')?.hasError('minlength')">
+              Account name must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" placeholder="Enter username">
+            <mat-error *ngIf="accountForm.get('username')?.hasError('required')">
+              Username is required
+            </mat-error>
+            <mat-error *ngIf="accountForm.get('username')?.hasError('minlength')">
+              Username must be at least 2 characters
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" placeholder="Enter password">
+            <mat-error *ngIf="accountForm.get('password')?.hasError('required')">
+              Password is required
+            </mat-error>
+            <mat-error *ngIf="accountForm.get('password')?.hasError('minlength')">
+              Password must be at least 4 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="form-field">
+            <mat-label>URL (Optional)</mat-label>
+            <input matInput formControlName="url" placeholder="e.g., https://admin.example.com">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field class="form-field full-width">
+            <mat-label>Description (Optional)</mat-label>
+            <textarea matInput formControlName="description" rows="3" placeholder="Additional notes about this account"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="cancel-btn" 
+            (click)="resetForm()">
+            <mat-icon>close</mat-icon>
+            <span>Cancel</span>
+          </button>
+          <button 
+            type="submit" 
+            class="submit-btn" 
+            [disabled]="accountForm.invalid">
+            <mat-icon>{{ editingAccount ? 'save' : 'add' }}</mat-icon>
+            <span>{{ editingAccount ? 'Update Account' : 'Add Account' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="search-section">
+    <div class="search-container">
+      <mat-form-field class="search-field">
+        <mat-label>Search Accounts</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (input)="searchAccounts()" placeholder="Search by name, username, or description">
+        <mat-icon matSuffix>search</mat-icon>
+        <button matSuffix mat-icon-button (click)="clearSearch()" *ngIf="searchTerm">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading accounts...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredAccounts.length === 0">
+    <mat-icon class="empty-icon">account_circle</mat-icon>
+    <h3>No Accounts Found</h3>
+    <p *ngIf="searchTerm">No accounts match your search criteria.</p>
+    <p *ngIf="!searchTerm">No accounts have been added to this project yet.</p>
+    <button class="add-btn-large" (click)="toggleAddForm()" *ngIf="!searchTerm">
+      <mat-icon>add</mat-icon>
+      <span>Add First Account</span>
+    </button>
+  </div>
+
+  <!-- Accounts List -->
+  <div class="accounts-list" *ngIf="!isLoading && filteredAccounts.length > 0">
+    <div class="accounts-grid">
+      <div 
+        class="account-card" 
+        *ngFor="let account of filteredAccounts; trackBy: trackByAccount">
+        
+        <div class="account-header">
+          <div class="account-info">
+            <h3 class="account-name">{{ account.name }}</h3>
+            <p class="account-description" *ngIf="account.description">{{ account.description }}</p>
+          </div>
+          <div class="account-actions">
+            <button 
+              class="action-btn edit-btn" 
+              (click)="editAccount(account)" 
+              matTooltip="Edit Account">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button 
+              class="action-btn delete-btn" 
+              (click)="deleteAccount(account.id, account.name)" 
+              matTooltip="Delete Account">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="account-details">
+          <div class="detail-item">
+            <span class="detail-label">Username:</span>
+            <div class="detail-value">
+              <span class="value-text">{{ account.username }}</span>
+              <button 
+                class="copy-btn" 
+                (click)="copyToClipboard(account.username, 'Username')" 
+                matTooltip="Copy Username">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Password:</span>
+            <div class="detail-value">
+              <span class="value-text password-text">
+                {{ isPasswordVisible(account.id) ? account.password : '••••••••' }}
+              </span>
+              <button 
+                class="visibility-btn" 
+                (click)="togglePasswordVisibility(account.id)" 
+                [matTooltip]="isPasswordVisible(account.id) ? 'Hide Password' : 'Show Password'">
+                <mat-icon>{{ isPasswordVisible(account.id) ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <button 
+                class="copy-btn" 
+                (click)="copyToClipboard(account.password, 'Password')" 
+                matTooltip="Copy Password">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-item" *ngIf="account.url">
+            <span class="detail-label">URL:</span>
+            <div class="detail-value">
+              <a [href]="account.url" target="_blank" class="url-link">{{ account.url }}</a>
+              <button 
+                class="copy-btn" 
+                (click)="copyToClipboard(account.url, 'URL')" 
+                matTooltip="Copy URL">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-footer">
+          <span class="created-info">
+            <mat-icon>schedule</mat-icon>
+            {{ getCreatedDateDisplay(account.createdAt) }}
+          </span>
+          <span class="created-by" *ngIf="account.createdbyname">
+            by {{ account.createdbyname }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

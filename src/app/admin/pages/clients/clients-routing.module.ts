@@ -11,6 +11,13 @@ import { ProjectTasksComponent } from './client-home/client-projects/project-boa
 import { TimetakenComponent } from './client-home/client-projects/project-board/project-tasks/timetaken/timetaken.component';
 import { ClientBillsComponent } from './client-home/client-bills/client-bills.component';
 import { ProjectFilesComponent } from './client-home/client-projects/project-board/project-files/project-files.component';
+import { FileViewerComponent } from './client-home/client-projects/project-board/project-files/file-viewer/file-viewer.component';
+import { ProjectAccountsComponent } from './client-home/client-projects/project-board/project-accounts/project-accounts.component';
+import { ProjectBillsComponent } from './client-home/client-projects/project-board/project-bills/project-bills.component';
+import { ProjectWorksheetComponent } from './client-home/client-projects/project-board/project-worksheet/project-worksheet.component';
+import { ProjectTicketsComponent } from './client-home/client-projects/project-board/project-tickets/project-tickets.component';
+import { ProjectLibraryComponent } from './client-home/client-projects/project-board/project-library/project-library.component';
+import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
 
 const routes: Routes = [
   { path: '', component: ClientsListComponent },
@@ -32,6 +39,13 @@ const routes: Routes = [
           { path: 'tasks', component: ProjectTasksComponent },
           { path: 'tasksdetail/:tid', component: TimetakenComponent },
           { path: 'files', component: ProjectFilesComponent },
+          { path: 'files/file-viewer/:fileId', component: FileViewerComponent },
+          { path: 'accounts', component: ProjectAccountsComponent },
+          { path: 'bills', component: ProjectBillsComponent },
+          { path: 'worksheet', component: ProjectWorksheetComponent },
+          { path: 'tickets', component: ProjectTicketsComponent },
+          { path: 'library', component: ProjectLibraryComponent },
+          { path: 'library/document/:docId', component: OpenDocumentComponent },
           // Add more child routes for worksheet, accounts, files, etc. as needed
         ]
       },

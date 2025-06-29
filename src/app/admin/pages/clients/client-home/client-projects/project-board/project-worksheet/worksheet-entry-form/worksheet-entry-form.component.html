@@ -1,0 +1,150 @@
+<div class="entry-form-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="header-icon">{{ data.entry ? 'edit' : 'add' }}</mat-icon>
+      {{ data.entry ? 'Edit' : 'Add' }} Worksheet Entry
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn" matTooltip="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="entryForm" (ngSubmit)="onSubmit()" class="entry-form">
+    <!-- Date and Task Section -->
+    <div class="field-group">
+      <div class="group-title">
+        <mat-icon>schedule</mat-icon>
+        Basic Information
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">event</mat-icon>
+            Date
+          </mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" (dateChange)="onDateChange($event)">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="entryForm.get('date')?.hasError('required')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Date is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">assignment</mat-icon>
+            Task Description
+          </mat-label>
+          <input matInput formControlName="task" placeholder="Enter detailed task description">
+          <mat-error *ngIf="entryForm.get('task')?.hasError('required')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Task is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Assignment and Status Section -->
+    <div class="field-group">
+      <div class="group-title">
+        <mat-icon>person</mat-icon>
+        Assignment Details
+      </div>
+      
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">person_outline</mat-icon>
+            Done By
+          </mat-label>
+          <mat-select formControlName="doneby">
+            <mat-option *ngFor="let user of users" [value]="user.name">
+              <mat-icon class="user-icon">account_circle</mat-icon>
+              {{ user.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="entryForm.get('doneby')?.hasError('required')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Please select who did the work
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">flag</mat-icon>
+            Status
+          </mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+              <mat-icon class="status-icon" [ngClass]="'status-' + status.value.toLowerCase()">
+                {{ status.value === 'Completed' ? 'check_circle' : 
+                   status.value === 'Progress' ? 'pending' : 
+                   status.value === 'Hold' ? 'pause_circle' : 'schedule' }}
+              </mat-icon>
+              {{ status.title }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="entryForm.get('status')?.hasError('required')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Status is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Time and Remarks Section -->
+    <div class="field-group">
+      <div class="group-title">
+        <mat-icon>timer</mat-icon>
+        Time & Notes
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">access_time</mat-icon>
+            Time Spent (minutes)
+          </mat-label>
+          <input matInput type="number" formControlName="time" placeholder="Enter time in minutes" min="1">
+          <mat-hint>Enter the time spent on this task in minutes</mat-hint>
+          <mat-error *ngIf="entryForm.get('time')?.hasError('required')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Time is required
+          </mat-error>
+          <mat-error *ngIf="entryForm.get('time')?.hasError('min')">
+            <mat-icon class="error-icon">error</mat-icon>
+            Time must be at least 1 minute
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="field-icon">note</mat-icon>
+            Remarks
+          </mat-label>
+          <textarea matInput formControlName="remarks" 
+                    placeholder="Enter any additional remarks, notes, or observations about this task" 
+                    rows="4"></textarea>
+          <mat-hint>Optional: Add any additional context or notes</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" mat-button (click)="onCancel()" class="cancel-btn">
+        <mat-icon>cancel</mat-icon>
+        Cancel
+      </button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="entryForm.invalid" class="submit-btn">
+        <mat-icon>{{ data.entry ? 'update' : 'add' }}</mat-icon>
+        {{ data.entry ? 'Update' : 'Add' }} Entry
+      </button>
+    </div>
+  </form>
+</div> 

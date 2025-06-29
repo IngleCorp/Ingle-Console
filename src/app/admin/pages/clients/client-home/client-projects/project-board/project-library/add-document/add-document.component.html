@@ -1,0 +1,202 @@
+<div class="add-document-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h2 class="dialog-title">
+          <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+          {{ isEditMode ? 'Edit Document' : 'Add New Document' }}
+        </h2>
+        <p class="dialog-subtitle">
+          {{ isEditMode ? 'Update your document details and content' : 'Create a new document for your project library' }}
+        </p>
+      </div>
+      <div class="header-right">
+        <button class="close-btn" (click)="closeDialog()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="dialog-content">
+    <form [formGroup]="documentForm" (ngSubmit)="saveDocument()" class="document-form">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">info</mat-icon>
+          <h3>Basic Information</h3>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Document Title</mat-label>
+            <input matInput formControlName="title" placeholder="Enter document title">
+            <mat-icon matSuffix>title</mat-icon>
+            <mat-error *ngIf="documentForm.get('title')?.hasError('required')">
+              Title is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Document Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="document">Document</mat-option>
+              <mat-option value="template">Template</mat-option>
+              <mat-option value="guide">Guide</mat-option>
+              <mat-option value="reference">Reference</mat-option>
+            </mat-select>
+            <mat-icon matSuffix>category</mat-icon>
+            <mat-error *ngIf="documentForm.get('type')?.hasError('required')">
+              Document type is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Tags (Optional)</mat-label>
+            <input matInput formControlName="tags" placeholder="Enter tags separated by commas">
+            <mat-icon matSuffix>local_offer</mat-icon>
+            <mat-hint>Separate tags with commas (e.g., api, documentation, setup)</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">description</mat-icon>
+          <h3>Document Content</h3>
+        </div>
+        
+        <div class="editor-container">
+          <!-- Custom Table Toolbar -->
+          <div class="table-toolbar">
+            <div class="toolbar-section">
+              <h4>Quick Table Templates</h4>
+              <div class="table-buttons">
+                <button type="button" class="table-btn" (click)="createSampleTable()" matTooltip="Create Task Table">
+                  <mat-icon>assignment</mat-icon>
+                  <span>Task Table</span>
+                </button>
+                <button type="button" class="table-btn" (click)="createTimelineTable()" matTooltip="Create Timeline Table">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Timeline</span>
+                </button>
+                <button type="button" class="table-btn" (click)="createBudgetTable()" matTooltip="Create Budget Table">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <span>Budget</span>
+                </button>
+                <button type="button" class="table-btn" (click)="createCustomTable(3, 3)" matTooltip="Create Empty Table">
+                  <mat-icon>table_chart</mat-icon>
+                  <span>Empty Table</span>
+                </button>
+              </div>
+            </div>
+            
+            <div class="toolbar-section">
+              <h4>Table Operations</h4>
+              <div class="table-buttons">
+                <button type="button" class="table-btn small" (click)="addTableRow()" matTooltip="Add Row">
+                  <mat-icon>add_row</mat-icon>
+                </button>
+                <button type="button" class="table-btn small" (click)="addTableColumn()" matTooltip="Add Column">
+                  <mat-icon>add_column</mat-icon>
+                </button>
+                <button type="button" class="table-btn small" (click)="deleteTableRow()" matTooltip="Delete Row">
+                  <mat-icon>remove_row</mat-icon>
+                </button>
+                <button type="button" class="table-btn small" (click)="deleteTableColumn()" matTooltip="Delete Column">
+                  <mat-icon>remove_column</mat-icon>
+                </button>
+                <button type="button" class="table-btn small" (click)="mergeTableCells()" matTooltip="Merge Cells">
+                  <mat-icon>merge_type</mat-icon>
+                </button>
+                <button type="button" class="table-btn small" (click)="splitTableCells()" matTooltip="Split Cells">
+                  <mat-icon>call_split</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <quill-editor
+            formControlName="description"
+            [modules]="editorModules"
+            [styles]="editorStyles"
+            placeholder="Start writing your document content here..."
+            class="quill-editor"
+            (onEditorCreated)="onEditorCreated($event)"
+          ></quill-editor>
+        </div>
+      </div>
+
+      <!-- File Upload Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">attach_file</mat-icon>
+          <h3>Attachments (Optional)</h3>
+        </div>
+        
+        <div class="upload-container">
+          <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+            <div class="upload-content">
+              <mat-icon class="upload-icon">cloud_upload</mat-icon>
+              <h4>Drop files here or click to upload</h4>
+              <p>Support for PDF, DOC, DOCX, images, and other common formats</p>
+              <button type="button" class="upload-btn">
+                <mat-icon>add</mat-icon>
+                <span>Choose Files</span>
+              </button>
+            </div>
+            <input #fileInput type="file" multiple (change)="onFileSelected($event)" style="display: none;">
+          </div>
+          
+          <div class="uploaded-files" *ngIf="uploadedFiles.length > 0">
+            <h4>Uploaded Files</h4>
+            <div class="file-list">
+              <div class="file-item" *ngFor="let file of uploadedFiles; let i = index">
+                <div class="file-info">
+                  <mat-icon class="file-icon">description</mat-icon>
+                  <div class="file-details">
+                    <span class="file-name">{{ file.name }}</span>
+                    <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                  </div>
+                </div>
+                <button type="button" class="remove-file-btn" (click)="removeFile(i)" matTooltip="Remove file">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="dialog-footer">
+    <div class="footer-content">
+      <button type="button" class="cancel-btn" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+        <span>Cancel</span>
+      </button>
+      
+      <div class="action-buttons">
+        <button type="button" class="preview-btn" (click)="previewDocument()" [disabled]="!documentForm.valid">
+          <mat-icon>visibility</mat-icon>
+          <span>Preview</span>
+        </button>
+        
+        <button type="submit" class="save-btn" (click)="saveDocument()" [disabled]="!documentForm.valid || isSaving">
+          <mat-spinner diameter="16" *ngIf="isSaving"></mat-spinner>
+          <mat-icon *ngIf="!isSaving">{{ isEditMode ? 'update' : 'save' }}</mat-icon>
+          <span>{{ isSaving ? 'Saving...' : (isEditMode ? 'Update Document' : 'Save Document') }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

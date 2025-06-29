@@ -12,6 +12,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+import { QuillModule } from 'ngx-quill';
 // Import all client dashboard components
 import { ClientsListComponent } from './clients-list/clients-list.component';
 import { ClientAddComponent } from './client-add/client-add.component';
@@ -24,6 +35,18 @@ import { ProjectTasksComponent } from './client-home/client-projects/project-boa
 import { TimetakenComponent } from './client-home/client-projects/project-board/project-tasks/timetaken/timetaken.component';
 import { ClientBillsComponent } from './client-home/client-bills/client-bills.component';
 import { ProjectFilesComponent } from './client-home/client-projects/project-board/project-files/project-files.component';
+import { FileViewerComponent } from './client-home/client-projects/project-board/project-files/file-viewer/file-viewer.component';
+import { ProjectAccountsComponent } from './client-home/client-projects/project-board/project-accounts/project-accounts.component';
+import { ProjectBillsComponent } from './client-home/client-projects/project-board/project-bills/project-bills.component';
+import { ProjectWorksheetComponent } from './client-home/client-projects/project-board/project-worksheet/project-worksheet.component';
+import { WorksheetEntryFormComponent } from './client-home/client-projects/project-board/project-worksheet/worksheet-entry-form/worksheet-entry-form.component';
+import { ProjectTicketsComponent } from './client-home/client-projects/project-board/project-tickets/project-tickets.component';
+import { ProjectTicketFormComponent } from './client-home/client-projects/project-board/project-tickets/project-ticket-form/project-ticket-form.component';
+import { ProjectTicketViewComponent } from './client-home/client-projects/project-board/project-tickets/project-ticket-view/project-ticket-view.component';
+import { ProjectLibraryComponent } from './client-home/client-projects/project-board/project-library/project-library.component';
+import { AddDocumentComponent } from './client-home/client-projects/project-board/project-library/add-document/add-document.component';
+import { ViewDocumentComponent } from './client-home/client-projects/project-board/project-library/view-document/view-document.component';
+import { OpenDocumentComponent } from './client-home/client-projects/project-board/project-library/open-document/open-document.component';
 import { ClientsRoutingModule } from './clients-routing.module';
 
 @NgModule({
@@ -38,7 +61,19 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectTasksComponent,
     TimetakenComponent,
     ClientBillsComponent,
-    ProjectFilesComponent
+    ProjectFilesComponent,
+    FileViewerComponent,
+    ProjectAccountsComponent,
+    ProjectBillsComponent,
+    ProjectWorksheetComponent,
+    WorksheetEntryFormComponent,
+    ProjectTicketsComponent,
+    ProjectTicketFormComponent,
+    ProjectTicketViewComponent,
+    ProjectLibraryComponent,
+    AddDocumentComponent,
+    ViewDocumentComponent,
+    OpenDocumentComponent
   ],
   imports: [
     CommonModule,
@@ -55,7 +90,18 @@ import { ClientsRoutingModule } from './clients-routing.module';
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
-    ClientsRoutingModule
+    MatSelectModule,
+    MatCheckboxModule,
+    MatTabsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    ClientsRoutingModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatMenuModule,
+    MatBadgeModule,
+    QuillModule.forRoot()
   ],
   exports: [
     ClientsListComponent,
@@ -68,7 +114,19 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ProjectTasksComponent,
     TimetakenComponent,
     ClientBillsComponent,
-    ProjectFilesComponent
+    ProjectFilesComponent,
+    FileViewerComponent,
+    ProjectAccountsComponent,
+    ProjectBillsComponent,
+    ProjectWorksheetComponent,
+    WorksheetEntryFormComponent,
+    ProjectTicketsComponent,
+    ProjectTicketFormComponent,
+    ProjectTicketViewComponent,
+    ProjectLibraryComponent,
+    AddDocumentComponent,
+    ViewDocumentComponent,
+    OpenDocumentComponent
   ]
 })
 export class ClientsModule {}
