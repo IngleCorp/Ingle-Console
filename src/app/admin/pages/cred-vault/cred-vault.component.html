@@ -1,0 +1,275 @@
+<div class="cred-vault-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Credential Vault</h1>
+        <p class="page-subtitle">Securely manage your passwords and credentials</p>
+      </div>
+      <button mat-raised-button color="primary" class="add-credential-btn" (click)="isAddingCredential = true">
+        <mat-icon>add</mat-icon>
+        Add Credential
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-section">
+    <div class="search-filters">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Credentials</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by name, username, or description">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="category-filter">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Categories</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category">
+            {{ category }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Add/Edit Credential Form -->
+  <div class="form-section" *ngIf="isAddingCredential">
+    <div class="form-container">
+      <div class="form-header">
+        <h3 class="form-title">
+          <mat-icon>{{ isEditing ? 'edit' : 'add' }}</mat-icon>
+          {{ isEditing ? 'Edit Credential' : 'Add New Credential' }}
+        </h3>
+        <button mat-icon-button class="close-btn" (click)="cancelForm()" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <form [formGroup]="credentialForm" (ngSubmit)="isEditing ? updateCredential() : addCredential()" class="credential-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter credential name">
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-error *ngIf="name?.hasError('required')">Name is required</mat-error>
+            <mat-error *ngIf="name?.hasError('minlength')">Name must be at least 2 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option *ngFor="let category of categories" [value]="category">
+                {{ category }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+            <mat-error *ngIf="category?.hasError('required')">Category is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" placeholder="Enter username">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="username?.hasError('required')">Username is required</mat-error>
+            <mat-error *ngIf="username?.hasError('minlength')">Username must be at least 2 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>URL (Optional)</mat-label>
+            <input matInput formControlName="url" placeholder="Enter website URL">
+            <mat-icon matPrefix>link</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field password-field">
+            <mat-label>Password</mat-label>
+            <input 
+              matInput 
+              [type]="passwordVisible ? 'text' : 'password'"
+              formControlName="password" 
+              placeholder="Enter password">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button 
+              mat-icon-button 
+              matSuffix 
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'">
+              <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="password?.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="password?.hasError('minlength')">Password must be at least 6 characters</mat-error>
+          </mat-form-field>
+
+          <button type="button" mat-stroked-button class="generate-btn" (click)="generatePassword()">
+            <mat-icon>auto_fix_high</mat-icon>
+            Generate Password
+          </button>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Description (Optional)</mat-label>
+            <textarea matInput formControlName="description" placeholder="Enter description" rows="3"></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-slide-toggle formControlName="isActive" color="primary" class="status-toggle">
+            <div class="toggle-content">
+              <mat-icon>{{ credentialForm.get('isActive')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>{{ credentialForm.get('isActive')?.value ? 'Active' : 'Inactive' }}</span>
+            </div>
+          </mat-slide-toggle>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" mat-stroked-button class="cancel-btn" (click)="cancelForm()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            mat-raised-button 
+            color="primary" 
+            class="submit-btn"
+            [disabled]="credentialForm.invalid || isLoading">
+            <mat-spinner *ngIf="isLoading" diameter="20" class="spinner"></mat-spinner>
+            <mat-icon *ngIf="!isLoading">{{ isEditing ? 'save' : 'add' }}</mat-icon>
+            {{ isEditing ? 'Update Credential' : 'Add Credential' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Credentials Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <h3 class="table-title">
+        <mat-icon>vpn_key</mat-icon>
+        Your Credentials ({{ dataSource.data.length }})
+      </h3>
+    </div>
+
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort class="credentials-table">
+        
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="credential-info">
+              <div class="credential-icon" [style.background-color]="getCategoryColor(credential.category || 'Other')">
+                <mat-icon>vpn_key</mat-icon>
+              </div>
+              <div class="credential-details">
+                <span class="credential-name">{{ credential.name }}</span>
+                <span class="credential-description" *ngIf="credential.description">{{ credential.description }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Username Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="username-cell">
+              <span class="username-text">{{ credential.username }}</span>
+              <button mat-icon-button class="copy-btn" (click)="copyToClipboard(credential.username, 'Username')" matTooltip="Copy username">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Password Column -->
+        <ng-container matColumnDef="password">
+          <th mat-header-cell *matHeaderCellDef>Password</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="password-cell">
+              <span class="password-text">••••••••</span>
+              <div class="password-actions">
+                <button mat-icon-button class="copy-btn" (click)="copyToClipboard(credential.password, 'Password')" matTooltip="Copy password">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+                <button mat-icon-button class="view-btn" (click)="copyToClipboard(credential.password, 'Password')" matTooltip="View password">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="category-badge" [style.background-color]="getCategoryColor(credential.category || 'Other')">
+              <span class="category-text">{{ credential.category || 'Other' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="status-indicator" [class.active]="credential.isActive">
+              <div class="status-dot"></div>
+              <span class="status-text">{{ credential.isActive ? 'Active' : 'Inactive' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let credential">
+            <div class="action-buttons">
+              <button mat-icon-button color="primary" (click)="editCredential(credential)" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteCredential(credential.id!)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Header & Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading credentials...</p>
+      </div>
+
+      <!-- No Data Message -->
+      <div class="no-data" *ngIf="!isLoading && dataSource.data.length === 0">
+        <div class="no-data-content">
+          <mat-icon class="no-data-icon">vpn_key</mat-icon>
+          <h3>No Credentials Found</h3>
+          <p>Start by adding your first credential to the vault.</p>
+          <button mat-raised-button color="primary" (click)="isAddingCredential = true">
+            <mat-icon>add</mat-icon>
+            Add First Credential
+          </button>
+        </div>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
+</div> 

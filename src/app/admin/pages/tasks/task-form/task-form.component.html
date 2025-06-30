@@ -1,0 +1,122 @@
+<div class="form-container">
+  <div class="form-header">
+    <h3 class="form-title">
+      <mat-icon>{{ data.isEditing ? 'edit' : 'add' }}</mat-icon>
+      {{ data.isEditing ? 'Edit Task' : 'Add New Task' }}
+    </h3>
+    <button mat-icon-button class="close-btn" [mat-dialog-close]="null" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="taskForm" class="task-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Task Title</mat-label>
+          <input matInput formControlName="title" placeholder="Enter task title">
+          <mat-icon matPrefix>assignment</mat-icon>
+          <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+          <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">Title must be at least 3 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option *ngFor="let priority of data.priorities" [value]="priority.value">
+              <div class="priority-option">
+                <div class="priority-dot" [style.background-color]="priority.color"></div>
+                {{ priority.label }}
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>priority_high</mat-icon>
+          <mat-error *ngIf="taskForm.get('priority')?.hasError('required')">Priority is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of data.statuses" [value]="status.value">
+              <div class="status-option">
+                <div class="status-dot" [style.background-color]="status.color"></div>
+                {{ status.label }}
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>flag</mat-icon>
+          <mat-error *ngIf="taskForm.get('status')?.hasError('required')">Status is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Due Date (Optional)</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="Choose a date">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-icon matPrefix>event</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Project (Optional)</mat-label>
+          <mat-select formControlName="projectId">
+            <div class="mat-select-search-container">
+              <input matInput class="mat-select-search-input" [formControl]="projectSearchCtrl" placeholder="Search projects...">
+              <mat-icon class="mat-select-search-icon">search</mat-icon>
+            </div>
+            <mat-option [value]="null">No Project</mat-option>
+            <mat-option *ngFor="let project of filteredProjects | async" [value]="project.id">
+              {{ project.name }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>folder</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Estimated Hours (Optional)</mat-label>
+          <input matInput type="number" formControlName="estimatedHours" placeholder="Enter estimated hours">
+          <mat-icon matPrefix>schedule</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Assignees</mat-label>
+          <mat-select formControlName="assignees" multiple>
+            <mat-option *ngFor="let assignee of data.assignees" [value]="assignee.id">
+              {{ assignee.name }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>group</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea matInput formControlName="description" placeholder="Enter task description" rows="3"></textarea>
+          <mat-icon matPrefix>description</mat-icon>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="form-actions">
+    <button type="button" mat-stroked-button class="cancel-btn" [mat-dialog-close]="null">
+      Cancel
+    </button>
+    <button 
+      type="button" 
+      mat-raised-button 
+      color="primary" 
+      class="submit-btn"
+      [mat-dialog-close]="taskForm.value"
+      [disabled]="taskForm.invalid">
+      <mat-icon>{{ data.isEditing ? 'save' : 'add' }}</mat-icon>
+      {{ data.isEditing ? 'Update Task' : 'Add Task' }}
+    </button>
+  </mat-dialog-actions>
+</div>

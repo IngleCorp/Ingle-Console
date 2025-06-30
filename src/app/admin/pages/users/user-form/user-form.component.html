@@ -1,1 +1,201 @@
-<p>user-form works!</p>
+<div class="user-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
+      </div>
+      <div class="header-text">
+        <h2 class="form-title">{{ isEditMode ? 'Edit User' : 'Add New User' }}</h2>
+        <p class="form-subtitle">{{ isEditMode ? 'Update user information' : 'Create a new user account' }}</p>
+      </div>
+    </div>
+    <button mat-icon-button class="close-btn" (click)="onCancel()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Form Content -->
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+    
+    <!-- Avatar Section -->
+    <div class="avatar-section">
+      <div class="avatar-container">
+        <div class="avatar-preview" [class.has-avatar]="previewUrl">
+          <img *ngIf="previewUrl" [src]="previewUrl" alt="User Avatar" class="avatar-image">
+          <mat-icon *ngIf="!previewUrl" class="avatar-placeholder">account_circle</mat-icon>
+        </div>
+        <div class="avatar-actions">
+          <button type="button" mat-stroked-button class="upload-btn" (click)="fileInput.click()">
+            <mat-icon>upload</mat-icon>
+            {{ previewUrl ? 'Change' : 'Upload' }} Photo
+          </button>
+          <button *ngIf="previewUrl" type="button" mat-icon-button class="remove-btn" (click)="removeAvatar()" matTooltip="Remove photo">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+      </div>
+    </div>
+
+    <!-- Form Fields -->
+    <div class="form-fields">
+      
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Basic Information
+        </h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Full Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter full name">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="name?.hasError('required')">Name is required</mat-error>
+            <mat-error *ngIf="name?.hasError('minlength')">Name must be at least 2 characters</mat-error>
+            <mat-error *ngIf="name?.hasError('maxlength')">Name cannot exceed 50 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="Enter email address">
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
+            <mat-error *ngIf="email?.hasError('email')">Please enter a valid email</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phone" placeholder="Enter phone number">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="phone?.hasError('required')">Phone number is required</mat-error>
+            <mat-error *ngIf="phone?.hasError('pattern')">Please enter a valid phone number</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Department</mat-label>
+            <mat-select formControlName="department" placeholder="Select department">
+              <mat-option *ngFor="let dept of departments" [value]="dept">
+                {{ dept }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>business</mat-icon>
+            <mat-error *ngIf="department?.hasError('required')">Department is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Role & Permissions Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>security</mat-icon>
+          Role & Permissions
+        </h3>
+        
+        <div class="role-selection">
+          <div class="role-options">
+            <div 
+              *ngFor="let roleOption of roles" 
+              class="role-option"
+              [class.selected]="role?.value === roleOption.value"
+              (click)="role?.setValue(roleOption.value)">
+              <div class="role-icon" [style.background-color]="roleOption.color">
+                <mat-icon>{{ roleOption.icon }}</mat-icon>
+              </div>
+              <div class="role-info">
+                <span class="role-label">{{ roleOption.label }}</span>
+                <span class="role-description">{{ getRoleDescription(roleOption.value) }}</span>
+              </div>
+              <mat-icon class="check-icon" *ngIf="role?.value === roleOption.value">check_circle</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <mat-slide-toggle formControlName="isActive" color="primary" class="status-toggle">
+            <div class="toggle-content">
+              <mat-icon>{{ userForm.get('isActive')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              <span>{{ userForm.get('isActive')?.value ? 'Active User' : 'Inactive User' }}</span>
+            </div>
+          </mat-slide-toggle>
+        </div>
+      </div>
+
+      <!-- Password Section (only for new users) -->
+      <div class="form-section" *ngIf="!isEditMode">
+        <h3 class="section-title">
+          <mat-icon>lock</mat-icon>
+          Account Security
+        </h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Password</mat-label>
+            <input 
+              matInput 
+              [type]="passwordVisible ? 'text' : 'password'"
+              formControlName="password" 
+              placeholder="Enter password">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button 
+              mat-icon-button 
+              matSuffix 
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'">
+              <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="password?.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="password?.hasError('minlength')">Password must be at least 8 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Confirm Password</mat-label>
+            <input 
+              matInput 
+              [type]="confirmPasswordVisible ? 'text' : 'password'"
+              formControlName="confirmPassword" 
+              placeholder="Confirm password">
+            <mat-icon matPrefix>lock_reset</mat-icon>
+            <button 
+              mat-icon-button 
+              matSuffix 
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="confirmPasswordVisible ? 'Hide password' : 'Show password'">
+              <mat-icon>{{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="confirmPassword?.hasError('required')">Please confirm your password</mat-error>
+            <mat-error *ngIf="userForm.hasError('passwordMismatch')">Passwords do not match</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button 
+        type="button" 
+        mat-stroked-button 
+        class="cancel-btn" 
+        (click)="onCancel()"
+        [disabled]="isLoading">
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        mat-raised-button 
+        color="primary" 
+        class="submit-btn"
+        [disabled]="userForm.invalid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20" class="spinner"></mat-spinner>
+        <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ isEditMode ? 'Update User' : 'Create User' }}
+      </button>
+    </div>
+  </form>
+</div>

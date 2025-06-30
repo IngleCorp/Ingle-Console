@@ -1,0 +1,387 @@
+<div class="tasks-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Task Management</h1>
+        <p class="page-subtitle">Organize and track your team's tasks efficiently</p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button class="copy-btn" (click)="copyTaskList()" matTooltip="Copy task list">
+          <mat-icon>content_copy</mat-icon>
+          Copy List
+        </button>
+        <button mat-raised-button color="primary" class="add-task-btn" (click)="openTaskDialog(false)">
+          <mat-icon>add</mat-icon>
+          Add Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-section">
+    <div class="search-filters">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Tasks</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by title, description, or tags">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Statuses</mat-option>
+          <mat-option *ngFor="let status of statuses" [value]="status.value">
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>filter_list</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Priority</mat-label>
+        <mat-select [(ngModel)]="selectedPriority" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Priorities</mat-option>
+          <mat-option *ngFor="let priority of priorities" [value]="priority.value">
+            {{ priority.label }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>priority_high</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Assignee</mat-label>
+        <mat-select [(ngModel)]="selectedAssignee" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Assignees</mat-option>
+          <mat-option *ngFor="let assignee of assignees" [value]="assignee.id">
+            {{ assignee.name }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board">
+    <!-- To Do Column -->
+    <div class="kanban-column">
+      <div class="column-header todo-header">
+        <div class="column-title">
+          <div class="column-icon">
+            <mat-icon>pending_actions</mat-icon>
+          </div>
+          <h3>To Do</h3>
+          <span class="task-count">{{ todoTasks.length }}</span>
+        </div>
+      </div>
+      <div class="column-content">
+        <div class="task-card" *ngFor="let task of todoTasks" [class.high-priority]="task.priority === 'high' || task.priority === 'urgent'">
+          <div class="task-header">
+            <div class="task-status-indicator">
+              <div class="priority-indicator" [style.background-color]="getPriorityColor(task.priority)"></div>
+              <div class="status-icon">
+                <mat-icon>schedule</mat-icon>
+              </div>
+            </div>
+            <div class="task-actions">
+              <button mat-icon-button class="action-btn start-btn" (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start Progress">
+                <mat-icon>play_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn hold-btn" (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Put on Hold">
+                <mat-icon>pause_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit Task">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn delete-btn" (click)="deleteTask(task.id!)" matTooltip="Delete Task">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="task-content">
+            <div class="task-title-section">
+              <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                {{ task.priority || 'medium' }}
+              </div>
+            </div>
+            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-meta">
+              <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
+                <div class="assignees-label">
+                  <mat-icon>group</mat-icon>
+                  <span>Assigned to:</span>
+                </div>
+                <div class="assignees-list">
+                 <span class="assignee-badge" *ngFor="let name of getTaskAssignees(task)">
+                    <mat-icon class="assignee-icon">person</mat-icon>
+                    {{ name }}
+                  </span>
+                </div>
+              </div>
+              <div class="task-info">
+                <div class="info-item" *ngIf="getTaskProjectId(task)">
+                  <mat-icon>folder</mat-icon>
+                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                </div>
+                <div class="info-item" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ task.dueDate | date:'shortDate' }}</span>
+                </div>
+                <div class="info-item" *ngIf="task.estimatedHours">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ task.estimatedHours }}h estimated</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="kanban-column">
+      <div class="column-header progress-header">
+        <div class="column-title">
+          <div class="column-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <h3>In Progress</h3>
+          <span class="task-count">{{ inProgressTasks.length }}</span>
+        </div>
+      </div>
+      <div class="column-content">
+        <div class="task-card" *ngFor="let task of inProgressTasks">
+          <div class="task-header">
+            <div class="task-status-indicator">
+              <div class="priority-indicator" [style.background-color]="getPriorityColor(task.priority)"></div>
+              <div class="status-icon">
+                <mat-icon>sync</mat-icon>
+              </div>
+            </div>
+            <div class="progress-section">
+              <div class="progress-bar">
+                <mat-progress-bar 
+                  [value]="task.progress || 0" 
+                  color="primary"
+                  mode="determinate">
+                </mat-progress-bar>
+                <span class="progress-text">{{ task.progress || 0 }}%</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <button mat-icon-button class="action-btn complete-btn" (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Mark Complete">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn hold-btn" (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Put on Hold">
+                <mat-icon>pause_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit Task">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="task-content">
+            <div class="task-title-section">
+              <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                {{ task.priority || 'medium' }}
+              </div>
+            </div>
+            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-meta">
+              <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
+                <div class="assignees-label">
+                  <mat-icon>group</mat-icon>
+                  <span>Assigned to:</span>
+                </div>
+                <div class="assignees-list">
+                  <span class="assignee-badge" *ngFor="let name of getTaskAssignees(task)">
+                    <mat-icon class="assignee-icon">person</mat-icon>
+                    {{ name }}
+                  </span>
+                </div>
+              </div>
+              <div class="task-info">
+                <div class="info-item" *ngIf="getTaskProjectId(task)">
+                  <mat-icon>folder</mat-icon>
+                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                </div>
+                <div class="info-item" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ task.dueDate | date:'shortDate' }}</span>
+                </div>
+                <div class="info-item" *ngIf="task.estimatedHours">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ task.estimatedHours }}h estimated</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Done Column -->
+    <div class="kanban-column">
+      <div class="column-header done-header">
+        <div class="column-title">
+          <div class="column-icon">
+            <mat-icon>task_alt</mat-icon>
+          </div>
+          <h3>Done</h3>
+          <span class="task-count">{{ doneTasks.length }}</span>
+        </div>
+      </div>
+      <div class="column-content">
+        <div class="task-card" *ngFor="let task of doneTasks">
+          <div class="task-header">
+            <div class="task-status-indicator">
+              <div class="priority-indicator" [style.background-color]="getPriorityColor(task.priority)"></div>
+              <div class="status-icon completed">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+            </div>
+            <div class="task-actions">
+              <button mat-icon-button class="action-btn undo-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Move Back to Todo">
+                <mat-icon>undo</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit Task">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn delete-btn" (click)="deleteTask(task.id!)" matTooltip="Delete Task">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="task-content">
+            <div class="task-title-section">
+              <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                {{ task.priority || 'medium' }}
+              </div>
+            </div>
+            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-meta">
+              <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
+                <div class="assignees-label">
+                  <mat-icon>group</mat-icon>
+                  <span>Assigned to:</span>
+                </div>
+                <div class="assignees-list">
+                  <span class="assignee-badge" *ngFor="let name of getTaskAssignees(task)">
+                    <mat-icon class="assignee-icon">person</mat-icon>
+                    {{ name }}
+                  </span>
+                </div>
+              </div>
+              <div class="task-info">
+                <div class="info-item completion-info">
+                  <mat-icon>event_available</mat-icon>
+                  <span>Completed: {{ task.updatedAt | date:'shortDate' }}</span>
+                </div>
+                <div class="info-item" *ngIf="task.timeTaken">
+                  <mat-icon>timer</mat-icon>
+                  <span>{{ task.timeTaken }}h taken</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- On Hold Column -->
+    <div class="kanban-column">
+      <div class="column-header hold-header">
+        <div class="column-title">
+          <div class="column-icon">
+            <mat-icon>pause_circle</mat-icon>
+          </div>
+          <h3>On Hold</h3>
+          <span class="task-count">{{ holdTasks.length }}</span>
+        </div>
+      </div>
+      <div class="column-content">
+        <div class="task-card" *ngFor="let task of holdTasks">
+          <div class="task-header">
+            <div class="task-status-indicator">
+              <div class="priority-indicator" [style.background-color]="getPriorityColor(task.priority)"></div>
+              <div class="status-icon on-hold">
+                <mat-icon>pause_circle</mat-icon>
+              </div>
+            </div>
+            <div class="task-actions">
+              <button mat-icon-button class="action-btn resume-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Move Back to Todo">
+                <mat-icon>undo</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn start-btn" (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Resume Progress">
+                <mat-icon>play_circle</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit Task">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn delete-btn" (click)="deleteTask(task.id!)" matTooltip="Delete Task">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="task-content">
+            <div class="task-title-section">
+              <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                {{ task.priority || 'medium' }}
+              </div>
+            </div>
+            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-meta">
+              <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
+                <div class="assignees-label">
+                  <mat-icon>group</mat-icon>
+                  <span>Assigned to:</span>
+                </div>
+                <div class="assignees-list">
+                  <span class="assignee-badge" *ngFor="let name of getTaskAssignees(task)">
+                    <mat-icon class="assignee-icon">person</mat-icon>
+                    {{ name }}
+                  </span>
+                </div>
+              </div>
+              <div class="task-info">
+                <div class="info-item" *ngIf="getTaskProjectId(task)">
+                  <mat-icon>folder</mat-icon>
+                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                </div>
+                <div class="info-item hold-info">
+                  <mat-icon>schedule</mat-icon>
+                  <span>On hold since: {{ task.updatedAt | date:'shortDate' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading tasks...</p>
+  </div>
+
+  <!-- No Data Message -->
+  <div class="no-data" *ngIf="!isLoading && tasks.length === 0">
+    <div class="no-data-content">
+      <mat-icon class="no-data-icon">assignment</mat-icon>
+      <h3>No Tasks Found</h3>
+      <p>Start by adding your first task to get organized.</p>
+      <button mat-raised-button color="primary" (click)="openTaskDialog(false)">
+        <mat-icon>add</mat-icon>
+        Add First Task
+      </button>
+    </div>
+  </div>
+</div> 

@@ -1,148 +1,421 @@
-<mat-toolbar color="primary" class="toolbar">
-    <button mat-icon-button aria-label="Menu icon" (click)="toggleMenu()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <h1>INGLE CONSOLE</h1>
-
-
-    <span class="example-spacer"></span>
-    <button mat-icon-button [matMenuTriggerFor]="menu" >
-      <mat-icon>account_circle</mat-icon>
-     
-    </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="handleSignOut()">
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-      </button>
-    
-    </mat-menu>
-  </mat-toolbar>
-  <mat-sidenav-container autosize="true">
-    <mat-sidenav [ngClass]="!isCollapsed ? 'expanded' : ''" [mode]="isMobile ? 'over' : 'side'" [opened]="isMobile ? 'false' : 'true'">
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="users" routerLinkActive="active-link">
-            <mat-icon>group</mat-icon>
-            <span *ngIf="!isCollapsed">Users</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="finance/create" routerLinkActive="active-link">
-            <mat-icon>Money</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Accounts</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="clients" routerLinkActive="active-link">
-            <mat-icon>group</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Clients</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="types" routerLinkActive="active-link">
-            <mat-icon>category</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Type</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="quill" routerLinkActive="active-link">
-            <mat-icon>Quill</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Orders</span>
-          </span>
-        </a>
-      </mat-nav-list>
-    
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="todo" routerLinkActive="active-link">
-            <mat-icon>task</mat-icon>
-            <span *ngIf="!isCollapsed">Tasks</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="invoice" routerLinkActive="active-link">
-            <mat-icon>receipt_long</mat-icon>
-            <span *ngIf="!isCollapsed">Invoices</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item>
-          <span class="entry" routerLink="banners" routerLinkActive="active-link">
-            <mat-icon>photo_library</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Banners</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item >
-          <span class="entry" routerLink="files" routerLinkActive="active-link">
-            <mat-icon>storage</mat-icon>
-           
-            <span *ngIf="!isCollapsed">Storage</span>
-          </span>
-        </a>
-      </mat-nav-list>
-      
-    <mat-nav-list>
-      <mat-list-item  >
-        <span class="entry-sub-menu"  routerLinkActive="active-link">
-        <div class="entry-multi-menu" routerLink="study">
-          <mat-icon (click)="toggleMenu()">school</mat-icon>
-          <span *ngIf="!isCollapsed" >Study</span>
+<!-- Modern Navigation Component -->
+<div class="modern-nav-container">
+  <!-- Modern Toolbar -->
+  <mat-toolbar class="modern-toolbar">
+    <div class="toolbar-content">
+      <div class="toolbar-left">
+        <button mat-icon-button class="menu-toggle-btn" (click)="toggleMenu()" aria-label="Toggle menu">
+          <mat-icon class="menu-icon">menu</mat-icon>
+        </button>
+        
+        <div class="brand-section">
+          <div class="brand-logo">
+            <img src="/ingle_logo.png" alt="Ingle Logo" class="logo-image">
+          </div>
+          <!-- <div class="brand-text">
+            <h1 class="brand-title">INGLE CONSOLE</h1>
+            <span class="brand-subtitle">Management Dashboard</span>
+          </div> -->
         </div>
-        <mat-icon class="menu-button" [ngClass]="{'rotated': showSubmenu}" *ngIf="showSubmenuIcon" (click)="showSubmenu = !showSubmenu">expand_more</mat-icon>
-        </span>
-      </mat-list-item>
-      <div class="submenu" [ngClass]="{'expanded': showSubmenu}" *ngIf="showSubmenu">
-        <a mat-list-item routerLink="study/materials" routerLinkActive="active-link-sub">
-          <span>Materials</span>
-        </a>
-        <a mat-list-item routerLink="study/subjects" routerLinkActive="active-link-sub">
-          <span>Subject</span>
-        </a>
-        <a mat-list-item routerLink="study/university" routerLinkActive="active-link-sub">
-          <span>University</span>
-        </a>
-        <a mat-list-item routerLink="study/schemes" routerLinkActive="active-link-sub">
-          <span>Schemes</span>
-        </a>
-        <a mat-list-item routerLink="study/courses" routerLinkActive="active-link-sub">
-          <span>Courses</span>
-        </a>
-        <a mat-list-item routerLink="study/branches" routerLinkActive="active-link-sub">
-          <span>Branch</span>
-        </a>
-        <a mat-list-item routerLink="study/semesters" routerLinkActive="active-link-sub">
-          <span>Semesters</span>
-        </a>
-        <a mat-list-item routerLink="study/material-types" routerLinkActive="active-link-sub">
-          <span>Material type</span>
-        </a>
-       
-      
       </div>
-    </mat-nav-list>
-      
-    </mat-sidenav>
-    <mat-sidenav-content>
+
+      <div class="toolbar-right">
+        <div class="toolbar-actions">
+          <!-- Enhanced Search Bar -->
+          <div class="search-container">
+            <div class="search-wrapper">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input 
+                type="text" 
+                placeholder="Search projects, clients, tasks..." 
+                class="search-input"
+                [(ngModel)]="searchQuery"
+                (input)="onSearchInput()"
+                (focus)="onSearchFocus()"
+                (blur)="onSearchBlur()">
+              <button 
+                mat-icon-button 
+                class="search-clear-btn" 
+                *ngIf="searchQuery"
+                (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <!-- Search Results Dropdown -->
+            <div class="search-results" *ngIf="showSearchResults && searchResults.length > 0">
+              <div class="search-results-header">
+                <span class="results-title">Search Results</span>
+                <span class="results-count">{{searchResults.length}} found</span>
+              </div>
+              <div class="search-results-list">
+                <div 
+                  class="search-result-item" 
+                  *ngFor="let result of searchResults; trackBy: trackSearchResult"
+                  (click)="selectSearchResult(result)">
+                  <div class="result-icon-wrapper" [ngClass]="result.type">
+                    <mat-icon class="result-icon">{{result.icon}}</mat-icon>
+                  </div>
+                  <div class="result-content">
+                    <div class="result-title">{{result.title}}</div>
+                    <div class="result-subtitle">{{result.subtitle}}</div>
+                  </div>
+                  <div class="result-type-badge">{{result.type}}</div>
+                </div>
+              </div>
+              <div class="search-results-footer">
+                <button mat-button class="view-all-results-btn" (click)="viewAllSearchResults()">
+                  View all results
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Notification trigger (unchanged) -->
+<button mat-icon-button class="notification-btn" [matMenuTriggerFor]="notificationMenu" aria-label="Notifications">
+  <div class="notification-btn-content">
+    <mat-icon class="notification-icon">notifications</mat-icon>
+    <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+    <div class="notification-ripple" *ngIf="hasNewNotifications"></div>
+  </div>
+</button>
+
+<!-- Notification menu -->
+<mat-menu
+  #notificationMenu="matMenu"
+  class="modern-notification-menu notification-panel"
+  [overlapTrigger]="false"
+  [hasBackdrop]="true">
   
-      <router-outlet></router-outlet>
-    </mat-sidenav-content>
+  <!-- Header -->
+  <div class="panel-header">
+    <h3><mat-icon>notifications</mat-icon> Notifications</h3>
+    <button mat-icon-button (click)="markAllAsRead()" matTooltip="Mark all read">
+      <mat-icon>done_all</mat-icon>
+    </button>
+  </div>
+  <mat-divider></mat-divider>
+
+  <!-- Content -->
+  <div class="panel-content">
+    <div class="notification-list">
+      <div
+        class="notification-item"
+        *ngFor="let notification of notifications; trackBy: trackNotification"
+        [class.unread]="!notification.read">
+        
+        <div class="notification-icon-wrapper" [ngClass]="notification.type">
+          <mat-icon class="notification-item-icon">{{ notification.icon }}</mat-icon>
+        </div>
+        <div class="notification-content">
+          <p class="notification-text">{{ notification.message }}</p>
+          <span class="notification-time">{{ notification.time }}</span>
+        </div>
+        <div class="notification-actions">
+          <button
+            mat-icon-button
+            (click)="markAsRead(notification.id)"
+            [class.read]="notification.read"
+            matTooltip="Mark as read">
+            <mat-icon>{{ notification.read ? 'done' : 'radio_button_unchecked' }}</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="dismissNotification(notification.id)"
+            matTooltip="Dismiss">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State (unchanged) -->
+      <div class="empty-state" *ngIf="notifications.length === 0">
+        <div class="empty-icon"><mat-icon>notifications_off</mat-icon></div>
+        <p class="empty-text">No notifications</p>
+        <span class="empty-subtext">You're all caught up!</span>
+      </div>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+
+  <!-- Footer -->
+  <div class="panel-footer" *ngIf="notifications.length > 0">
+    <span class="footer-text">{{ unreadCount }} unread</span>
+    <button mat-button class="view-all-btn" (click)="viewAllNotifications()">View all</button>
+  </div>
+</mat-menu>
+
+<!-- Profile trigger (unchanged) -->
+<button mat-icon-button class="profile-btn" [matMenuTriggerFor]="profileMenu" aria-label="User profile">
+  <div class="profile-avatar">
+    <img *ngIf="userProfile?.avatar; else defaultAvatar" [src]="userProfile.avatar" class="profile-image">
+    <ng-template #defaultAvatar>
+      <mat-icon class="profile-icon">account_circle</mat-icon>
+    </ng-template>
+    <div class="online-indicator" *ngIf="userProfile?.isOnline"></div>
+  </div>
+</button>
+
+<!-- Profile menu -->
+<mat-menu
+  #profileMenu="matMenu"
+  class="modern-profile-menu profile-panel"
+  [overlapTrigger]="false"
+  [hasBackdrop]="true">
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar-large">
+      <img *ngIf="userProfile?.avatar; else defaultAvatarLarge" [src]="userProfile.avatar" class="profile-image-large" />
+      <ng-template #defaultAvatarLarge>
+        <mat-icon class="profile-icon-large">account_circle</mat-icon>
+      </ng-template>
+      <div class="online-indicator-large" *ngIf="userProfile?.isOnline"></div>
+    </div>
+    <div class="profile-details">
+      <h4 class="profile-name">{{ userProfile.name || 'Admin User' }}</h4>
+      <span class="profile-role">{{ userProfile.role || 'Administrator' }}</span>
+      <br>
+      <span class="profile-email">{{ userProfile.email || 'admin@ingle.com' }}</span>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Profile Menu Actions -->
+  <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
+    <mat-icon>person</mat-icon>
+    <span>My Profile ss</span>
+  </button>
+
+  <button mat-menu-item class="profile-menu-item" (click)="openSettings()">
+    <mat-icon>settings</mat-icon>
+    <span>Settings</span>
+  </button>
+
+  <button mat-menu-item class="profile-menu-item" (click)="openHelp()">
+    <mat-icon>help</mat-icon>
+    <span>Help & Support</span>
+  </button>
+
+  <mat-divider></mat-divider>
+
+  <button mat-menu-item class="profile-menu-item logout-item" (click)="handleSignOut()">
+    <mat-icon class="logout-icon">logout</mat-icon>
+    <span>Sign Out</span>
+  </button>
+</mat-menu>
+
+
+        </div>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Modern Sidenav Container -->
+  <mat-sidenav-container class="modern-sidenav-container" autosize="true">
+    <!-- Modern Sidenav -->
+  <mat-sidenav #sidenav
+             [mode]="isMobile ? 'over' : 'side'"
+             [opened]="isMobile ? false : true"
+             class="modern-sidenav"
+             [style.width.px]="isCollapsed ? collapsedWidth : expandedWidth">
+      
+      <!-- Navigation Header -->
+      <!-- <div class="sidenav-header">
+        <div class="sidenav-brand">
+          <div class="sidenav-logo">
+            <img src="/ingle_logo.png" alt="Ingle Logo" class="sidenav-logo-image">
+          </div>
+          <h2 class="sidenav-title" *ngIf="!isCollapsed">INGLE</h2>
+        </div>
+      </div> -->
+
+      <!-- Navigation Menu -->
+      <div class="navigation-menu">
+        <mat-nav-list class="nav-list">
+          
+          <!-- Dashboard -->
+          <a mat-list-item routerLink="/admin/dashboard" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">dashboard</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Dashboard</span>
+            </div>
+          </a>
+
+          <!-- Users Management -->
+          <a mat-list-item routerLink="users" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">group</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Users</span>
+            </div>
+          </a>
+
+          <!-- Credential Vault -->
+          <a mat-list-item routerLink="cred-vault" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">vpn_key</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Credential Vault</span>
+            </div>
+          </a>
+
+         
+
+          <!-- Finance/Accounts -->
+          <a mat-list-item routerLink="finance/create" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Accounts</span>
+            </div>
+          </a>
+
+          <!-- Clients -->
+          <a mat-list-item routerLink="clients" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">business</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Clients</span>
+            </div>
+          </a>
+
+          <!-- Types -->
+          <a mat-list-item routerLink="types" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">category</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Types</span>
+            </div>
+          </a>
+
+          <!-- Orders -->
+          <a mat-list-item routerLink="quill" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">shopping_cart</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Orders</span>
+            </div>
+          </a>
+
+          <!-- Tasks -->
+          <a mat-list-item routerLink="tasks" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">assignment</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Task Management</span>
+            </div>
+          </a>
+
+          <!-- Invoices -->
+          <a mat-list-item routerLink="invoice" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">receipt_long</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Invoices</span>
+            </div>
+          </a>
+
+          <!-- Banners -->
+          <a mat-list-item routerLink="banners" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">photo_library</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Banners</span>
+            </div>
+          </a>
+
+          <!-- Storage -->
+          <a mat-list-item routerLink="files" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">cloud</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Storage</span>
+            </div>
+          </a>
+
+          <!-- Study Section with Submenu -->
+          <div class="nav-item study-section">
+            <div class="nav-item-content" (click)="toggleSubmenu()">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">school</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Study</span>
+              <mat-icon class="submenu-toggle" 
+                       [ngClass]="{'rotated': showSubmenu}" 
+                       *ngIf="!isCollapsed && showSubmenuIcon">
+                expand_more
+              </mat-icon>
+            </div>
+          </div>
+
+          <!-- Study Submenu -->
+          <div class="submenu-container" [ngClass]="{'expanded': showSubmenu}" *ngIf="showSubmenu">
+            <a mat-list-item routerLink="study/materials" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Materials</span>
+            </a>
+            <a mat-list-item routerLink="study/subjects" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Subjects</span>
+            </a>
+            <a mat-list-item routerLink="study/university" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">University</span>
+            </a>
+            <a mat-list-item routerLink="study/schemes" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Schemes</span>
+            </a>
+            <a mat-list-item routerLink="study/courses" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Courses</span>
+            </a>
+            <a mat-list-item routerLink="study/branches" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Branches</span>
+            </a>
+            <a mat-list-item routerLink="study/semesters" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Semesters</span>
+            </a>
+            <a mat-list-item routerLink="study/material-types" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
+              <span class="submenu-label">Material Types</span>
+            </a>
+          </div>
+        </mat-nav-list>
+      </div>
+
+      <!-- Sidenav Footer -->
+      <div class="sidenav-footer" *ngIf="!isCollapsed">
+        <div class="footer-content">
+          <div class="system-status">
+            <div class="status-indicator online"></div>
+            <span class="status-text">System Online</span>
+          </div>
+          <div class="version-info">
+            <span class="version-text">v2.1.0</span>
+          </div>
+        </div>
+      </div>
+    </mat-sidenav>
+
+    <!-- Main Content Area -->
+ <mat-sidenav-content
+  class="modern-sidenav-content"
+  [style.margin-left.px]="
+    isMobile ? 0 : (isCollapsed ? collapsedWidth : expandedWidth)
+  ">
+  <div class="content-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</mat-sidenav-content>
   </mat-sidenav-container>
+</div>

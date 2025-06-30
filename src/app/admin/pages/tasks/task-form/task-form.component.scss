@@ -1,0 +1,97 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .form-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+
+    .form-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .close-btn {
+      color: white;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 24px;
+    
+    .task-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+
+        &.full-width {
+          grid-column: 1 / -1;
+        }
+
+        .form-field {
+          width: 100%;
+        }
+      }
+    }
+  }
+  
+  mat-dialog-actions.form-actions {
+    padding: 16px 24px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(0,0,0,0.12);
+
+    .cancel-btn {
+      border-radius: 12px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .submit-btn {
+      border-radius: 12px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+// Styles for the project search input
+.mat-select-search-container {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+
+  .mat-select-search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .mat-select-search-icon {
+    color: #999;
+  }
+}

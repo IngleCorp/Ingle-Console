@@ -1,0 +1,943 @@
+// Credential Vault Component Styles - Light Theme
+.cred-vault-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  padding: 32px;
+
+  // Page Header
+  .page-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .header-info {
+        .page-title {
+          margin: 0 0 8px 0;
+          font-size: 2rem;
+          font-weight: 700;
+          color: #1e293b;
+          background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .page-subtitle {
+          margin: 0;
+          font-size: 1rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+      }
+
+      .add-credential-btn {
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+
+  // Search Section
+  .search-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .search-filters {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .search-field,
+      .category-filter {
+        flex: 1;
+
+        ::ng-deep .mat-form-field-wrapper {
+          margin-bottom: 0;
+        }
+
+        ::ng-deep .mat-form-field-outline {
+          border-radius: 12px;
+          background: rgba(248, 250, 252, 0.8);
+          border-color: rgba(203, 213, 225, 0.3);
+        }
+
+        ::ng-deep .mat-form-field-outline-thick {
+          border-color: #10b981;
+        }
+
+        ::ng-deep .mat-form-field-label {
+          color: #475569;
+          font-weight: 500;
+        }
+
+        ::ng-deep .mat-input-element {
+          color: #1e293b;
+          font-weight: 500;
+        }
+
+        ::ng-deep .mat-form-field-prefix mat-icon {
+          color: #10b981;
+        }
+
+        ::ng-deep .mat-select-value {
+          color: #1e293b;
+        }
+
+        ::ng-deep .mat-select-arrow {
+          color: #10b981;
+        }
+      }
+    }
+  }
+
+  // Form Section
+  .form-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+
+    .form-container {
+      .form-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .form-title {
+          margin: 0;
+          color: white;
+          font-size: 1.25rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          mat-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .close-btn {
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          width: 40px;
+          height: 40px;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      .credential-form {
+        padding: 32px;
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          margin-bottom: 24px;
+
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          &.full-width {
+            grid-template-columns: 1fr;
+          }
+
+          .form-field {
+            width: 100%;
+
+            &.password-field {
+              position: relative;
+            }
+
+            ::ng-deep .mat-form-field-wrapper {
+              margin-bottom: 0;
+            }
+
+            ::ng-deep .mat-form-field-outline {
+              border-radius: 12px;
+              background: rgba(248, 250, 252, 0.8);
+              border-color: rgba(203, 213, 225, 0.3);
+            }
+
+            ::ng-deep .mat-form-field-outline-thick {
+              border-color: #10b981;
+            }
+
+            ::ng-deep .mat-form-field-label {
+              color: #475569;
+              font-weight: 500;
+            }
+
+            ::ng-deep .mat-input-element {
+              color: #1e293b;
+              font-weight: 500;
+            }
+
+            ::ng-deep .mat-form-field-prefix mat-icon {
+              color: #10b981;
+            }
+
+            ::ng-deep .mat-select-value {
+              color: #1e293b;
+            }
+
+            ::ng-deep .mat-select-arrow {
+              color: #10b981;
+            }
+
+            ::ng-deep textarea.mat-input-element {
+              resize: vertical;
+              min-height: 80px;
+            }
+          }
+
+          .generate-btn {
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: 600;
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 56px;
+            align-self: end;
+
+            &:hover {
+              background: rgba(16, 185, 129, 0.2);
+              transform: translateY(-1px);
+            }
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+
+          .status-toggle {
+            align-self: center;
+
+            ::ng-deep .mat-slide-toggle-bar {
+              border-radius: 20px;
+              background: rgba(203, 213, 225, 0.3);
+            }
+
+            ::ng-deep .mat-slide-toggle-thumb {
+              border-radius: 50%;
+              background: white;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+              background: #10b981;
+            }
+
+            ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+              background: white;
+            }
+
+            .toggle-content {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-left: 12px;
+
+              mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: #10b981;
+              }
+
+              span {
+                font-weight: 600;
+                color: #1e293b;
+              }
+            }
+          }
+        }
+
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(203, 213, 225, 0.3);
+
+          .cancel-btn {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-color: rgba(203, 213, 225, 0.5);
+            color: #64748b;
+            transition: all 0.3s ease;
+
+            &:hover {
+              border-color: rgba(203, 213, 225, 0.7);
+              background: rgba(248, 250, 252, 0.8);
+              transform: translateY(-1px);
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+
+          .submit-btn {
+            border-radius: 12px;
+            padding: 12px 32px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            }
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+              transform: none;
+            }
+
+            .spinner {
+              margin-right: 8px;
+            }
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Table Container
+  .table-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .table-header {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      padding: 24px 32px;
+      border-bottom: 1px solid rgba(203, 213, 225, 0.3);
+
+      .table-title {
+        margin: 0;
+        color: #1e293b;
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          color: #10b981;
+        }
+      }
+    }
+
+    .table-wrapper {
+      .credentials-table {
+        width: 100%;
+
+        // Header Styles
+        ::ng-deep .mat-header-cell {
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          color: #1e293b;
+          font-weight: 600;
+          font-size: 0.875rem;
+          padding: 16px 12px;
+          border: none;
+
+          .mat-sort-header-container {
+            color: #1e293b;
+          }
+
+          .mat-sort-header-arrow {
+            color: #10b981;
+          }
+        }
+
+        // Row Styles
+        ::ng-deep .mat-row {
+          transition: all 0.3s ease;
+          border-bottom: 1px solid rgba(203, 213, 225, 0.2);
+
+          &:hover {
+            background: rgba(16, 185, 129, 0.05);
+            transform: translateX(4px);
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+
+        ::ng-deep .mat-cell {
+          padding: 16px 12px;
+          border: none;
+          vertical-align: middle;
+        }
+
+        // Credential Info Column
+        .credential-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .credential-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+              color: white;
+            }
+          }
+
+          .credential-details {
+            .credential-name {
+              display: block;
+              font-weight: 600;
+              color: #1e293b;
+              font-size: 0.875rem;
+              margin-bottom: 4px;
+            }
+
+            .credential-description {
+              display: block;
+              color: #64748b;
+              font-size: 0.75rem;
+              line-height: 1.4;
+            }
+          }
+        }
+
+        // Username Column
+        .username-cell {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .username-text {
+            color: #475569;
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex: 1;
+          }
+
+          .copy-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background: rgba(16, 185, 129, 0.2);
+              transform: scale(1.1);
+            }
+
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+          }
+        }
+
+        // Password Column
+        .password-cell {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .password-text {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex: 1;
+            letter-spacing: 2px;
+          }
+
+          .password-actions {
+            display: flex;
+            gap: 4px;
+
+            .copy-btn,
+            .view-btn {
+              width: 32px;
+              height: 32px;
+              border-radius: 6px;
+              transition: all 0.3s ease;
+
+              &:hover {
+                transform: scale(1.1);
+              }
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
+            }
+
+            .copy-btn {
+              background: rgba(16, 185, 129, 0.1);
+              color: #10b981;
+
+              &:hover {
+                background: rgba(16, 185, 129, 0.2);
+              }
+            }
+
+            .view-btn {
+              background: rgba(59, 130, 246, 0.1);
+              color: #3b82f6;
+
+              &:hover {
+                background: rgba(59, 130, 246, 0.2);
+              }
+            }
+          }
+        }
+
+        // Category Column
+        .category-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 12px;
+          border-radius: 20px;
+          color: white;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          .category-text {
+            font-size: 0.75rem;
+          }
+        }
+
+        // Status Column
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: all 0.3s ease;
+          }
+
+          .status-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #94a3b8;
+          }
+
+          &.active {
+            .status-dot {
+              background: #10b981;
+              box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+            }
+
+            .status-text {
+              color: #10b981;
+            }
+          }
+        }
+
+        // Actions Column
+        .action-buttons {
+          display: flex;
+          gap: 4px;
+          opacity: 1;
+          transition: opacity 0.3s ease;
+
+          button {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+
+            mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+        }
+
+        // Show actions on row hover
+        ::ng-deep .mat-row:hover .action-buttons {
+          opacity: 1;
+        }
+      }
+
+      // Loading State
+      .loading-state {
+        padding: 64px 32px;
+        text-align: center;
+        color: #64748b;
+
+        p {
+          margin: 16px 0 0 0;
+          font-size: 1rem;
+        }
+      }
+
+      // No Data Message
+      .no-data {
+        padding: 64px 32px;
+        text-align: center;
+
+        .no-data-content {
+          max-width: 400px;
+          margin: 0 auto;
+
+          .no-data-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+          }
+
+          h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+          }
+
+          p {
+            margin: 0 0 24px 0;
+            color: #64748b;
+            font-size: 1rem;
+          }
+
+          button {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            }
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+        }
+      }
+
+      // Paginator
+      ::ng-deep .mat-paginator {
+        background: rgba(248, 250, 252, 0.8);
+        border-top: 1px solid rgba(203, 213, 225, 0.3);
+
+        .mat-paginator-container {
+          padding: 16px 24px;
+        }
+
+        .mat-paginator-page-size-label {
+          color: #475569;
+          font-weight: 500;
+        }
+
+        .mat-paginator-range-label {
+          color: #1e293b;
+          font-weight: 500;
+        }
+
+        .mat-paginator-navigation-previous,
+        .mat-paginator-navigation-next,
+        .mat-paginator-navigation-first,
+        .mat-paginator-navigation-last {
+          color: #10b981;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .cred-vault-container {
+    padding: 24px;
+
+    .page-header {
+      padding: 24px;
+
+      .header-content {
+        .header-info {
+          .page-title {
+            font-size: 1.75rem;
+          }
+        }
+      }
+    }
+
+    .table-container {
+      .table-wrapper {
+        .credentials-table {
+          ::ng-deep .mat-header-cell,
+          ::ng-deep .mat-cell {
+            padding: 12px 8px;
+          }
+
+          .credential-info {
+            .credential-icon {
+              width: 32px;
+              height: 32px;
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
+            }
+          }
+
+          .category-badge {
+            padding: 4px 8px;
+
+            .category-text {
+              font-size: 0.625rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .cred-vault-container {
+    padding: 16px;
+
+    .page-header {
+      padding: 20px;
+
+      .header-content {
+        .header-info {
+          .page-title {
+            font-size: 1.5rem;
+          }
+
+          .page-subtitle {
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+
+    .search-section {
+      padding: 20px;
+    }
+
+    .form-section {
+      .form-container {
+        .credential-form {
+          padding: 24px;
+        }
+      }
+    }
+
+    .table-container {
+      border-radius: 16px;
+
+      .table-header {
+        padding: 20px 24px;
+      }
+
+      .table-wrapper {
+        .credentials-table {
+          ::ng-deep .mat-header-cell,
+          ::ng-deep .mat-cell {
+            padding: 8px 4px;
+            font-size: 0.75rem;
+          }
+
+          .action-buttons {
+            opacity: 1;
+            gap: 2px;
+
+            button {
+              width: 32px;
+              height: 32px;
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
+            }
+          }
+        }
+
+        .no-data {
+          padding: 48px 24px;
+
+          .no-data-content {
+            .no-data-icon {
+              font-size: 48px;
+              width: 48px;
+              height: 48px;
+            }
+
+            h3 {
+              font-size: 1.25rem;
+            }
+
+            p {
+              font-size: 0.875rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation Classes
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cred-vault-container {
+  animation: fadeIn 0.4s ease-out;
+}
+
+// Light theme background elements
+.cred-vault-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+} 
