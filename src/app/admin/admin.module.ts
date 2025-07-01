@@ -55,6 +55,9 @@ import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.component';
 import { InvoicePdfDialogComponent } from './pages/invoice/invoice-pdf-dialog/invoice-pdf-dialog.component';
 import { TaskFormComponent } from './pages/tasks/task-form/task-form.component';
+import { CalendarComponent } from './pages/calendar/calendar.component';
+import { EventFormComponent } from './pages/calendar/event-form/event-form.component';
+import { EventsListComponent } from './pages/calendar/events-list/events-list.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +78,9 @@ import { TaskFormComponent } from './pages/tasks/task-form/task-form.component';
     InvoiceFormComponent,
     InvoicePdfDialogComponent,
     TaskFormComponent,
+    CalendarComponent,
+    EventFormComponent,
+    EventsListComponent,
   ],
   imports: [
     CommonModule,

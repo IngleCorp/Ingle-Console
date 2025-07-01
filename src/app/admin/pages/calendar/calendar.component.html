@@ -1,0 +1,212 @@
+<div class="calendar-container">
+  <!-- Header -->
+  <div class="calendar-header">
+    <div class="header-left">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">event</mat-icon>
+        Calendar
+      </h1>
+    </div>
+    
+    <div class="header-center">
+      <div class="navigation-controls">
+        <button mat-icon-button (click)="previousMonth()" class="nav-btn">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        
+        <div class="current-month" *ngIf="viewMode === 'month'">
+          <h2>{{ getMonthName() }} {{ getYear() }}</h2>
+        </div>
+        
+        <button mat-icon-button (click)="nextMonth()" class="nav-btn">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="view-controls">
+        <button mat-button 
+                [class.active]="viewMode === 'month'"
+                (click)="switchView('month')"
+                class="view-btn">
+          <mat-icon>calendar_view_month</mat-icon>
+          Month
+        </button>
+        <button mat-button 
+                [class.active]="viewMode === 'list'"
+                (click)="switchView('list')"
+                class="view-btn">
+          <mat-icon>list</mat-icon>
+          List
+        </button>
+      </div>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="goToToday()"
+              class="today-btn">
+        <mat-icon>today</mat-icon>
+        Today
+      </button>
+      
+      <button mat-raised-button 
+              color="accent" 
+              (click)="addEvent()"
+              class="add-event-btn">
+        <mat-icon>add</mat-icon>
+        Add Event
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar View -->
+  <div class="calendar-content" *ngIf="viewMode === 'month'">
+    <!-- Week Days Header -->
+    <div class="calendar-week-header">
+      <div class="week-day" *ngFor="let day of weekDays">
+        {{ day }}
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+      <div class="calendar-day" 
+           *ngFor="let day of calendarDays; trackBy: trackByDate"
+           [class.current-month]="day.isCurrentMonth"
+           [class.today]="day.isToday"
+           [class.selected]="day.isSelected"
+           (click)="selectDate(day)">
+        
+        <div class="day-number">{{ day.date.getDate() }}</div>
+        
+        <div class="day-events">
+          <div class="event-item" 
+               *ngFor="let event of day.events.slice(0, 3); trackBy: trackByEvent"
+               [style.background-color]="getEventColor(event)"
+               (click)="editEvent(event); $event.stopPropagation()">
+            <span class="event-title">{{ event.title }}</span>
+            <span class="event-time" *ngIf="!event.allDay">{{ formatEventTime(event) }}</span>
+          </div>
+          
+          <div class="more-events" 
+               *ngIf="day.events.length > 3"
+               (click)="showMoreEvents(day); $event.stopPropagation()">
+            +{{ day.events.length - 3 }} more
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div class="list-content" *ngIf="viewMode === 'list'">
+    <div class="list-sections">
+      <!-- Upcoming Events -->
+      <div class="events-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">schedule</mat-icon>
+            Upcoming Events
+          </h3>
+          <span class="event-count">{{ getUpcomingEvents().length }} events</span>
+        </div>
+        
+        <div class="events-list">
+          <div class="event-card" 
+               *ngFor="let event of getUpcomingEvents(); trackBy: trackByEvent"
+               [style.border-left-color]="getEventColor(event)">
+            <div class="event-header">
+              <h4 class="event-title">{{ event.title }}</h4>
+              <div class="event-actions">
+                <button mat-icon-button (click)="editEvent(event)" class="action-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteEvent(event)" class="action-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <div class="event-details">
+              <div class="event-time">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatEventTime(event) }}</span>
+              </div>
+              
+              <div class="event-date">
+                <mat-icon>event</mat-icon>
+                <span>{{ event.startDate | date:'fullDate' }}</span>
+              </div>
+              
+              <div class="event-location" *ngIf="event.location">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ event.location }}</span>
+              </div>
+              
+              <div class="event-description" *ngIf="event.description">
+                <mat-icon>description</mat-icon>
+                <span>{{ event.description }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="empty-state" *ngIf="getUpcomingEvents().length === 0">
+            <mat-icon class="empty-icon">event_busy</mat-icon>
+            <p class="empty-text">No upcoming events</p>
+            <button mat-raised-button color="primary" (click)="addEvent()">
+              <mat-icon>add</mat-icon>
+              Add Event
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Events -->
+      <div class="events-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">history</mat-icon>
+            Past Events
+          </h3>
+          <span class="event-count">{{ getPastEvents().length }} events</span>
+        </div>
+        
+        <div class="events-list">
+          <div class="event-card past-event" 
+               *ngFor="let event of getPastEvents().slice(0, 10); trackBy: trackByEvent"
+               [style.border-left-color]="getEventColor(event)">
+            <div class="event-header">
+              <h4 class="event-title">{{ event.title }}</h4>
+              <div class="event-actions">
+                <button mat-icon-button (click)="editEvent(event)" class="action-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteEvent(event)" class="action-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <div class="event-details">
+              <div class="event-time">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatEventTime(event) }}</span>
+              </div>
+              
+              <div class="event-date">
+                <mat-icon>event</mat-icon>
+                <span>{{ event.startDate | date:'fullDate' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="empty-state" *ngIf="getPastEvents().length === 0">
+            <mat-icon class="empty-icon">history</mat-icon>
+            <p class="empty-text">No past events</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

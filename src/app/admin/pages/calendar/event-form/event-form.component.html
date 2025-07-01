@@ -1,0 +1,145 @@
+<div class="event-form-container">
+  <div class="form-header">
+    <h2 class="form-title">
+      <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Edit Event' : 'Add New Event' }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
+    <!-- Title -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Event Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter event title" required>
+      <mat-icon matSuffix>event</mat-icon>
+      <mat-error *ngIf="eventForm.get('title')?.hasError('required')">
+        Event title is required
+      </mat-error>
+      <mat-error *ngIf="eventForm.get('title')?.hasError('minlength')">
+        Title must be at least 2 characters
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" placeholder="Enter event description" rows="3"></textarea>
+      <mat-icon matSuffix>description</mat-icon>
+    </mat-form-field>
+
+    <!-- Date and Time Section -->
+    <div class="datetime-section">
+      <h3 class="section-title">
+        <mat-icon>schedule</mat-icon>
+        Date & Time
+      </h3>
+
+      <!-- All Day Toggle -->
+      <mat-slide-toggle formControlName="allDay" (change)="onAllDayChange()" class="all-day-toggle">
+        All Day Event
+      </mat-slide-toggle>
+
+      <div class="datetime-grid">
+        <!-- Start Date -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" required>
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+          <mat-error *ngIf="eventForm.get('startDate')?.hasError('required')">
+            Start date is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Start Time -->
+        <mat-form-field appearance="outline" class="form-field" *ngIf="!eventForm.get('allDay')?.value">
+          <mat-label>Start Time</mat-label>
+          <input matInput type="time" formControlName="startTime">
+          <mat-icon matSuffix>access_time</mat-icon>
+        </mat-form-field>
+
+        <!-- End Date -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>End Date (Optional)</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- End Time -->
+        <mat-form-field appearance="outline" class="form-field" *ngIf="!eventForm.get('allDay')?.value">
+          <mat-label>End Time (Optional)</mat-label>
+          <input matInput type="time" formControlName="endTime">
+          <mat-icon matSuffix>access_time</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Color Selection -->
+    <div class="color-section">
+      <h3 class="section-title">
+        <mat-icon>palette</mat-icon>
+        Event Color
+      </h3>
+      <div class="color-options">
+        <div class="color-option" 
+             *ngFor="let color of colorOptions"
+             [class.selected]="eventForm.get('color')?.value === color.value"
+             [style.background-color]="color.value"
+             (click)="eventForm.patchValue({ color: color.value })">
+          <mat-icon *ngIf="eventForm.get('color')?.value === color.value">check</mat-icon>
+          <span class="color-name">{{ color.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Location</mat-label>
+      <input matInput formControlName="location" placeholder="Enter event location">
+      <mat-icon matSuffix>location_on</mat-icon>
+    </mat-form-field>
+
+    <!-- Attendees -->
+    <mat-form-field appearance="outline" class="form-field">
+      <mat-label>Attendees</mat-label>
+      <input matInput formControlName="attendees" placeholder="Enter attendee names (comma separated)">
+      <mat-icon matSuffix>people</mat-icon>
+      <mat-hint>Separate multiple attendees with commas</mat-hint>
+    </mat-form-field>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <div class="left-actions" *ngIf="isEditMode">
+        <button type="button" 
+                mat-stroked-button 
+                color="warn" 
+                (click)="deleteEvent()"
+                class="delete-btn">
+          <mat-icon>delete</mat-icon>
+          Delete Event
+        </button>
+      </div>
+
+      <div class="right-actions">
+        <button type="button" 
+                mat-button 
+                (click)="onCancel()"
+                class="cancel-btn">
+          Cancel
+        </button>
+        <button type="submit" 
+                mat-raised-button 
+                color="primary"
+                [disabled]="eventForm.invalid"
+                class="save-btn">
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+          {{ isEditMode ? 'Update Event' : 'Create Event' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

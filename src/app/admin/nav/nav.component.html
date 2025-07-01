@@ -318,6 +318,16 @@
             </div>
           </a>
 
+          <!-- Calendar -->
+          <a mat-list-item routerLink="calendar" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">event</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Calendar</span>
+            </div>
+          </a>
+
           <!-- Invoices -->
           <a mat-list-item routerLink="invoice" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
             <div class="nav-item-content">
