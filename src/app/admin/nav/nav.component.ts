@@ -263,18 +263,16 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   selectSearchResult(result: SearchResult): void {
+    console.log('NAV DEBUG', { result, projects: this.projects, currentUrl: window.location.href });
     if (result.type === 'project') {
-      // Find the project in the loaded projects array
       const project = this.projects.find(p => p.id === result.id);
       if (project && project.clientid) {
-        // Navigate to the project board's default tab (tasks)
-        this.router.navigate([`/admin/clients/${project.clientid}/projects/${project.id}/tasks`]);
+        this.router.navigateByUrl(`/admin/clients/${project.clientid}/projects/${project.id}/tasks`);
       } else {
-        // Fallback: just go to the project board
-        this.router.navigate([`/admin/projects/${result.id}`]);
+        this.router.navigateByUrl(`/admin/projects/${result.id}`);
       }
     } else {
-      this.router.navigate([result.url]);
+      this.router.navigateByUrl(result.url);
     }
     this.clearSearch();
   }

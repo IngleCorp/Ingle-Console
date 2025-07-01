@@ -38,10 +38,14 @@ export class ProjectBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.activetab = localStorage.getItem('pactivetab');
-    const url = this.route.snapshot.url;
-    this.clientId = this.route.parent?.snapshot.paramMap.get('id') ?? null;
-    this.projectId = this.route.snapshot.paramMap.get('projectId') ?? null;
-    this.getProjectinfo();
+    // Listen for both clientId and projectId changes
+    this.route.parent?.paramMap.subscribe(parentParams => {
+      this.clientId = parentParams.get('id');
+      this.route.paramMap.subscribe(params => {
+        this.projectId = params.get('projectId');
+        this.getProjectinfo();
+      });
+    });
   }
 
   toggleHeader(): void {

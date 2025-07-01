@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { GeneralService } from '../../../../core/services/general.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-client-home',
@@ -45,11 +46,19 @@ export class ClientHomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.clientId = this.route.snapshot.paramMap.get('id');
-    this.getClientInfo();
-    this.getClientProjects();
-    this.getClientBills();
-    this.detectProjectRoute();
+    // Listen for client ID changes
+    this.route.paramMap.subscribe(params => {
+      this.clientId = params.get('id');
+      this.getClientInfo();
+      this.getClientProjects();
+      this.getClientBills();
+      this.detectProjectRoute();
+    });
+    
+    // Listen for navigation events to detect project route changes
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+      this.detectProjectRoute();
+    });
   }
 
   toggleHeader(): void {

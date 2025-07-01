@@ -31,15 +31,17 @@ export class ProjectTasksComponent implements OnInit {
 
   ngOnInit(): void {
     localStorage.setItem('pactivetab', 'tasks');
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    console.log('Project ID:', this.projectId);
-    this.getTasks();
-    if (this.projectId) {
-      this.afs.collection('projects').doc(this.projectId).valueChanges().subscribe((res: any) => {
-        this.projectname = res?.name;
-        console.log('Project Name:', this.projectname);
-      });
-    }
+    this.route.parent?.paramMap.subscribe(params => {
+      this.projectId = params.get('projectId');
+      console.log('Project ID:', this.projectId);
+      this.getTasks();
+      if (this.projectId) {
+        this.afs.collection('projects').doc(this.projectId).valueChanges().subscribe((res: any) => {
+          this.projectname = res?.name;
+          console.log('Project Name:', this.projectname);
+        });
+      }
+    });
   }
 
   getTasks(): void {
