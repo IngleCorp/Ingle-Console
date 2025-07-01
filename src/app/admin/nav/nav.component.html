@@ -6,7 +6,7 @@
       <div class="toolbar-left">
         <button mat-icon-button class="menu-toggle-btn" (click)="toggleMenu()" aria-label="Toggle menu">
           <mat-icon class="menu-icon">menu</mat-icon>
-        </button>
+    </button>
         
         <div class="brand-section">
           <div class="brand-logo">
@@ -197,15 +197,15 @@
   <button mat-menu-item class="profile-menu-item" (click)="openHelp()">
     <mat-icon>help</mat-icon>
     <span>Help & Support</span>
-  </button>
-
+      </button>
+    
   <mat-divider></mat-divider>
 
   <button mat-menu-item class="profile-menu-item logout-item" (click)="handleSignOut()">
     <mat-icon class="logout-icon">logout</mat-icon>
     <span>Sign Out</span>
   </button>
-</mat-menu>
+    </mat-menu>
 
 
         </div>
@@ -237,12 +237,12 @@
         <mat-nav-list class="nav-list">
           
           <!-- Dashboard -->
-          <a mat-list-item routerLink="/admin/dashboard" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+          <a mat-list-item routerLink="/admin/home" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
             <div class="nav-item-content">
               <div class="nav-icon-wrapper">
                 <mat-icon class="nav-icon">dashboard</mat-icon>
               </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Dashboard</span>
+              <span class="nav-label" *ngIf="!isCollapsed">Home</span>
             </div>
           </a>
 
@@ -371,7 +371,7 @@
                 expand_more
               </mat-icon>
             </div>
-          </div>
+        </div>
 
           <!-- Study Submenu -->
           <div class="submenu-container" [ngClass]="{'expanded': showSubmenu}" *ngIf="showSubmenu">
@@ -424,8 +424,8 @@
     isMobile ? 0 : (isCollapsed ? collapsedWidth : expandedWidth)
   ">
   <div class="content-wrapper">
-    <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
   </div>
-</mat-sidenav-content>
+    </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

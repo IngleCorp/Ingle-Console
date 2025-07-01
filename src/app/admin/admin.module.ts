@@ -58,6 +58,7 @@ import { TaskFormComponent } from './pages/tasks/task-form/task-form.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
 import { EventFormComponent } from './pages/calendar/event-form/event-form.component';
 import { EventsListComponent } from './pages/calendar/events-list/events-list.component';
+import { HomeComponent } from './pages/home/home.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +82,7 @@ import { EventsListComponent } from './pages/calendar/events-list/events-list.co
     CalendarComponent,
     EventFormComponent,
     EventsListComponent,
+    HomeComponent,
   ],
   imports: [
     CommonModule,

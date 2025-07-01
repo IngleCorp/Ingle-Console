@@ -12,6 +12,7 @@ import { TodoComponent } from './pages/todo/todo.component';
 import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
+import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
   {
@@ -28,6 +29,7 @@ const routes: Routes = [
       {path:'cred-vault',component:CredVaultComponent},
       {path: 'tasks', component: TasksComponent},
       {path: 'calendar', component: CalendarComponent},
+      {path: 'home', component: HomeComponent},
       {
         path: 'clients',
         loadChildren: () => import('./pages/clients/clients.module').then(m => m.ClientsModule)
