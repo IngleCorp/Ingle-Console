@@ -60,6 +60,9 @@ import { CalendarComponent } from './pages/calendar/calendar.component';
 import { EventFormComponent } from './pages/calendar/event-form/event-form.component';
 import { EventsListComponent } from './pages/calendar/events-list/events-list.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+import { ActivitiesComponent } from './pages/activities/activities.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +88,9 @@ import { HomeComponent } from './pages/home/home.component';
     EventFormComponent,
     EventsListComponent,
     HomeComponent,
+    ProfileComponent,
+    SettingsComponent,
+    ActivitiesComponent,
   ],
   imports: [
     CommonModule,

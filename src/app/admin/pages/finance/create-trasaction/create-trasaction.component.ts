@@ -207,7 +207,18 @@ if(this.amount>0){
 
       console.log(temp);
       this.afs.collection('moneytransactions').add(temp).then((docRef: any) => {
-        console.log("Document written with ID: ", docRef.id);
+        // Record activity
+        this.afs.collection('activities').add({
+          type: 'transaction',
+          action: 'Created',
+          entityId: docRef.id,
+          entityName: Tid,
+          details: `New transaction recorded: ${this.amount} (${this.action})`,
+          createdAt: new Date(),
+          createdBy: localStorage.getItem('userid') || '',
+          createdByName: localStorage.getItem('username') || 'Unknown User',
+          icon: 'account_balance_wallet'
+        });
         this.service.openSnackBar('Transaction Added Successfully', 'Close');
         this.loading = false;
         this.updateAccount(this.consumedFrom,this.action,this.amount);

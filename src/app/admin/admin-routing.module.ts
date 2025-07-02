@@ -13,6 +13,9 @@ import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+import { ActivitiesComponent } from './pages/activities/activities.component';
 
 const routes: Routes = [
   {
@@ -35,9 +38,15 @@ const routes: Routes = [
       {path: 'tasks', component: TasksComponent},
       {path: 'calendar', component: CalendarComponent},
       {path: 'home', component: HomeComponent},
+      { path: 'profile', component: ProfileComponent },
+      { path: 'settings', component: SettingsComponent },
       {
         path: 'clients',
         loadChildren: () => import('./pages/clients/clients.module').then(m => m.ClientsModule)
+      },
+      {
+        path: 'activities',
+        component: ActivitiesComponent
       },
     ],
     component: AdminDashboardComponent,  // http://localhost:4200/admin

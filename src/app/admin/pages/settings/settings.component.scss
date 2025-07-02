@@ -1,0 +1,35 @@
+.admin-page-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 2rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+.admin-page-title {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+}
+.admin-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+.settings-item:last-child {
+  border-bottom: none;
+}

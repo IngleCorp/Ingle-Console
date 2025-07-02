@@ -26,7 +26,6 @@ export class ClientsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.getClients();
-    this.service.openSnackBar('Clients loaded', 'Close');
   }
 
   addClient(): void {

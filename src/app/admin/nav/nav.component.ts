@@ -314,4 +314,8 @@ export class NavComponent implements OnInit, OnDestroy {
   signOut(){
     this.authService.logout();
   }
+
+  navigateToHome(){
+    this.router.navigateByUrl('/admin/home');
+  }
 }

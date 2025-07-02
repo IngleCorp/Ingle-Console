@@ -84,4 +84,7 @@ export class HomeComponent implements OnInit {
   goToCalendar() {
     this.router.navigate(['/admin/calendar']);
   }
+  goToActivities() {
+    this.router.navigate(['/admin/activities']);
+  }
 } 

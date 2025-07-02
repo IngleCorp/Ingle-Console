@@ -64,7 +64,7 @@ export class ProjectBoardComponent implements OnInit {
     if (!this.projectId) return;
     this.afs.collection('projects').doc(this.projectId).valueChanges({ idField: 'id' }).subscribe((res: any) => {
       this.projectInfo = res;
-      this.service.openSnackBar('Client > ' + res.clientname + ' > Project > ' + res.name, 'Close');
+     
     }, (err: any) => {
       console.log(err);
     });

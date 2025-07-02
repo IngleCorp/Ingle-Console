@@ -52,6 +52,21 @@ export class ClientProjectsComponent implements OnInit {
 
   addProject(): void {
     // TODO: Implement add project dialog
+    // After adding project to Firestore, record activity:
+    // Example:
+    // this.afs.collection('projects').add(projectData).then((docRef) => {
+    //   this.afs.collection('activities').add({
+    //     type: 'project',
+    //     action: 'Created',
+    //     entityId: docRef.id,
+    //     entityName: projectData.name,
+    //     details: `New project created: ${projectData.name}`,
+    //     createdAt: new Date(),
+    //     createdBy: localStorage.getItem('userid') || '',
+    //     createdByName: localStorage.getItem('username') || 'Unknown User',
+    //     icon: 'folder_open'
+    //   });
+    // });
     console.log('Add project clicked');
   }
 

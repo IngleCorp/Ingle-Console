@@ -65,7 +65,20 @@ export class ClientAddComponent implements OnInit {
       // });
       return;
     }
-    this.afs.collection('clients').add(this.clientForm.value).then(() => {
+    const clientData = this.clientForm.value;
+    this.afs.collection('clients').add(clientData).then((docRef) => {
+      // Record activity
+      this.afs.collection('activities').add({
+        type: 'client',
+        action: 'Created',
+        entityId: docRef.id,
+        entityName: clientData.name,
+        details: `New client created: ${clientData.name}`,
+        createdAt: new Date(),
+        createdBy: localStorage.getItem('userid') || '',
+        createdByName: localStorage.getItem('username') || 'Unknown User',
+        icon: 'group_add'
+      });
       this.dialogRef.close();
     });
   }

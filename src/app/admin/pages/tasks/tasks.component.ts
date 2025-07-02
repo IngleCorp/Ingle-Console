@@ -291,7 +291,19 @@ export class TasksComponent implements OnInit {
           projecttaged: selectedProject?.id || null,
         };
 
-        await this.firestore.collection('tasks').add(taskData);
+        const docRef = await this.firestore.collection('tasks').add(taskData);
+        // Record activity
+        await this.firestore.collection('activities').add({
+          type: 'task',
+          action: 'Created',
+          entityId: docRef.id,
+          entityName: taskData.task,
+          details: `New task created: ${taskData.task}`,
+          createdAt: new Date(),
+          createdBy: user.uid,
+          createdByName: user.displayName || user.email || 'Unknown User',
+          icon: 'add_task'
+        });
         this.showNotification('Task added successfully!', 'success');
       }
     } catch (error) {
