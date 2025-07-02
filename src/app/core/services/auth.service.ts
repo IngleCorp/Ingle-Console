@@ -29,6 +29,10 @@ export class AuthService {
       tap((user:any) => {
         if (user) {
           localStorage.setItem('username', user?.name);
+          // set user object in local storage by encoding it
+          localStorage.setItem('ingle_user', btoa(JSON.stringify(user)));
+          // print it in console by decoding it
+          console.log('User logged in:', JSON.parse(atob(localStorage.getItem('ingle_user') || '')));
           console.log('User logged in:', user);
         } else {
           console.log('No user logged in.');
@@ -62,6 +66,10 @@ export class AuthService {
 
   async logout() {
     await this.afAuth.signOut();
+    localStorage.removeItem('ingle_user');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userid');
+    localStorage.removeItem('ic_login');
     this.router.navigate(['/login']);
   }
 }

@@ -1,166 +1,353 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="h-100 d-flex flex-column">
-  <!-- TEMPORARY: Demo Data Button -->
-  <div class="mb-2">
-    <button type="button" class="btn btn-warning btn-sm" (click)="fillWithDemoData()">
-      Fill with Demo Data
-    </button>
+<div class="invoice-form-container">
+  <!-- Form Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h2 class="form-title">
+          <mat-icon class="title-icon">receipt</mat-icon>
+          {{ isEditing ? 'Edit Invoice' : 'Create New Invoice' }}
+        </h2>
+        <p class="form-subtitle">Fill in the details to {{ isEditing ? 'update' : 'create' }} your invoice</p>
+      </div>
+      <div class="header-actions">
+        <button class="demo-btn" (click)="fillWithDemoData()">
+          <mat-icon>auto_fix_high</mat-icon>
+          <span>Demo Data</span>
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="modal-header bg-primary text-white py-2 px-3 rounded-top">
-    <h5 class="modal-title m-0">GST Invoice</h5>
-  </div>
-  <div class="modal-body flex-grow-1 overflow-auto px-3 py-2" style="max-height: 65vh;">
-    <div class="row g-3 mb-2" formGroupName="company">
-  <div class="col-md-6">
-    <label class="form-label">Company Name</label>
-    <input class="form-control" formControlName="name" />
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">GSTIN</label>
-    <input class="form-control" formControlName="gstin" />
-  </div>
-  <div class="col-12">
-    <label class="form-label">Company Address</label>
-    <textarea class="form-control" formControlName="address"></textarea>
-  </div>
-</div>
 
-<!-- Add placeOfSupply outside the formGroupName="company" -->
-<div class="row mb-2">
-  <div class="col-md-3">
-    <label class="form-label">Place of Supply</label>
-    <input class="form-control" formControlName="placeOfSupply" />
-  </div>
-</div>
+  <!-- Form Content -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-content">
+    <!-- Company Information Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>business</mat-icon>
+          Company Information
+        </h3>
+      </div>
+      
+      <div class="form-grid" formGroupName="company">
+        <div class="form-field">
+          <label class="field-label">Company Name</label>
+          <input class="form-input" formControlName="name" placeholder="Enter company name" />
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">GSTIN</label>
+          <input class="form-input" formControlName="gstin" placeholder="Enter GSTIN" />
+        </div>
+        
+        <div class="form-field full-width">
+          <label class="field-label">Company Address</label>
+          <textarea class="form-textarea" formControlName="address" placeholder="Enter company address" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
 
+    <!-- Invoice Details Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>description</mat-icon>
+          Invoice Details
+        </h3>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="field-label">Invoice Number</label>
+          <input class="form-input" formControlName="invoiceNumber" placeholder="Enter invoice number" required />
+          <div *ngIf="form.get('invoiceNumber')?.invalid && (form.get('invoiceNumber')?.touched || form.get('invoiceNumber')?.dirty)" class="error-message">
+            Invoice Number is required
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Invoice Date</label>
+          <input class="form-input" type="date" formControlName="invoiceDate" required />
+          <div *ngIf="form.get('invoiceDate')?.invalid && (form.get('invoiceDate')?.touched || form.get('invoiceDate')?.dirty)" class="error-message">
+            Invoice Date is required
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Due Date</label>
+          <input class="form-input" type="date" formControlName="dueDate" required />
+          <div *ngIf="form.get('dueDate')?.invalid && (form.get('dueDate')?.touched || form.get('dueDate')?.dirty)" class="error-message">
+            Due Date is required
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Terms</label>
+          <input class="form-input" formControlName="terms" placeholder="Payment terms" />
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Place of Supply</label>
+          <input class="form-input" formControlName="placeOfSupply" placeholder="Place of supply" />
+        </div>
+      </div>
+    </div>
 
-   
-    <div class="row g-3 mb-2">
-      <div class="col-md-3">
-        <label class="form-label">Invoice Number</label>
-        <input class="form-control" formControlName="invoiceNumber" required />
-        <div *ngIf="form.get('invoiceNumber')?.invalid && (form.get('invoiceNumber')?.touched || form.get('invoiceNumber')?.dirty)" class="invalid-feedback d-block">Invoice Number is required.</div>
+    <!-- Client Information Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Client Information
+        </h3>
       </div>
-      <div class="col-md-3">
-        <label class="form-label">Invoice Date</label>
-        <input class="form-control" type="date" formControlName="invoiceDate" required />
-        <div *ngIf="form.get('invoiceDate')?.invalid && (form.get('invoiceDate')?.touched || form.get('invoiceDate')?.dirty)" class="invalid-feedback d-block">Invoice Date is required.</div>
+      
+      <div class="form-grid" formGroupName="billTo">
+        <div class="form-field">
+          <label class="field-label">Client Name</label>
+          <input class="form-input" formControlName="company" placeholder="Enter client name" required />
+          <div *ngIf="form.get('billTo.company')?.invalid && (form.get('billTo.company')?.touched || form.get('billTo.company')?.dirty)" class="error-message">
+            Client Name is required
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Client GSTIN</label>
+          <input class="form-input" formControlName="gstin" placeholder="Enter client GSTIN" required />
+          <div *ngIf="form.get('billTo.gstin')?.invalid && (form.get('billTo.gstin')?.touched || form.get('billTo.gstin')?.dirty)" class="error-message">
+            Client GSTIN is required
+          </div>
+        </div>
+        
+        <div class="form-field full-width">
+          <label class="field-label">Client Address</label>
+          <textarea class="form-textarea" formControlName="address" placeholder="Enter client address" rows="3" required></textarea>
+          <div *ngIf="form.get('billTo.address')?.invalid && (form.get('billTo.address')?.touched || form.get('billTo.address')?.dirty)" class="error-message">
+            Client Address is required
+          </div>
+        </div>
       </div>
-      <div class="col-md-3">
-        <label class="form-label">Due Date</label>
-        <input class="form-control" type="date" formControlName="dueDate" required />
-        <div *ngIf="form.get('dueDate')?.invalid && (form.get('dueDate')?.touched || form.get('dueDate')?.dirty)" class="invalid-feedback d-block">Due Date is required.</div>
+      
+    </div>
+
+    <!-- Client & Project Selection Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>link</mat-icon>
+          Client & Project Selection
+        </h3>
+        <p class="section-subtitle">Optional: Link this invoice to a specific client and project</p>
       </div>
-      <div class="col-md-3">
-        <label class="form-label">Terms</label>
-        <input class="form-control" formControlName="terms" />
+      
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="field-label">Select Client</label>
+          <select class="form-select" formControlName="clientId" (change)="onClientChange($any($event.target).value)">
+            <option value="">Choose a client (optional)</option>
+            <option *ngFor="let client of clients" [value]="client.id">
+              {{ client.name || client.companyName }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Select Project</label>
+          <select class="form-select" formControlName="projectId" (change)="onProjectChange($any($event.target).value)">
+            <option value="">Choose a project (optional)</option>
+            <option *ngFor="let project of (form.get('clientId')?.value ? filteredProjectsWithSelected : projects)" [value]="project.id">
+              {{ project.name || project.projectName }}
+            </option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-field">
+        <label class="field-label">Subject / Project</label>
+        <input class="form-input" formControlName="subject" placeholder="Enter subject or project name" required />
+        <div *ngIf="form.get('subject')?.invalid && (form.get('subject')?.touched || form.get('subject')?.dirty)" class="error-message">
+          Subject/Project is required
+        </div>
       </div>
     </div>
-    <div class="row g-3 mb-2">
-     <div formGroupName="billTo">
-  <div class="col-md-4">
-    <label class="form-label">Client Name</label>
-    <input class="form-control" formControlName="company" required />
-  </div>
-  <div class="col-md-4">
-    <label class="form-label">Client GSTIN</label>
-    <input class="form-control" formControlName="gstin" required />
-  </div>
-  <div class="col-12">
-    <label class="form-label">Client Address</label>
-    <textarea class="form-control" formControlName="address" required></textarea>
-  </div>
-</div>
-      <div class="col-md-4">
-        <label class="form-label">Subject / Project</label>
-        <input class="form-control" formControlName="subject" required />
-        <div *ngIf="form.get('subject')?.invalid && (form.get('subject')?.touched || form.get('subject')?.dirty)" class="invalid-feedback d-block">Subject/Project is required.</div>
+
+    <!-- Line Items Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>list</mat-icon>
+          Line Items
+        </h3>
+        <button type="button" class="add-item-btn" (click)="addItem()">
+          <mat-icon>add</mat-icon>
+          <span>Add Item</span>
+        </button>
       </div>
-    
-    </div>
-    <div class="mb-2">
-      <h6>Line Items</h6>
-      <div class="table-responsive">
-        <table class="table table-bordered table-sm align-middle invoice-items-table">
-          <thead class="table-light">
-            <tr>
-              <th>Description</th>
-              <th>HSN/SAC</th>
-              <th>Qty</th>
-              <th>Rate</th>
-              <th>Per</th>
-              <th>IGST %</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of items.controls; let i = index">
-              <td><input class="form-control form-control-sm" [formControl]="getFormControl(row, 'description')" placeholder="Description" />
-                <div *ngIf="getFormControl(row, 'description').invalid && (getFormControl(row, 'description').touched || getFormControl(row, 'description').dirty)" class="invalid-feedback d-block">Required</div></td>
-              <td>
-                <select class="form-select form-select-sm" [formControl]="getFormControl(row, 'hsn')">
-                  <option value="" disabled selected>Select HSN/SAC</option>
-                  <option *ngFor="let code of hsnCodes" [value]="code.SAC">{{code.SAC}} - {{code.Description}}</option>
-                </select>
-                <div *ngIf="getFormControl(row, 'hsn').invalid && (getFormControl(row, 'hsn').touched || getFormControl(row, 'hsn').dirty)" class="invalid-feedback d-block">Required</div>
-              </td>
-              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'qty')" min="1" />
-                <div *ngIf="getFormControl(row, 'qty').invalid && (getFormControl(row, 'qty').touched || getFormControl(row, 'qty').dirty)" class="invalid-feedback d-block">Qty must be at least 1</div></td>
-              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'rate')" min="0" />
-                <div *ngIf="getFormControl(row, 'rate').invalid && (getFormControl(row, 'rate').touched || getFormControl(row, 'rate').dirty)" class="invalid-feedback d-block">Rate must be 0 or more</div></td>
-              <td><input class="form-control form-control-sm" [formControl]="getFormControl(row, 'per')" placeholder="Per" />
-                <div *ngIf="getFormControl(row, 'per').invalid && (getFormControl(row, 'per').touched || getFormControl(row, 'per').dirty)" class="invalid-feedback d-block">Required</div></td>
-              <td><input class="form-control form-control-sm" type="number" [formControl]="getFormControl(row, 'igst')" min="0" max="100" />
-                <div *ngIf="getFormControl(row, 'igst').invalid && (getFormControl(row, 'igst').touched || getFormControl(row, 'igst').dirty)" class="invalid-feedback d-block">0-100</div></td>
-              <td>
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeItem(i)" [disabled]="items.length === 1">
-                  <i class="bi bi-trash"></i> Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      
+      <div class="items-container">
+        <div class="items-table-wrapper">
+          <div class="items-table">
+            <div class="table-header">
+              <div class="header-cell description">Description</div>
+              <div class="header-cell hsn">HSN/SAC</div>
+              <div class="header-cell qty">Qty</div>
+              <div class="header-cell rate">Rate</div>
+              <div class="header-cell per">Per</div>
+              <div class="header-cell igst">IGST %</div>
+              <div class="header-cell actions">Actions</div>
+            </div>
+            
+            <div class="table-body">
+              <div *ngFor="let row of items.controls; let i = index" class="table-row">
+                <div class="table-cell description" data-label="Description">
+                  <input class="table-input" [formControl]="getFormControl(row, 'description')" placeholder="Description" />
+                  <div *ngIf="getFormControl(row, 'description').invalid && (getFormControl(row, 'description').touched || getFormControl(row, 'description').dirty)" class="error-message">
+                    Required
+                  </div>
+                </div>
+                
+                <div class="table-cell hsn" data-label="HSN/SAC">
+                  <select class="table-select" [formControl]="getFormControl(row, 'hsn')">
+                    <option value="" disabled selected>Select HSN/SAC</option>
+                    <option *ngFor="let code of hsnCodes" [value]="code.SAC">{{code.SAC}} - {{code.Description}}</option>
+                  </select>
+                  <div *ngIf="getFormControl(row, 'hsn').invalid && (getFormControl(row, 'hsn').touched || getFormControl(row, 'hsn').dirty)" class="error-message">
+                    Required
+                  </div>
+                </div>
+                
+                <div class="table-cell qty" data-label="Quantity">
+                  <input class="table-input" type="number" [formControl]="getFormControl(row, 'qty')" min="1" placeholder="Qty" />
+                  <div *ngIf="getFormControl(row, 'qty').invalid && (getFormControl(row, 'qty').touched || getFormControl(row, 'qty').dirty)" class="error-message">
+                    Qty must be at least 1
+                  </div>
+                </div>
+                
+                <div class="table-cell rate" data-label="Rate">
+                  <input class="table-input" type="number" [formControl]="getFormControl(row, 'rate')" min="0" placeholder="Rate" />
+                  <div *ngIf="getFormControl(row, 'rate').invalid && (getFormControl(row, 'rate').touched || getFormControl(row, 'rate').dirty)" class="error-message">
+                    Rate must be 0 or more
+                  </div>
+                </div>
+                
+                <div class="table-cell per" data-label="Per">
+                  <input class="table-input" [formControl]="getFormControl(row, 'per')" placeholder="Per" />
+                  <div *ngIf="getFormControl(row, 'per').invalid && (getFormControl(row, 'per').touched || getFormControl(row, 'per').dirty)" class="error-message">
+                    Required
+                  </div>
+                </div>
+                
+                <div class="table-cell igst" data-label="IGST %">
+                  <input class="table-input" type="number" [formControl]="getFormControl(row, 'igst')" min="0" max="100" placeholder="IGST %" />
+                  <div *ngIf="getFormControl(row, 'igst').invalid && (getFormControl(row, 'igst').touched || getFormControl(row, 'igst').dirty)" class="error-message">
+                    0-100
+                  </div>
+                </div>
+                
+                <div class="table-cell actions" data-label="Actions">
+                  <button type="button" class="delete-btn" (click)="removeItem(i)" [disabled]="items.length === 1">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()">Add Item</button>
     </div>
-    <div class="row g-3 mb-2">
-      <div class="col-md-4"><b>Sub Total:</b> ₹{{ subtotal | number:'1.2-2' }}</div>
-      <div class="col-md-4"><b>IGST:</b> ₹{{ igst | number:'1.2-2' }}</div>
-      <div class="col-md-4"><b>Total:</b> ₹{{ totalAmount | number:'1.2-2' }}</div>
-    </div>
-    <div class="row g-3 mb-2">
-      <div class="col-md-6">
-        <label class="form-label">Notes</label>
-        <textarea class="form-control" formControlName="notes"></textarea>
+
+    <!-- Summary Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>calculate</mat-icon>
+          Summary
+        </h3>
       </div>
-      <div class="col-md-6">
-        <label class="form-label">Payment Options</label>
-        <textarea class="form-control" formControlName="paymentOptions"></textarea>
+      
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Sub Total:</span>
+          <span class="summary-value">₹{{ subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">IGST:</span>
+          <span class="summary-value">₹{{ igst | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-item total">
+          <span class="summary-label">Total:</span>
+          <span class="summary-value">₹{{ totalAmount | number:'1.2-2' }}</span>
+        </div>
       </div>
     </div>
-    <div class="row g-3 mb-2">
-      <div class="col-12">
-        <label class="form-label">Digital Signature</label>
-        <div style="width: 100%; max-width: 400px;">
+
+    <!-- Additional Information Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>info</mat-icon>
+          Additional Information
+        </h3>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="field-label">Notes</label>
+          <textarea class="form-textarea" formControlName="notes" placeholder="Enter any additional notes" rows="3"></textarea>
+        </div>
+        
+        <div class="form-field">
+          <label class="field-label">Payment Options</label>
+          <textarea class="form-textarea" formControlName="paymentOptions" placeholder="Enter payment options" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <mat-icon>draw</mat-icon>
+          Digital Signature
+        </h3>
+      </div>
+      
+      <div class="signature-container">
+        <div class="signature-pad-container">
           <signature-pad
             #signaturePad
             [options]="signaturePadOptions"
+            (beginEvent)="onSignatureBegin()"
             (endEvent)="saveSignature()"
-            style="border: 2px solid #888; border-radius: 6px; display: block; width: 100%; max-width: 400px; height: 120px;"
-            [attr.width]="400"
-            [attr.height]="120"
+            class="signature-pad"
           ></signature-pad>
         </div>
-        <div class="mt-2">
-          <button type="button" class="btn btn-secondary btn-sm me-2" (click)="clearSignature()">Clear</button>
-          <span *ngIf="signatureImage">
-            <img [src]="signatureImage" alt="Signature Preview" style="height: 48px; border: 1px solid #ccc; background: #fff; margin-left: 8px;" />
-          </span>
+        
+        <div class="signature-actions">
+          <button type="button" class="clear-btn" (click)="clearSignature()">
+            <mat-icon>clear</mat-icon>
+            <span>Clear</span>
+          </button>
+          
+          <div *ngIf="signatureImage" class="signature-preview">
+            <span class="preview-label">Signature Preview:</span>
+            <img [src]="signatureImage" alt="Signature Preview" class="preview-image" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="modal-footer d-flex justify-content-end gap-2 py-2 px-3 bg-light rounded-bottom" style="border-top: 1px solid #eee;">
-    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
-    <button mat-button type="button" (click)="onCancel()">Cancel</button>
-  </div>
-</form>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+        <span>Cancel</span>
+      </button>
+      
+      <button type="submit" class="submit-btn" [disabled]="form.invalid">
+        <mat-icon>save</mat-icon>
+        <span>{{ isEditing ? 'Update' : 'Save' }} Invoice</span>
+      </button>
+    </div>
+  </form>
+</div>

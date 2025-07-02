@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit {
   clientsCount = 0;
   tasksCount = 0;
   financeTotal = 0;
+  isLoading = false;
   recentActivity: ActivityItem[] = [
     { icon: 'group_add', text: 'New client added: Acme Corp', type: 'clients', time: new Date(Date.now() - 1000 * 60 * 10) },
     { icon: 'check_circle', text: 'Task completed: Update website', type: 'tasks', time: new Date(Date.now() - 1000 * 60 * 30) },

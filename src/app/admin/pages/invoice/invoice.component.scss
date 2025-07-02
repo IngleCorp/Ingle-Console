@@ -1,55 +1,700 @@
-.invoice-board {
-  padding: 24px;
+// Variables - Matching Client Section Design System
+$primary-color: #3f51b5;
+$primary-light: #757de8;
+$primary-dark: #002984;
+$secondary-color: #ff4081;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$info-color: #2196f3;
+$text-primary: #212121;
+$text-secondary: #757575;
+$background-light: #fafafa;
+$background-white: #ffffff;
+$border-color: #e0e0e0;
+$shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.15);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Global mat-icon fixes
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  font-feature-settings: 'liga' !important;
+  width: 1em !important;
+  height: 1em !important;
+  overflow: visible !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  box-sizing: content-box !important;
 }
 
-.invoice-list {
+// Main Container
+.invoice-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Poppins', sans-serif;
+}
+
+// Header Section
+.header-section {
+  background: $background-white;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-light;
+  padding: 24px;
+  position: relative;
+  transition: $transition;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.header-content {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 24px;
-  margin-top: 24px;
-}
-
-.invoice-card {
-  min-width: 320px;
-  max-width: 400px;
-  flex: 1 1 320px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 18px 18px 12px 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.invoice-header {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.invoice-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-.empty-state {
-  margin: 32px 0;
-  color: #888;
-  text-align: center;
-  font-size: 1.1rem;
-}
-
-@media (max-width: 900px) {
-  .invoice-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
     flex-direction: column;
+    align-items: stretch;
     gap: 16px;
   }
-  .invoice-card {
-    min-width: 0;
-    max-width: 100%;
-    flex: 1 1 100%;
+}
+
+.title-section {
+  flex: 1;
+  
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 8px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.2;
+    
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+    
+    .title-icon {
+      font-size: 2.5rem !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      color: $primary-color !important;
+      
+      @media (max-width: 768px) {
+        font-size: 2rem !important;
+        width: 2rem !important;
+        height: 2rem !important;
+      }
+    }
+  }
+  
+  .page-subtitle {
+    margin: 0;
+    font-size: 1.1rem;
+    color: $text-secondary;
+    font-weight: 400;
+    
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+.add-invoice-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  box-shadow: $shadow-medium;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-heavy;
+    background: linear-gradient(135deg, $primary-dark 0%, $primary-color 100%);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  mat-icon {
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    color: inherit !important;
+  }
+}
+
+// Main Content
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// Stats Section
+.stats-section {
+  margin-bottom: 32px;
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .stat-card {
+    background: $background-white;
+    border-radius: $border-radius;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: $shadow-light;
+    transition: $transition;
+    border: 1px solid $border-color;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-heavy;
+      border-color: $primary-light;
+    }
+    
+    @media (max-width: 768px) {
+      padding: 20px;
+      
+      .stat-content .stat-number {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &.total {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+      }
+      
+      &.pending {
+        background: rgba($warning-color, 0.1);
+        color: $warning-color;
+      }
+      
+      &.paid {
+        background: rgba($success-color, 0.1);
+        color: $success-color;
+      }
+      
+      &.revenue {
+        background: rgba($info-color, 0.1);
+        color: $info-color;
+      }
+      
+      mat-icon {
+        font-size: 1.5rem !important;
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        color: inherit !important;
+      }
+    }
+    
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      
+      .stat-label {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Invoices Section
+.invoices-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: $text-primary;
+      
+      mat-icon {
+        font-size: 1.8rem !important;
+        width: 1.8rem !important;
+        height: 1.8rem !important;
+        color: $primary-color !important;
+      }
+    }
+    
+    .section-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+  }
+  
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    
+    &:hover {
+      background: $primary-color;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: $shadow-light;
+    }
+    
+    mat-icon {
+      font-size: 1rem !important;
+      width: 1rem !important;
+      height: 1rem !important;
+      color: inherit !important;
+    }
+  }
+}
+
+// Invoices List
+.invoices-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    text-align: center;
+    
+    .empty-content {
+      max-width: 400px;
+      
+      .empty-icon {
+        font-size: 4rem !important;
+        width: 4rem !important;
+        height: 4rem !important;
+        color: $text-secondary !important;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+      
+      .empty-title {
+        margin: 0 0 8px 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $text-primary;
+      }
+      
+      .empty-description {
+        margin: 0 0 24px 0;
+        font-size: 1rem;
+        color: $text-secondary;
+        line-height: 1.5;
+      }
+      
+      .empty-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: $primary-color;
+        color: white;
+        border: none;
+        border-radius: $border-radius;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: $transition;
+        
+        &:hover {
+          background: $primary-dark;
+          transform: translateY(-2px);
+          box-shadow: $shadow-medium;
+        }
+        
+        mat-icon {
+          font-size: 1.2rem !important;
+          width: 1.2rem !important;
+          height: 1.2rem !important;
+          color: inherit !important;
+        }
+      }
+    }
+  }
+}
+
+// Invoice Card
+.invoice-card {
+  background: $background-white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 24px;
+  box-shadow: $shadow-light;
+  transition: $transition;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-heavy;
+    border-color: $primary-light;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+  
+  .invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .invoice-info {
+      flex: 1;
+      
+      .invoice-number {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $text-primary;
+        
+        mat-icon {
+          font-size: 1.1rem !important;
+          width: 1.1rem !important;
+          height: 1.1rem !important;
+          color: $primary-color !important;
+        }
+      }
+      
+      .invoice-client {
+        font-size: 1rem;
+        font-weight: 500;
+        color: $text-primary;
+        margin-bottom: 4px;
+      }
+      
+      .invoice-subject {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        font-weight: 400;
+      }
+    }
+    
+    .invoice-amount {
+      text-align: right;
+      
+      @media (max-width: 768px) {
+        text-align: left;
+      }
+      
+      .amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 4px;
+      }
+      
+      .status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        
+        &.pending {
+          background: rgba($warning-color, 0.1);
+          color: $warning-color;
+        }
+        
+        &.paid {
+          background: rgba($success-color, 0.1);
+          color: $success-color;
+        }
+        
+        &.overdue {
+          background: rgba($error-color, 0.1);
+          color: $error-color;
+        }
+      }
+    }
+  }
+  
+  .invoice-details {
+    margin-bottom: 20px;
+    
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: $text-secondary;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      mat-icon {
+        font-size: 1rem !important;
+        width: 1rem !important;
+        height: 1rem !important;
+        color: $primary-color !important;
+      }
+    }
+  }
+  
+  .invoice-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+    
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      text-decoration: none;
+      color: inherit;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: $shadow-light;
+      }
+      
+      mat-icon {
+        font-size: 1rem !important;
+        width: 1rem !important;
+        height: 1rem !important;
+        color: inherit !important;
+      }
+      
+      &.edit-btn {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+        border-color: rgba($primary-color, 0.3);
+        
+        &:hover {
+          background: $primary-color;
+          color: white;
+        }
+      }
+      
+      &.view-btn {
+        background: rgba($info-color, 0.1);
+        color: $info-color;
+        border-color: rgba($info-color, 0.3);
+        
+        &:hover {
+          background: $info-color;
+          color: white;
+        }
+      }
+      
+      &.export-btn {
+        background: rgba($success-color, 0.1);
+        color: $success-color;
+        border-color: rgba($success-color, 0.3);
+        
+        &:hover {
+          background: $success-color;
+          color: white;
+        }
+      }
+      
+      &.delete-btn {
+        background: rgba($error-color, 0.1);
+        color: $error-color;
+        border-color: rgba($error-color, 0.3);
+        
+        &:hover {
+          background: $error-color;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .header-section {
+    padding: 12px;
+  }
+  
+  .main-content {
+    padding: 12px;
+  }
+  
+  .title-section .page-title {
+    font-size: 1.8rem;
+    
+    .title-icon {
+      font-size: 1.8rem !important;
+      width: 1.8rem !important;
+      height: 1.8rem !important;
+    }
+  }
+  
+  .stats-section .stats-grid {
+    gap: 12px;
+    
+    .stat-card {
+      padding: 16px;
+      
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        
+        mat-icon {
+          font-size: 1.3rem !important;
+          width: 1.3rem !important;
+          height: 1.3rem !important;
+        }
+      }
+      
+      .stat-content .stat-number {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  
+  .invoices-list {
+    gap: 12px;
+    
+    .invoice-card {
+      padding: 16px;
+      
+      .invoice-actions {
+        .action-btn {
+          padding: 6px 12px;
+          font-size: 0.8rem;
+          
+          mat-icon {
+            font-size: 0.9rem !important;
+            width: 0.9rem !important;
+            height: 0.9rem !important;
+          }
+        }
+      }
+    }
   }
 }

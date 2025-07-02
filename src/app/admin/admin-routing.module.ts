@@ -16,6 +16,11 @@ import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
   {
+    path: '',  // When path is exactly '', redirect to home
+    redirectTo: 'home',
+    pathMatch: 'full',
+  },
+  {
     path: '',
     children: [
       { path: 'users', component: UsersComponent },

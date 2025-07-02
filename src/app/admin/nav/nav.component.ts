@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Notification {
   id: string;
@@ -110,7 +111,7 @@ export class NavComponent implements OnInit, OnDestroy {
   projects: any[] = [];
   private projectsSub?: Subscription;
 
-  constructor(private observer: BreakpointObserver, private router: Router, private auth: AngularFireAuth, private firestore: AngularFirestore) {}
+  constructor(private observer: BreakpointObserver, private router: Router, private auth: AngularFireAuth, private firestore: AngularFirestore, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.projectsSub = this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
@@ -128,6 +129,9 @@ export class NavComponent implements OnInit, OnDestroy {
         this.showSubmenuIcon = true;
       }
     });
+
+    this.userProfile = JSON.parse(atob(localStorage.getItem('ingle_user') || '{}'));
+
   }
 
   ngOnDestroy(): void {
@@ -300,7 +304,7 @@ export class NavComponent implements OnInit, OnDestroy {
     if(window.confirm("Are you sure you want to logout?")){
       try {
         const res = await this.signOut();
-        this.router.navigateByUrl('/login');
+       
       } catch (error) {
         console.error('Logout error:', error);
       }
@@ -308,6 +312,6 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   signOut(){
-    this.router.navigateByUrl('/login');
+    this.authService.logout();
   }
 }

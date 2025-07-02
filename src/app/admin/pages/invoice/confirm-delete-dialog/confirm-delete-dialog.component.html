@@ -1,0 +1,22 @@
+<div class="confirm-dialog">
+  <div class="dialog-header">
+    <mat-icon class="warning-icon">warning</mat-icon>
+    <h2 class="dialog-title">{{ data.title }}</h2>
+  </div>
+  
+  <div class="dialog-content">
+    <p class="dialog-message">{{ data.message }}</p>
+    <p class="dialog-warning">This action cannot be undone.</p>
+  </div>
+  
+  <div class="dialog-actions">
+    <button class="cancel-btn" (click)="onCancel()">
+      <mat-icon>close</mat-icon>
+      <span>{{ data.cancelText }}</span>
+    </button>
+    <button class="confirm-btn" (click)="onConfirm()">
+      <mat-icon>delete</mat-icon>
+      <span>{{ data.confirmText }}</span>
+    </button>
+  </div>
+</div> 

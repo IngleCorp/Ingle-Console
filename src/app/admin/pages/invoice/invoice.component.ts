@@ -5,9 +5,12 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { InvoicePdfDialogComponent } from './invoice-pdf-dialog/invoice-pdf-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog/confirm-delete-dialog.component';
 // import jsPDF from 'jspdf'; // Uncomment when jsPDF is installed
 
 export interface Invoice {
+  id?: string;
   company: {
     name: string;
     gstin: string;
@@ -23,6 +26,10 @@ export interface Invoice {
     address: string;
     gstin: string;
   };
+  clientId?: string;
+  clientName?: string;
+  projectId?: string;
+  projectName?: string;
   subject: string;
   items: Array<{
     description: string;
@@ -36,6 +43,7 @@ export interface Invoice {
   paymentOptions: string;
   total: number;
   signature?: string;
+  status?: 'pending' | 'paid' | 'overdue';
 }
 
 @Component({
@@ -48,7 +56,7 @@ export class InvoiceComponent implements OnInit {
   pdfInvoice: Invoice | null = null;
   @ViewChild('pdfInvoiceTemplate') pdfInvoiceTemplate!: ElementRef;
 
-  constructor(private dialog: MatDialog, private afs: AngularFirestore) {}
+  constructor(private dialog: MatDialog, private afs: AngularFirestore, private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.afs.collection<Invoice>('invoices').valueChanges({ idField: 'id' }).subscribe((invoices) => {
@@ -58,7 +66,9 @@ export class InvoiceComponent implements OnInit {
 
   openForm(invoice: Invoice | null = null, index: number | null = null) {
     const dialogRef = this.dialog.open(InvoiceFormComponent, {
-      width: '800px',
+      width: '1200px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
       data: { invoice }
     });
     dialogRef.afterClosed().subscribe((result: Invoice | undefined) => {
@@ -93,6 +103,48 @@ export class InvoiceComponent implements OnInit {
     });
   }
 
+  // Statistics Methods
+  getPendingInvoices(): number {
+    return this.invoices.filter(invoice => this.getInvoiceStatus(invoice) === 'pending').length;
+  }
+
+  getPaidInvoices(): number {
+    return this.invoices.filter(invoice => this.getInvoiceStatus(invoice) === 'paid').length;
+  }
+
+  getTotalRevenue(): number {
+    return this.invoices.reduce((sum, invoice) => sum + invoice.total, 0);
+  }
+
+  // Status Methods
+  getInvoiceStatus(invoice: Invoice): 'pending' | 'paid' | 'overdue' {
+    if (invoice.status) {
+      return invoice.status;
+    }
+    
+    const dueDate = new Date(invoice.dueDate);
+    const today = new Date();
+    
+    if (dueDate < today) {
+      return 'overdue';
+    }
+    
+    return 'pending';
+  }
+
+  getInvoiceStatusText(invoice: Invoice): string {
+    const status = this.getInvoiceStatus(invoice);
+    switch (status) {
+      case 'paid':
+        return 'Paid';
+      case 'overdue':
+        return 'Overdue';
+      case 'pending':
+      default:
+        return 'Pending';
+    }
+  }
+
   getBillToCompany(invoice: Invoice) {
     return invoice.billTo?.company || '';
   }
@@ -107,5 +159,47 @@ export class InvoiceComponent implements OnInit {
   }
   getIGST(invoice: Invoice) {
     return invoice.items?.reduce((sum, item) => sum + (item.qty * item.rate) * (item.igst/100), 0) || 0;
+  }
+
+  deleteInvoice(invoice: Invoice, index: number) {
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '400px',
+      data: { 
+        title: 'Delete Invoice',
+        message: `Are you sure you want to delete invoice "${invoice.invoiceNumber}"?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        if (invoice.id) {
+          // Delete from Firestore if it has an ID
+          this.afs.collection('invoices').doc(invoice.id).delete().then(() => {
+            this.snackBar.open('Invoice deleted successfully', 'Close', { 
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
+          }).catch((error) => {
+            console.error('Error deleting invoice:', error);
+            this.snackBar.open('Failed to delete invoice', 'Close', { 
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
+          });
+        } else {
+          // Remove from local array if no ID (for demo purposes)
+          this.invoices.splice(index, 1);
+          this.snackBar.open('Invoice deleted successfully', 'Close', { 
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom'
+          });
+        }
+      }
+    });
   }
 }

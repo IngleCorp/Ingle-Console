@@ -54,6 +54,7 @@ import { TodoFormComponent } from './pages/todo/todo-form/todo-form.component';
 import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.component';
 import { InvoicePdfDialogComponent } from './pages/invoice/invoice-pdf-dialog/invoice-pdf-dialog.component';
+import { ConfirmDeleteDialogComponent } from './pages/invoice/confirm-delete-dialog/confirm-delete-dialog.component';
 import { TaskFormComponent } from './pages/tasks/task-form/task-form.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
 import { EventFormComponent } from './pages/calendar/event-form/event-form.component';
@@ -78,6 +79,7 @@ import { HomeComponent } from './pages/home/home.component';
     InvoiceComponent,
     InvoiceFormComponent,
     InvoicePdfDialogComponent,
+    ConfirmDeleteDialogComponent,
     TaskFormComponent,
     CalendarComponent,
     EventFormComponent,

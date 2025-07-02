@@ -1,176 +1,161 @@
 <div class="admin-home-container">
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <div class="greeting-section">
-        <div class="avatar-container">
-          <div class="avatar">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">dashboard</mat-icon>
+          Admin Dashboard
+        </h1>
+        <p class="page-subtitle">Welcome back! Here's what's happening with your business today</p>
+      </div>
+      <div class="header-actions">
+        <div class="user-info">
+          <div class="user-avatar">
             <mat-icon>person</mat-icon>
           </div>
-          <div class="status-indicator"></div>
-        </div>
-        <div class="greeting-text">
-          <h1>Welcome back, Admin!</h1>
-          <p class="subtitle">Here's what's happening with your business today</p>
-          <div class="date-info">
-            <mat-icon>today</mat-icon>
-            <span>{{ getCurrentDate() }}</span>
+          <div class="user-details">
+            <span class="user-name">Admin User</span>
+            <span class="user-role">Administrator</span>
           </div>
-        </div>
-      </div>
-      
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <h3>Quick Actions</h3>
-        <div class="action-buttons">
-          <button mat-flat-button color="primary" routerLink="/admin/clients" class="action-btn">
-            <mat-icon>group</mat-icon>
-            <span>Manage Clients</span>
-          </button>
-          <button mat-flat-button color="accent" routerLink="/admin/finance" class="action-btn">
-            <mat-icon>account_balance_wallet</mat-icon>
-            <span>Finance</span>
-          </button>
-          <button mat-flat-button routerLink="/admin/tasks" class="action-btn">
-            <mat-icon>assignment</mat-icon>
-            <span>Tasks</span>
-          </button>
-          <button mat-flat-button routerLink="/admin/calendar" class="action-btn">
-            <mat-icon>event</mat-icon>
-            <span>Calendar</span>
-          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Statistics Overview -->
-  <div class="stats-section">
-    <div class="section-header">
-      <h2>Business Overview</h2>
-      <p>Key metrics at a glance</p>
-    </div>
-    
-    <div class="stats-grid">
-      <div class="stat-card clients-card" (click)="goToClients()" matRipple>
-        <div class="stat-card-header">
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Stats Overview -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card" (click)="goToClients()">
           <div class="stat-icon clients">
             <mat-icon>group</mat-icon>
           </div>
-          <div class="stat-badge">
-            <span>+12%</span>
-            <mat-icon>trending_up</mat-icon>
+          <div class="stat-content">
+            <div class="stat-number">{{ clientsCount }}</div>
+            <div class="stat-label">Total Clients</div>
           </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ clientsCount }}</h3>
-          <p>Total Clients</p>
-          <div class="stat-subtitle">Active this month</div>
-        </div>
-        <div class="stat-progress">
-          <div class="progress-bar clients-progress"></div>
-        </div>
-      </div>
 
-      <div class="stat-card finance-card" (click)="goToFinance()" matRipple>
-        <div class="stat-card-header">
+        <div class="stat-card" (click)="goToFinance()">
           <div class="stat-icon finance">
             <mat-icon>account_balance_wallet</mat-icon>
           </div>
-          <div class="stat-badge positive">
-            <span>+8%</span>
-            <mat-icon>trending_up</mat-icon>
+          <div class="stat-content">
+            <div class="stat-number">{{ financeTotal | currency }}</div>
+            <div class="stat-label">Total Revenue</div>
           </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ financeTotal | currency }}</h3>
-          <p>Total Revenue</p>
-          <div class="stat-subtitle">This quarter</div>
-        </div>
-        <div class="stat-progress">
-          <div class="progress-bar finance-progress"></div>
-        </div>
-      </div>
 
-      <div class="stat-card tasks-card" (click)="goToTasks()" matRipple>
-        <div class="stat-card-header">
+        <div class="stat-card" (click)="goToTasks()">
           <div class="stat-icon tasks">
             <mat-icon>check_circle</mat-icon>
           </div>
-          <div class="stat-badge">
-            <span>{{ getTaskCompletion() }}%</span>
-            <mat-icon>done</mat-icon>
+          <div class="stat-content">
+            <div class="stat-number">{{ tasksCount }}</div>
+            <div class="stat-label">Active Tasks</div>
           </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ tasksCount }}</h3>
-          <p>Active Tasks</p>
-          <div class="stat-subtitle">{{ getCompletedTasks() }} completed today</div>
-        </div>
-        <div class="stat-progress">
-          <div class="progress-bar tasks-progress"></div>
-        </div>
-      </div>
 
-      <div class="stat-card calendar-card" (click)="goToCalendar()" matRipple>
-        <div class="stat-card-header">
+        <div class="stat-card" (click)="goToCalendar()">
           <div class="stat-icon calendar">
             <mat-icon>event</mat-icon>
           </div>
-          <div class="stat-badge">
-            <span>{{ getUpcomingEvents() }}</span>
-            <mat-icon>schedule</mat-icon>
+          <div class="stat-content">
+            <div class="stat-number">{{ getTodayEvents() }}</div>
+            <div class="stat-label">Today's Events</div>
           </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ getTodayEvents() }}</h3>
-          <p>Today's Events</p>
-          <div class="stat-subtitle">{{ getUpcomingEvents() }} upcoming</div>
-        </div>
-        <div class="stat-progress">
-          <div class="progress-bar calendar-progress"></div>
-        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Recent Activity Feed -->
-  <div class="activity-section">
-    <div class="section-header">
-      <h2>Recent Activity</h2>
-      <p>Latest updates from your workspace</p>
-      <button mat-button class="view-all-btn">
-        <span>View All</span>
-        <mat-icon>chevron_right</mat-icon>
-      </button>
-    </div>
-    
-    <div class="activity-feed">
-      <div *ngIf="recentActivity.length === 0" class="empty-state">
-        <mat-icon>inbox</mat-icon>
-        <h4>No recent activity</h4>
-        <p>When you start working, your activity will appear here</p>
+    <!-- Quick Actions Section -->
+    <div class="actions-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>flash_on</mat-icon>
+          Quick Actions
+        </h2>
+        <p class="section-subtitle">Common tasks and shortcuts</p>
       </div>
       
-      <div *ngFor="let activity of recentActivity; let i = index" 
-           class="activity-item" 
-           [style.animation-delay]="(i * 0.1) + 's'">
-        <div class="activity-timeline">
-          <div class="timeline-dot" [ngClass]="activity.type"></div>
-          <div class="timeline-line" *ngIf="i !== recentActivity.length - 1"></div>
+      <div class="actions-grid">
+        <button class="action-card" routerLink="/admin/clients">
+          <div class="action-icon clients">
+            <mat-icon>group_add</mat-icon>
+          </div>
+          <div class="action-content">
+            <h3>Add Client</h3>
+            <p>Create a new client profile</p>
+          </div>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </button>
+
+        <button class="action-card" routerLink="/admin/tasks">
+          <div class="action-icon tasks">
+            <mat-icon>add_task</mat-icon>
+          </div>
+          <div class="action-content">
+            <h3>Create Task</h3>
+            <p>Add a new task to your list</p>
+          </div>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </button>
+
+        <button class="action-card" routerLink="/admin/calendar">
+          <div class="action-icon calendar">
+            <mat-icon>event_available</mat-icon>
+          </div>
+          <div class="action-content">
+            <h3>Schedule Event</h3>
+            <p>Book a meeting or event</p>
+          </div>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </button>
+
+        <button class="action-card" routerLink="/admin/finance">
+          <div class="action-icon finance">
+            <mat-icon>receipt</mat-icon>
+          </div>
+          <div class="action-content">
+            <h3>New Invoice</h3>
+            <p>Create an invoice for clients</p>
+          </div>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="activity-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>history</mat-icon>
+          Recent Activity
+        </h2>
+        <button class="view-all-btn">
+          <span>View All</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+      
+      <div class="activity-list">
+        <div *ngIf="recentActivity.length === 0" class="empty-state">
+          <div class="empty-content">
+            <mat-icon class="empty-icon">inbox</mat-icon>
+            <h3 class="empty-title">No recent activity</h3>
+            <p class="empty-description">When you start working, your activity will appear here</p>
+          </div>
         </div>
-        <div class="activity-content">
-          <div class="activity-header">
-            <div class="activity-icon" [ngClass]="activity.type">
-              <mat-icon>{{ activity.icon }}</mat-icon>
-            </div>
-            <div class="activity-details">
-              <p class="activity-text">{{ activity.text }}</p>
-              <div class="activity-meta">
-                <span class="activity-time">{{ activity.time | date:'short' }}</span>
-                <span class="activity-category">{{ activity.type | titlecase }}</span>
-              </div>
-            </div>
+        
+        <div *ngFor="let activity of recentActivity" class="activity-item">
+          <div class="activity-icon" [ngClass]="activity.type">
+            <mat-icon>{{ activity.icon }}</mat-icon>
+          </div>
+          <div class="activity-content">
+            <p class="activity-text">{{ activity.text }}</p>
+            <span class="activity-time">{{ activity.time | date:'short' }}</span>
           </div>
         </div>
       </div>
@@ -178,7 +163,7 @@
   </div>
 
   <!-- Floating Action Button -->
-  <button mat-fab class="fab-main" [matMenuTriggerFor]="fabMenu" aria-label="Quick actions">
+  <button class="fab" [matMenuTriggerFor]="fabMenu" aria-label="Quick actions">
     <mat-icon>add</mat-icon>
   </button>
   

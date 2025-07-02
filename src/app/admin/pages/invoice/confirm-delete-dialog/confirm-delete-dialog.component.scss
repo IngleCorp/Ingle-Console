@@ -1,0 +1,132 @@
+// Variables (you can import from a global file if available)
+$primary-color: #2196f3;
+$error-color: #f44336;
+$warning-color: #ff9800;
+$text-primary: #333;
+$text-secondary: #666;
+$border-color: #e0e0e0;
+$background-white: #ffffff;
+$border-radius: 8px;
+$transition: all 0.3s ease;
+
+.confirm-dialog {
+  padding: 24px;
+  max-width: 400px;
+  
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    
+    .warning-icon {
+      font-size: 2rem !important;
+      width: 2rem !important;
+      height: 2rem !important;
+      color: $warning-color !important;
+    }
+    
+    .dialog-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+  
+  .dialog-content {
+    margin-bottom: 24px;
+    
+    .dialog-message {
+      font-size: 1rem;
+      color: $text-primary;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    
+    .dialog-warning {
+      font-size: 0.9rem;
+      color: $error-color;
+      font-weight: 500;
+      margin: 0;
+      padding: 8px 12px;
+      background: rgba($error-color, 0.1);
+      border-radius: $border-radius;
+      border-left: 3px solid $error-color;
+    }
+  }
+  
+  .dialog-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    
+    .cancel-btn,
+    .confirm-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: $border-radius;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      
+      mat-icon {
+        font-size: 1rem !important;
+        width: 1rem !important;
+        height: 1rem !important;
+        color: inherit !important;
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+    
+    .cancel-btn {
+      background: rgba($text-secondary, 0.1);
+      color: $text-secondary;
+      
+      &:hover {
+        background: $text-secondary;
+        color: white;
+      }
+    }
+    
+    .confirm-btn {
+      background: $error-color;
+      color: white;
+      
+      &:hover {
+        background: darken($error-color, 10%);
+        box-shadow: 0 4px 8px rgba($error-color, 0.3);
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .confirm-dialog {
+    padding: 20px;
+    
+    .dialog-header {
+      .dialog-title {
+        font-size: 1.3rem;
+      }
+    }
+    
+    .dialog-actions {
+      flex-direction: column;
+      
+      .cancel-btn,
+      .confirm-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+} 
