@@ -1,81 +1,359 @@
-<div class="container mt-2 out-box">
-    <div class="image-icon">
-        <img src="{{clientInfo?.image}}" width="80px" height="80px" alt="">
-        <label class="image-label" for="image">
-            <mat-icon class="icon-img">image_outline</mat-icon>
-        </label>
-        <input type="file" class="form-control" id="image" (change)="uploadFile($event)" accept="image/*" hidden>
+<div class="client-info-container">
+  <!-- Header Section -->
+  <div class="info-header">
+    <div class="header-content">
+      <div class="client-avatar-section">
+        <div class="avatar-container">
+          <img *ngIf="clientInfo?.image" [src]="clientInfo?.image" [alt]="clientInfo?.name" class="client-avatar">
+          <div *ngIf="!clientInfo?.image" class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="avatar-overlay">
+            <label class="upload-btn" for="image" matTooltip="Change Photo" [class.uploading]="isUploading">
+              <mat-icon *ngIf="!isUploading">camera_alt</mat-icon>
+              <mat-spinner *ngIf="isUploading" diameter="20" strokeWidth="2"></mat-spinner>
+            </label>
+            <input type="file" id="image" (change)="uploadFile($event)" accept="image/*" hidden [disabled]="isUploading">
+            
+            <!-- Upload Progress -->
+            <div class="upload-progress" *ngIf="isUploading">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+              </div>
+              <span class="progress-text">{{ uploadProgress | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="client-summary">
+        <h1 class="client-name">{{ clientInfo?.name || 'Client Name' }}</h1>
+        <p class="client-company">{{ clientInfo?.company || 'Company Name' }}</p>
+        <div class="client-meta">
+          <span class="meta-item" *ngIf="clientInfo?.email">
+            <mat-icon>email</mat-icon>
+            {{ clientInfo.email }}
+          </span>
+          <span class="meta-item" *ngIf="clientInfo?.phone">
+            <mat-icon>phone</mat-icon>
+            {{ clientInfo.phone }}
+          </span>
+          <span class="meta-item" *ngIf="clientInfo?.website">
+            <mat-icon>language</mat-icon>
+            <a [href]="clientInfo.website" target="_blank">{{ clientInfo.website }}</a>
+          </span>
+        </div>
+      </div>
     </div>
-    <table class="table">
-        <tr>
-            <th>name</th>
-            <td *ngIf="editmode!='name'" (dblclick)="editmode='name'">{{clientInfo?.name?clientInfo?.name:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='name'"><input class="form-control" [(ngModel)]="clientInfo.name" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>username</th>
-            <td *ngIf="editmode!='username'" (dblclick)="editmode='username'">{{username?username:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='username'"><input class="form-control" [(ngModel)]="username" type="text"> <button class="btn-secondary" (click)="updateClientLoginInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>portel password</th>
-            <td *ngIf="editmode!='password'" (dblclick)="editmode='password'">{{password?password:'not set'}}</td>
-            <td class="d-flex" *ngIf="editmode=='password'"><input class="form-control" [(ngModel)]="password" type="text"> <button class="btn-secondary" (click)="updateClientLoginInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>email</th>
-            <td *ngIf="editmode!='email'" (dblclick)="editmode='email'">{{clientInfo?.email?clientInfo?.email:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='email'"><input class="form-control" [(ngModel)]="clientInfo.email" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
-        </tr>
-        <tr>
-            <th>company</th>
-            <td *ngIf="editmode!='compani'" (dblclick)="editmode='compani'">{{clientInfo?.company?clientInfo?.company:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='compani'"><input class="form-control" [(ngModel)]="clientInfo.company" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>address</th>
-            <td *ngIf="editmode!='address'" (dblclick)="editmode='address'">{{clientInfo?.address?clientInfo?.address:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='address'"><input class="form-control" [(ngModel)]="clientInfo.address" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
-        </tr>
-        <tr>
-            <th>city</th>
-            <td *ngIf="editmode!='city'" (dblclick)="editmode='city'">{{clientInfo?.city?clientInfo?.city:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='city'"><input class="form-control" [(ngModel)]="clientInfo.city" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>state</th>
-            <td *ngIf="editmode!='state'" (dblclick)="editmode='state'">{{clientInfo?.state?clientInfo?.state:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='state'"><input class="form-control" [(ngModel)]="clientInfo.state" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>country</th>
-            <td *ngIf="editmode!='country'" (dblclick)="editmode='country'">{{clientInfo?.country?clientInfo?.country:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='country'"><input class="form-control" [(ngModel)]="clientInfo.country" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>zip</th>
-            <td *ngIf="editmode!='zip'" (dblclick)="editmode='zip'">{{clientInfo?.zip?clientInfo?.zip:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='zip'"><input class="form-control" [(ngModel)]="clientInfo.zip" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>phone</th>
-            <td *ngIf="editmode!='phone'" (dblclick)="editmode='phone'">{{clientInfo?.phone?clientInfo?.phone:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='phone'"><input class="form-control" [(ngModel)]="clientInfo.phone" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>website</th>
-            <td *ngIf="editmode!='website'" (dblclick)="editmode='website'">{{clientInfo?.website?clientInfo?.website:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='website'"><input class="form-control" [(ngModel)]="clientInfo.website" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>notes</th>
-            <td *ngIf="editmode!='notes'" (dblclick)="editmode='notes'">{{clientInfo?.notes?clientInfo?.notes:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='notes'"><input class="form-control" [(ngModel)]="clientInfo.notes" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button> </td>
-        </tr>
-        <tr>
-            <th>Managed By</th>
-            <td *ngIf="editmode!='manageby'" (dblclick)="editmode='manageby'">{{clientInfo?.manageby?clientInfo?.manageby:'.....'}}</td>
-            <td class="d-flex" *ngIf="editmode=='manageby'"><input class="form-control" [(ngModel)]="clientInfo.manageby" type="text"> <button class="btn-secondary" (click)="updateClientInfo()">✅</button> <button class="btn-secondary mx-2" (click)="editmode=''">❌</button></td>
-        </tr>
-    </table>
+  </div>
+
+  <!-- Main Content -->
+  <div class="info-content">
+    <div class="content-grid">
+      
+      <!-- Personal Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">person</mat-icon>
+          <h3>Personal Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="field-group">
+            <label class="field-label">Full Name</label>
+            <div class="field-value" *ngIf="editmode !== 'name'" (click)="editmode = 'name'">
+              <span>{{ clientInfo?.name || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'name'">
+              <input class="edit-input" [(ngModel)]="clientInfo.name" type="text" placeholder="Enter full name">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Email Address</label>
+            <div class="field-value" *ngIf="editmode !== 'email'" (click)="editmode = 'email'">
+              <span>{{ clientInfo?.email || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'email'">
+              <input class="edit-input" [(ngModel)]="clientInfo.email" type="email" placeholder="Enter email address">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Phone Number</label>
+            <div class="field-value" *ngIf="editmode !== 'phone'" (click)="editmode = 'phone'">
+              <span>{{ clientInfo?.phone || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'phone'">
+              <input class="edit-input" [(ngModel)]="clientInfo.phone" type="tel" placeholder="Enter phone number">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Company</label>
+            <div class="field-value" *ngIf="editmode !== 'compani'" (click)="editmode = 'compani'">
+              <span>{{ clientInfo?.company || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'compani'">
+              <input class="edit-input" [(ngModel)]="clientInfo.company" type="text" placeholder="Enter company name">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">location_on</mat-icon>
+          <h3>Address Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="field-group">
+            <label class="field-label">Address</label>
+            <div class="field-value" *ngIf="editmode !== 'address'" (click)="editmode = 'address'">
+              <span>{{ clientInfo?.address || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'address'">
+              <textarea class="edit-input" [(ngModel)]="clientInfo.address" placeholder="Enter address" rows="2"></textarea>
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="address-grid">
+            <div class="field-group">
+              <label class="field-label">City</label>
+              <div class="field-value" *ngIf="editmode !== 'city'" (click)="editmode = 'city'">
+                <span>{{ clientInfo?.city || 'Not specified' }}</span>
+                <mat-icon class="edit-icon">edit</mat-icon>
+              </div>
+              <div class="field-edit" *ngIf="editmode === 'city'">
+                <input class="edit-input" [(ngModel)]="clientInfo.city" type="text" placeholder="Enter city">
+                <div class="edit-actions">
+                  <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">State</label>
+              <div class="field-value" *ngIf="editmode !== 'state'" (click)="editmode = 'state'">
+                <span>{{ clientInfo?.state || 'Not specified' }}</span>
+                <mat-icon class="edit-icon">edit</mat-icon>
+              </div>
+              <div class="field-edit" *ngIf="editmode === 'state'">
+                <input class="edit-input" [(ngModel)]="clientInfo.state" type="text" placeholder="Enter state">
+                <div class="edit-actions">
+                  <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Country</label>
+              <div class="field-value" *ngIf="editmode !== 'country'" (click)="editmode = 'country'">
+                <span>{{ clientInfo?.country || 'Not specified' }}</span>
+                <mat-icon class="edit-icon">edit</mat-icon>
+              </div>
+              <div class="field-edit" *ngIf="editmode === 'country'">
+                <input class="edit-input" [(ngModel)]="clientInfo.country" type="text" placeholder="Enter country">
+                <div class="edit-actions">
+                  <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">ZIP Code</label>
+              <div class="field-value" *ngIf="editmode !== 'zip'" (click)="editmode = 'zip'">
+                <span>{{ clientInfo?.zip || 'Not specified' }}</span>
+                <mat-icon class="edit-icon">edit</mat-icon>
+              </div>
+              <div class="field-edit" *ngIf="editmode === 'zip'">
+                <input class="edit-input" [(ngModel)]="clientInfo.zip" type="text" placeholder="Enter ZIP code">
+                <div class="edit-actions">
+                  <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">account_circle</mat-icon>
+          <h3>Account Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="field-group">
+            <label class="field-label">Portal Username</label>
+            <div class="field-value" *ngIf="editmode !== 'username'" (click)="editmode = 'username'">
+              <span>{{ username || 'Not set' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'username'">
+              <input class="edit-input" [(ngModel)]="username" type="text" placeholder="Enter username">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientLoginInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Portal Password</label>
+            <div class="field-value" *ngIf="editmode !== 'password'" (click)="editmode = 'password'">
+              <span>{{ password ? '••••••••' : 'Not set' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'password'">
+              <input class="edit-input" [(ngModel)]="password" type="password" placeholder="Enter password">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientLoginInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Managed By</label>
+            <div class="field-value" *ngIf="editmode !== 'manageby'" (click)="editmode = 'manageby'">
+              <span>{{ clientInfo?.manageby || 'Not assigned' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'manageby'">
+              <input class="edit-input" [(ngModel)]="clientInfo.manageby" type="text" placeholder="Enter manager name">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">info</mat-icon>
+          <h3>Additional Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="field-group">
+            <label class="field-label">Website</label>
+            <div class="field-value" *ngIf="editmode !== 'website'" (click)="editmode = 'website'">
+              <span>{{ clientInfo?.website || 'Not specified' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'website'">
+              <input class="edit-input" [(ngModel)]="clientInfo.website" type="url" placeholder="Enter website URL">
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Notes</label>
+            <div class="field-value" *ngIf="editmode !== 'notes'" (click)="editmode = 'notes'">
+              <span>{{ clientInfo?.notes || 'No notes added' }}</span>
+              <mat-icon class="edit-icon">edit</mat-icon>
+            </div>
+            <div class="field-edit" *ngIf="editmode === 'notes'">
+              <textarea class="edit-input" [(ngModel)]="clientInfo.notes" placeholder="Enter notes" rows="3"></textarea>
+              <div class="edit-actions">
+                <button class="btn-save" (click)="updateClientInfo()" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button class="btn-cancel" (click)="editmode = ''" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>

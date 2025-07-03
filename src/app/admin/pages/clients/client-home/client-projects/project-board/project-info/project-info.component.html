@@ -26,10 +26,17 @@
     <div class="add-form-section" *ngIf="add">
         <div class="form-card">
             <div class="form-header">
-                <h3>Add New Information</h3>
-                <p>Add custom fields to track project details</p>
+                <h3>{{ editMode ? 'Edit Information' : 'Add New Information' }}</h3>
+                <p>{{ editMode ? 'Update the selected information field' : 'Add custom fields to track project details' }}</p>
             </div>
-            
+
+            <!-- Feedback Message -->
+            <div *ngIf="feedback.message" class="feedback-message" [ngClass]="feedback.type">
+                <mat-icon *ngIf="feedback.type === 'success'">check_circle</mat-icon>
+                <mat-icon *ngIf="feedback.type === 'error'">error</mat-icon>
+                <span>{{ feedback.message }}</span>
+            </div>
+
             <form class="info-form" (ngSubmit)="addInfo()" #infoForm="ngForm">
                 <div class="form-row">
                     <div class="form-field">
@@ -43,10 +50,10 @@
                                 [(ngModel)]="label" 
                                 placeholder="Enter label (e.g., Client Contact, Budget, Deadline)"
                                 class="form-input"
-                                required>
+                                required
+                                [disabled]="loading">
                         </div>
                     </div>
-                    
                     <div class="form-field">
                         <label for="type">Type *</label>
                         <div class="input-wrapper">
@@ -56,7 +63,8 @@
                                 id="type" 
                                 [(ngModel)]="type"
                                 class="form-select"
-                                required>
+                                required
+                                [disabled]="loading">
                                 <option value="" disabled selected>Select type</option>
                                 <option value="text">Text</option>
                                 <option value="link">Link</option>
@@ -67,7 +75,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="form-field">
                     <label for="value">Value *</label>
                     <div class="input-wrapper">
@@ -79,24 +86,26 @@
                             [(ngModel)]="value" 
                             [placeholder]="getValuePlaceholder()"
                             class="form-input"
-                            required>
+                            required
+                            [disabled]="loading">
                     </div>
                 </div>
-                
                 <div class="form-actions">
                     <button 
                         type="button" 
                         class="btn-secondary" 
-                        (click)="cancelAdd()">
+                        (click)="cancelAdd()"
+                        [disabled]="loading">
                         <mat-icon>close</mat-icon>
                         <span>Cancel</span>
                     </button>
                     <button 
                         type="submit" 
                         class="btn-primary" 
-                        [disabled]="!infoForm.valid || !label.trim() || !type || !value.trim()">
-                        <mat-icon>add</mat-icon>
-                        <span>Add Information</span>
+                        [disabled]="!infoForm.valid || !label.trim() || !type || !value.trim() || loading">
+                        <mat-icon *ngIf="!loading">{{ editMode ? 'edit' : 'add' }}</mat-icon>
+                        <mat-spinner *ngIf="loading" diameter="20" strokeWidth="3"></mat-spinner>
+                        <span>{{ editMode ? (loading ? 'Updating...' : 'Update Information') : (loading ? 'Adding...' : 'Add Information') }}</span>
                     </button>
                 </div>
             </form>

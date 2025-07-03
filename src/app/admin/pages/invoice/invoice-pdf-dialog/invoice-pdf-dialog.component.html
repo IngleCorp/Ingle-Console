@@ -1,5 +1,5 @@
 <div class="pdf-dialog-container">
-  <ng-container *ngIf="invoice; else noData">
+<ng-container *ngIf="invoice; else noData">
     <!-- Dialog Header -->
     <div class="dialog-header">
       <div class="header-content">
@@ -12,8 +12,8 @@
         </div>
         <div class="header-actions">
           <button class="close-btn" (click)="dialogRef.close()">
-            <mat-icon>close</mat-icon>
-          </button>
+      <mat-icon>close</mat-icon>
+    </button>
         </div>
       </div>
     </div>
@@ -128,8 +128,8 @@
             <div class="summary-row total">
               <span class="summary-label">Total:</span>
               <span class="summary-value">₹{{ invoice.total | number:'1.2-2' }}</span>
-            </div>
-          </div>
+        </div>
+      </div>
         </div>
 
         <!-- Additional Information -->
@@ -152,15 +152,15 @@
             <span class="signature-label">Authorized Signature</span>
             <div *ngIf="invoice.signature" class="signature-image">
               <img [src]="invoice.signature" alt="Signature" class="signature-preview" />
-            </div>
+      </div>
             <div class="signature-space"></div>
-          </div>
-        </div>
+      </div>
       </div>
     </div>
-  </ng-container>
+  </div>
+</ng-container>
 
-  <ng-template #noData>
+<ng-template #noData>
     <div class="no-data">
       <div class="no-data-content">
         <mat-icon class="no-data-icon">receipt</mat-icon>
@@ -172,5 +172,5 @@
         </button>
       </div>
     </div>
-  </ng-template>
+</ng-template> 
 </div> 

@@ -86,29 +86,33 @@
   <!-- Navigation Menu -->
   <div class="navigation-section" *ngIf="!isInProject()">
     <nav class="nav-menu">
-      <a class="nav-item" 
-         routerLink="projects"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{exact: true}">
-        <mat-icon>folder</mat-icon>
-        <span>Projects</span>
-        <span class="item-badge" *ngIf="getProjectsCount() > 0">{{ getProjectsCount() }}</span>
-      </a>
-      <a class="nav-item" 
-         routerLink="info"
-         routerLinkActive="active">
-        <mat-icon>info</mat-icon>
-        <span>Info</span>
-      </a>
-      <a class="nav-item" 
-         routerLink="bills"
-         routerLinkActive="active">
-        <mat-icon>receipt</mat-icon>
-        <span>Bills</span>
-        <span class="item-badge" *ngIf="getBillsCount() > 0">{{ getBillsCount() }}</span>
-      </a>
+      <a class="nav-item"
+      routerLink="projects"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive="active">
+     <mat-icon>folder</mat-icon>
+     <span>Projects</span>
+     <span class="item-badge" *ngIf="getProjectsCount() > 0">{{ getProjectsCount() }}</span>
+   </a>
+   
+   <a class="nav-item"
+   routerLink="info"
+   routerLinkActive="active"
+   [routerLinkActiveOptions]="{ exact: true }">
+  <mat-icon>info</mat-icon>
+  <span>Info</span>
+</a>
+
+<a class="nav-item"
+   routerLink="bills"
+   routerLinkActive="active"
+   [routerLinkActiveOptions]="{ exact: true }">
+  <mat-icon>receipt</mat-icon>
+  <span>Bills</span>
+</a>
     </nav>
   </div>
+
 
   <!-- Main Content Area -->
   <div class="main-content">

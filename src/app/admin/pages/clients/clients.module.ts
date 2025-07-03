@@ -30,6 +30,7 @@ import { ClientAddComponent } from './client-add/client-add.component';
 import { ClientHomeComponent } from './client-home/client-home.component';
 import { ClientInfoComponent } from './client-home/client-info/client-info.component';
 import { ClientProjectsComponent } from './client-home/client-projects/client-projects.component';
+import { ProjectFormComponent } from './client-home/client-projects/project-form/project-form.component';
 import { ProjectBoardComponent } from './client-home/client-projects/project-board/project-board.component';
 import { ProjectInfoComponent } from './client-home/client-projects/project-board/project-info/project-info.component';
 import { ProjectTasksComponent } from './client-home/client-projects/project-board/project-tasks/project-tasks.component';
@@ -59,6 +60,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ClientHomeComponent,
     ClientInfoComponent,
     ClientProjectsComponent,
+    ProjectFormComponent,
     ProjectBoardComponent,
     ProjectInfoComponent,
     ProjectTasksComponent,
@@ -115,6 +117,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ClientHomeComponent,
     ClientInfoComponent,
     ClientProjectsComponent,
+    ProjectFormComponent,
     ProjectBoardComponent,
     ProjectInfoComponent,
     ProjectTasksComponent,

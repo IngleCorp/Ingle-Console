@@ -5,7 +5,7 @@
       <div class="title-section">
         <h1 class="page-title">
           <mat-icon class="title-icon">dashboard</mat-icon>
-          Admin Dashboard
+          Ingle Console
         </h1>
         <p class="page-subtitle">Welcome back! Here's what's happening with your business today</p>
       </div>
@@ -15,8 +15,8 @@
             <mat-icon>person</mat-icon>
           </div>
           <div class="user-details">
-            <span class="user-name">Admin User</span>
-            <span class="user-role">Administrator</span>
+            <span class="user-name">{{userName}}</span>
+            <span class="user-role">{{user?.role}}</span>
           </div>
         </div>
       </div>
@@ -156,6 +156,7 @@
           <div class="activity-content">
             <p class="activity-text">{{ activity.text }}</p>
             <span class="activity-time">{{ activity.time | date:'short' }}</span>
+            <span class="activity-user" style="display:block; color:#757575; font-size:0.85em; margin-top:2px;">By {{ activity.createdByName }}</span>
           </div>
         </div>
       </div>

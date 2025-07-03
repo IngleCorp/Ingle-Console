@@ -48,6 +48,9 @@ mat-icon {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 // Project Header
@@ -267,10 +270,14 @@ mat-icon {
 .project-navigation {
   background: $background-white;
   border-bottom: 1px solid $border-color;
-  padding: 0 24px;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
   
   @media (max-width: 768px) {
-    padding: 0 16px;
+    padding: 0;
   }
 }
 
@@ -279,10 +286,40 @@ mat-icon {
   gap: 0;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: $primary-color transparent;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $primary-color;
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: $primary-dark;
+  }
   
   @media (max-width: 768px) {
-    overflow-x: auto;
     padding-bottom: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    padding-bottom: 4px;
   }
 }
 
@@ -290,13 +327,19 @@ mat-icon {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 24px;
+  padding: 16px 20px;
   color: $text-secondary;
   text-decoration: none;
   border-bottom: 3px solid transparent;
   transition: $transition;
   position: relative;
   white-space: nowrap;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: fit-content;
   
   &:hover {
     color: $primary-color;
@@ -318,16 +361,51 @@ mat-icon {
     display: inline-block !important;
     vertical-align: middle !important;
   }
+  
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    min-width: auto;
+    
+    mat-icon {
+      font-size: 1.1rem !important;
+      width: 1.1rem !important;
+      height: 1.1rem !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    min-width: auto;
+    
+    mat-icon {
+      font-size: 1rem !important;
+      width: 1rem !important;
+      height: 1rem !important;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    min-width: auto;
+    
+    mat-icon {
+      font-size: 0.9rem !important;
+      width: 0.9rem !important;
+      height: 0.9rem !important;
+    }
+  }
 }
 
 // Project Content
 .project-content {
-  // padding: 24px;
-  // max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
   
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 0;
   }
 }
 
@@ -338,7 +416,7 @@ mat-icon {
   }
   
   .project-navigation {
-    padding: 0 12px;
+    padding: 0;
   }
   
   .project-content {
@@ -347,20 +425,6 @@ mat-icon {
   
   .project-name {
     font-size: 1.3rem;
-  }
-  
-  .nav-item {
-    padding: 12px 16px;
-    font-size: 0.9rem;
-    
-    mat-icon {
-      font-size: 1.1rem !important;
-      width: 1.1rem !important;
-      height: 1.1rem !important;
-      color: inherit !important;
-      display: inline-block !important;
-      vertical-align: middle !important;
-    }
   }
 }
 

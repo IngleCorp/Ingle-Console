@@ -259,8 +259,8 @@ mat-icon {
     }
     
     .stat-content {
-      display: flex;
-      flex-direction: column;
+  display: flex;
+  flex-direction: column;
       
       .stat-number {
         font-size: 2rem;
@@ -283,7 +283,7 @@ mat-icon {
 .invoices-section {
   .section-header {
     display: flex;
-    justify-content: space-between;
+  justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
     
@@ -440,16 +440,16 @@ mat-icon {
   
   @media (max-width: 768px) {
     padding: 20px;
-  }
-  
-  .invoice-header {
-    display: flex;
+}
+
+.invoice-header {
+  display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
     
     @media (max-width: 768px) {
-      flex-direction: column;
+  flex-direction: column;
       gap: 12px;
     }
     
@@ -550,12 +550,12 @@ mat-icon {
         color: $primary-color !important;
       }
     }
-  }
-  
-  .invoice-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
     
     @media (max-width: 768px) {
       flex-direction: column;
@@ -628,7 +628,7 @@ mat-icon {
         &:hover {
           background: $error-color;
           color: white;
-        }
+}
       }
     }
   }
@@ -680,7 +680,7 @@ mat-icon {
   .invoices-list {
     gap: 12px;
     
-    .invoice-card {
+  .invoice-card {
       padding: 16px;
       
       .invoice-actions {

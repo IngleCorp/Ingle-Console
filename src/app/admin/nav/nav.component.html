@@ -243,15 +243,37 @@
             </div>
           </a>
 
-          <!-- Users Management -->
-          <a mat-list-item routerLink="users" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+           <!-- Clients -->
+           <a mat-list-item routerLink="clients" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
             <div class="nav-item-content">
               <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">group</mat-icon>
+                <mat-icon class="nav-icon">business</mat-icon>
               </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Users</span>
+              <span class="nav-label" *ngIf="!isCollapsed">Clients</span>
             </div>
           </a>
+
+        
+
+          <!-- Tasks -->
+          <a mat-list-item routerLink="tasks" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">assignment</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Task Management</span>
+            </div>
+          </a>
+
+             <!-- Finance/Accounts -->
+             <a mat-list-item routerLink="finance/create" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+              <div class="nav-item-content">
+                <div class="nav-icon-wrapper">
+                  <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+                </div>
+                <span class="nav-label" *ngIf="!isCollapsed">Accounts</span>
+              </div>
+            </a>
 
           <!-- Credential Vault -->
           <a mat-list-item routerLink="cred-vault" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
@@ -265,55 +287,9 @@
 
          
 
-          <!-- Finance/Accounts -->
-          <a mat-list-item routerLink="finance/create" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Accounts</span>
-            </div>
-          </a>
+       
 
-          <!-- Clients -->
-          <a mat-list-item routerLink="clients" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">business</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Clients</span>
-            </div>
-          </a>
-
-          <!-- Types -->
-          <a mat-list-item routerLink="types" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">category</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Types</span>
-            </div>
-          </a>
-
-          <!-- Orders -->
-          <a mat-list-item routerLink="quill" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">shopping_cart</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Orders</span>
-            </div>
-          </a>
-
-          <!-- Tasks -->
-          <a mat-list-item routerLink="tasks" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">assignment</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Task Management</span>
-            </div>
-          </a>
+        
 
           <!-- Calendar -->
           <a mat-list-item routerLink="calendar" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
@@ -335,68 +311,37 @@
             </div>
           </a>
 
-          <!-- Banners -->
-          <a mat-list-item routerLink="banners" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+        
+            <!-- Types -->
+            <a mat-list-item routerLink="types" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+              <div class="nav-item-content">
+                <div class="nav-icon-wrapper">
+                  <mat-icon class="nav-icon">category</mat-icon>
+                </div>
+                <span class="nav-label" *ngIf="!isCollapsed">Types</span>
+              </div>
+            </a>
+  
+            <!-- Orders -->
+            <a mat-list-item routerLink="quill" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+              <div class="nav-item-content">
+                <div class="nav-icon-wrapper">
+                  <mat-icon class="nav-icon">shopping_cart</mat-icon>
+                </div>
+                <span class="nav-label" *ngIf="!isCollapsed">Orders</span>
+              </div>
+            </a>
+         
+             <!-- Users Management -->
+          <a mat-list-item routerLink="users" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
             <div class="nav-item-content">
               <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">photo_library</mat-icon>
+                <mat-icon class="nav-icon">group</mat-icon>
               </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Banners</span>
+              <span class="nav-label" *ngIf="!isCollapsed">Users</span>
             </div>
           </a>
-
-          <!-- Storage -->
-          <a mat-list-item routerLink="files" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
-            <div class="nav-item-content">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">cloud</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Storage</span>
-            </div>
-          </a>
-
-          <!-- Study Section with Submenu -->
-          <div class="nav-item study-section">
-            <div class="nav-item-content" (click)="toggleSubmenu()">
-              <div class="nav-icon-wrapper">
-                <mat-icon class="nav-icon">school</mat-icon>
-              </div>
-              <span class="nav-label" *ngIf="!isCollapsed">Study</span>
-              <mat-icon class="submenu-toggle" 
-                       [ngClass]="{'rotated': showSubmenu}" 
-                       *ngIf="!isCollapsed && showSubmenuIcon">
-                expand_more
-              </mat-icon>
-            </div>
-        </div>
-
-          <!-- Study Submenu -->
-          <div class="submenu-container" [ngClass]="{'expanded': showSubmenu}" *ngIf="showSubmenu">
-            <a mat-list-item routerLink="study/materials" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Materials</span>
-            </a>
-            <a mat-list-item routerLink="study/subjects" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Subjects</span>
-            </a>
-            <a mat-list-item routerLink="study/university" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">University</span>
-            </a>
-            <a mat-list-item routerLink="study/schemes" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Schemes</span>
-            </a>
-            <a mat-list-item routerLink="study/courses" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Courses</span>
-            </a>
-            <a mat-list-item routerLink="study/branches" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Branches</span>
-            </a>
-            <a mat-list-item routerLink="study/semesters" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Semesters</span>
-            </a>
-            <a mat-list-item routerLink="study/material-types" routerLinkActive="active-link-sub" class="submenu-item" (click)="closeSidenav()">
-              <span class="submenu-label">Material Types</span>
-            </a>
-          </div>
+         
         </mat-nav-list>
       </div>
 

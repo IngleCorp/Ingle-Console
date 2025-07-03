@@ -1,17 +1,652 @@
-.image-icon {
-    margin: 10px;
-    border: 5px solid lightgray;
-    width: 90px;
-    position: relative;
+// Variables - Modern Design System
+$primary-color: #3f51b5;
+$primary-light: #757de8;
+$primary-dark: #002984;
+$secondary-color: #ff4081;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$info-color: #2196f3;
+$text-primary: #212121;
+$text-secondary: #757575;
+$background-light: #fafafa;
+$background-white: #ffffff;
+$border-color: #e0e0e0;
+$shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.15);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.image-label {
-    position: absolute;
-    bottom: -17px;
-    right: -5px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.out-box {
-    height: calc(100vh - 105px);
-    overflow: scroll;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+// Main Container
+.client-info-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Poppins', sans-serif;
+  padding: 0;
+  margin: 0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Header Section
+.info-header {
+  background: $background-white;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-medium;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+  animation: slideInUp 0.6s ease-out;
+  
+  @media (max-width: 768px) {
+    padding: 24px 20px;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+    margin-bottom: 16px;
+  }
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+}
+
+// Avatar Section
+.client-avatar-section {
+  flex-shrink: 0;
+}
+
+.avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: $shadow-medium;
+  transition: $transition;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: $shadow-heavy;
+    
+    .avatar-overlay {
+      opacity: 1;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.client-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: $transition;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  mat-icon {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+    color: white !important;
+  }
+  
+  @media (max-width: 768px) {
+    mat-icon {
+      font-size: 2.5rem !important;
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+    }
+  }
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: $transition;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $primary-color;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: $transition;
+  
+  &:hover {
+    background: $primary-dark;
+    transform: scale(1.1);
+  }
+  
+  &.uploading {
+    background: $warning-color;
+    cursor: not-allowed;
+    animation: pulse 1.5s infinite;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  mat-icon {
+    color: white !important;
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+  }
+  
+  mat-spinner {
+    ::ng-deep circle {
+      stroke: white !important;
+    }
+  }
+}
+
+// Upload Progress Styles
+.upload-progress {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: slideInUp 0.3s ease-out;
+  
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $success-color 0%, $info-color 100%);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .progress-text {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+// Client Summary
+.client-summary {
+  flex: 1;
+  
+  .client-name {
+    margin: 0 0 8px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.2;
+    background: linear-gradient(135deg, $primary-color, $primary-light);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 1.6rem;
+    }
+  }
+  
+  .client-company {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+    color: $text-secondary;
+    font-weight: 500;
+    
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .client-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    
+    @media (max-width: 768px) {
+      justify-content: center;
+      gap: 16px;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba($primary-color, 0.1);
+      border-radius: $border-radius;
+      font-size: 0.95rem;
+      color: $primary-color;
+      font-weight: 500;
+      transition: $transition;
+      
+      &:hover {
+        background: $primary-color;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: $shadow-light;
+      }
+      
+      mat-icon {
+        font-size: 1.1rem !important;
+        width: 1.1rem !important;
+        height: 1.1rem !important;
+        color: inherit !important;
+      }
+      
+      a {
+        color: inherit;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        
+        mat-icon {
+          font-size: 1rem !important;
+          width: 1rem !important;
+          height: 1rem !important;
+        }
+      }
+    }
+  }
+}
+
+// Main Content
+.info-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 32px;
+  
+  @media (max-width: 768px) {
+    padding: 0 20px 24px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 16px 20px;
+  }
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+// Info Cards
+.info-card {
+  background: $background-white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-light;
+  overflow: hidden;
+  transition: $transition;
+  animation: slideInUp 0.6s ease-out;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-medium;
+  }
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+}
+
+.card-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  .card-icon {
+    font-size: 1.5rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    color: inherit !important;
+  }
+  
+  h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    
+    h3 {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.card-content {
+  padding: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+}
+
+// Field Groups
+.field-group {
+  margin-bottom: 20px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.field-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: $background-light;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: $transition;
+  cursor: pointer;
+  min-height: 48px;
+  
+  &:hover {
+    background: rgba($primary-color, 0.05);
+    border-color: rgba($primary-color, 0.2);
+    
+    .edit-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+  
+  span {
+    font-size: 1rem;
+    color: $text-primary;
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .edit-icon {
+    opacity: 0.6;
+    transition: $transition;
+    color: $primary-color;
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+  }
+}
+
+// Edit Mode
+.field-edit {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid $primary-color;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+  transition: $transition;
+  margin-bottom: 12px;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-dark;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+  
+  &::placeholder {
+    color: $text-secondary;
+  }
+  
+  &.ng-invalid {
+    border-color: $error-color;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-save, .btn-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: $transition;
+  
+  mat-icon {
+    font-size: 1.2rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+    color: white !important;
+  }
+}
+
+.btn-save {
+  background: $success-color;
+  
+  &:hover {
+    background: darken($success-color, 10%);
+    transform: scale(1.05);
+  }
+}
+
+.btn-cancel {
+  background: $error-color;
+  
+  &:hover {
+    background: darken($error-color, 10%);
+    transform: scale(1.05);
+  }
+}
+
+// Address Grid
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .field-value {
+    padding: 10px 14px;
+    min-height: 44px;
+    
+    span {
+      font-size: 0.95rem;
+    }
+  }
+  
+  .edit-input {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+  
+  .btn-save, .btn-cancel {
+    width: 36px;
+    height: 36px;
+    
+    mat-icon {
+      font-size: 1.1rem !important;
+      width: 1.1rem !important;
+      height: 1.1rem !important;
+    }
+  }
+}
+
+// Loading States
+.loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+// Enhanced hover effects
+.info-card:hover .card-header {
+  background: linear-gradient(135deg, $primary-dark 0%, $primary-color 100%);
+}
+
+.field-value:hover .edit-icon {
+  animation: pulse 0.6s ease-in-out;
+}
+
+// Accessibility improvements
+.field-value:focus {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+.edit-input:focus {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Print styles
+@media print {
+  .client-info-container {
+    background: white;
+  }
+  
+  .info-card {
+    box-shadow: none;
+    border: 1px solid $border-color;
+  }
+  
+  .edit-icon, .btn-save, .btn-cancel {
+    display: none !important;
+  }
 }

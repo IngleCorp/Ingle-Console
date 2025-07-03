@@ -17,6 +17,10 @@ export class ProjectInfoComponent implements OnInit {
   showaction: any = '';
   user: any = null;
   add: boolean = false;
+  editMode: boolean = false;
+  editInfoId: string | null = null;
+  loading: boolean = false;
+  feedback: { type: 'success' | 'error' | '', message: string } = { type: '', message: '' };
   pathname: any;
   // source: LocalDataSource = new LocalDataSource(); // Uncomment if ng2-smart-table is available
   label: string = '';
@@ -93,8 +97,8 @@ export class ProjectInfoComponent implements OnInit {
     localStorage.setItem('pactivetab', 'info');
     const url = this.route.snapshot.url;
     this.pathname = url[0]?.path;
-     this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-     console.log('Project ID:', this.projectId);
+    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+    console.log('Project ID:', this.projectId);
     this.getInfos();
   }
 
@@ -103,8 +107,31 @@ export class ProjectInfoComponent implements OnInit {
   }
 
   addInfo(): void {
-    console.log('Adding info:', this.label, this.type, this.value, this.projectId);
-    if (this.label && this.type && this.value && this.projectId) {
+    if (!this.label || !this.type || !this.value || !this.projectId) {
+      this.showFeedback('error', 'Please fill all the fields');
+      return;
+    }
+    this.loading = true;
+    if (this.editMode && this.editInfoId) {
+      // Edit existing info
+      this.afs.collection('projects').doc(this.projectId).collection('info').doc(this.editInfoId).update({
+        label: this.label,
+        type: this.type,
+        value: this.value,
+        updatedAt: new Date(),
+      }).then(() => {
+        this.showFeedback('success', 'Information updated successfully');
+        this.resetForm();
+        this.add = false;
+        this.editMode = false;
+        this.editInfoId = null;
+      }).catch(() => {
+        this.showFeedback('error', 'Failed to update information');
+      }).finally(() => {
+        this.loading = false;
+      });
+    } else {
+      // Add new info
       this.afs.collection('projects').doc(this.projectId).collection('info').add({
         label: this.label,
         type: this.type,
@@ -113,12 +140,14 @@ export class ProjectInfoComponent implements OnInit {
         updatedAt: new Date(),
         createdby: localStorage.getItem('username')
       }).then(() => {
-        this.label = '';
-        this.type = '';
-        this.value = '';
+        this.showFeedback('success', 'Information added successfully');
+        this.resetForm();
+        this.add = false;
+      }).catch(() => {
+        this.showFeedback('error', 'Failed to add information');
+      }).finally(() => {
+        this.loading = false;
       });
-    } else {
-      alert('Please fill all the fields');
     }
   }
 
@@ -158,6 +187,8 @@ export class ProjectInfoComponent implements OnInit {
 
   cancelAdd(): void {
     this.add = false;
+    this.editMode = false;
+    this.editInfoId = null;
     this.resetForm();
   }
 
@@ -211,19 +242,28 @@ export class ProjectInfoComponent implements OnInit {
   }
 
   editInfo(info: any): void {
-    // TODO: Implement edit functionality
-    console.log('Edit info:', info);
-    // For now, just populate the form for editing
     this.label = info.label;
     this.type = info.type;
     this.value = info.value;
     this.add = true;
+    this.editMode = true;
+    this.editInfoId = info.id;
   }
 
   deleteInfo(id: string): void {
     if (confirm('Are you sure you want to delete this information?')) {
       if (!this.projectId || !id) return;
-      this.afs.collection('projects').doc(this.projectId).collection('info').doc(id).delete();
+      this.loading = true;
+      this.afs.collection('projects').doc(this.projectId).collection('info').doc(id).delete()
+        .then(() => {
+          this.showFeedback('success', 'Information deleted successfully');
+        })
+        .catch(() => {
+          this.showFeedback('error', 'Failed to delete information');
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
   }
 
@@ -241,5 +281,10 @@ export class ProjectInfoComponent implements OnInit {
     }
     const date = new Date(createdAt.seconds * 1000);
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+  }
+
+  showFeedback(type: 'success' | 'error' | '', message: string) {
+    this.feedback = { type, message };
+    setTimeout(() => { this.feedback = { type: '', message: '' }; }, 3000);
   }
 }

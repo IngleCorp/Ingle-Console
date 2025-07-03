@@ -1,0 +1,462 @@
+// Variables
+$primary-color: #3f51b5;
+$primary-light: #757de8;
+$primary-dark: #002984;
+$secondary-color: #ff4081;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$info-color: #2196f3;
+$text-primary: #212121;
+$text-secondary: #757575;
+$background-light: #fafafa;
+$background-white: #ffffff;
+$border-color: #e0e0e0;
+$shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.15);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Main Dialog Container
+.project-form-dialog {
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  animation: slideInUp 0.4s ease-out;
+  
+  @media (max-width: 768px) {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  // Ensure the form can scroll properly
+  .project-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+// Dialog Header
+.dialog-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid $border-color;
+  background: linear-gradient(135deg, $background-white 0%, $background-light 100%);
+  
+  @media (max-width: 768px) {
+    padding: 20px 20px 16px 20px;
+  }
+  
+  .dialog-title {
+    margin: 0 0 8px 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+    
+    .title-icon {
+      font-size: 1.8rem !important;
+      width: 1.8rem !important;
+      height: 1.8rem !important;
+      color: $primary-color !important;
+      
+      @media (max-width: 768px) {
+        font-size: 1.5rem !important;
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+      }
+    }
+  }
+  
+  .dialog-subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: $text-secondary;
+    font-weight: 400;
+    
+    strong {
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+}
+
+// Form Content
+.form-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  max-height: calc(90vh - 200px); // Account for header and actions
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $background-light;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 4px;
+    
+    &:hover {
+      background: darken($border-color, 15%);
+    }
+  }
+  
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: $border-color $background-light;
+}
+
+// Form Sections
+.form-section {
+  padding: 24px;
+  border-bottom: 1px solid $border-color;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+  
+  .section-title {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+    
+    mat-icon {
+      font-size: 1.2rem !important;
+      width: 1.2rem !important;
+      height: 1.2rem !important;
+      color: $primary-color !important;
+    }
+  }
+}
+
+// Form Rows
+.form-row {
+  margin-bottom: 20px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+}
+
+// Material Form Fields
+::ng-deep .mat-form-field {
+  width: 100%;
+  
+  .mat-form-field-outline {
+    color: $border-color;
+  }
+  
+  .mat-form-field-outline-thick {
+    color: $primary-color;
+  }
+  
+  .mat-form-field-label {
+    color: $text-secondary;
+    font-weight: 500;
+  }
+  
+  .mat-form-field-label:not(.mat-form-field-empty) .mat-form-field-required-marker {
+    color: $error-color;
+  }
+  
+  .mat-input-element {
+    color: $text-primary;
+    font-weight: 400;
+  }
+  
+  .mat-form-field-suffix {
+    .mat-icon {
+      color: $text-secondary;
+      transition: $transition;
+    }
+  }
+  
+  &.mat-focused {
+    .mat-form-field-suffix .mat-icon {
+      color: $primary-color;
+    }
+  }
+  
+  .mat-error {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .mat-hint {
+    font-size: 0.8rem;
+    color: $text-secondary;
+    font-weight: 400;
+  }
+}
+
+// Select Options
+.priority-option,
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  mat-icon {
+    font-size: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+}
+
+// Progress Preview
+.progress-preview {
+  margin: 16px 0 20px 0;
+  padding: 16px;
+  background: $background-light;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  
+  .progress-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+  
+  ::ng-deep .mat-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    
+    .mat-progress-bar-background {
+      background: rgba($border-color, 0.3);
+    }
+  }
+  
+  .progress-text {
+    display: block;
+    text-align: right;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-top: 4px;
+  }
+}
+
+// Dialog Actions
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid $border-color;
+  background: $background-light;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-shrink: 0; // Prevent shrinking
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  button {
+    min-width: 120px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: $transition;
+    
+    @media (max-width: 768px) {
+      min-width: 100%;
+      height: 48px;
+    }
+    
+    &[mat-button] {
+      color: $text-secondary;
+      
+      &:hover {
+        background: rgba($text-secondary, 0.1);
+        color: $text-primary;
+      }
+    }
+    
+    &[mat-raised-button] {
+      background: $primary-color;
+      color: white;
+      box-shadow: $shadow-light;
+      
+      &:hover:not([disabled]) {
+        background: $primary-dark;
+        box-shadow: $shadow-medium;
+        transform: translateY(-1px);
+      }
+      
+      &:disabled {
+        background: $border-color;
+        color: $text-secondary;
+        box-shadow: none;
+      }
+      
+      .spinner {
+        margin-right: 8px;
+        
+        ::ng-deep circle {
+          stroke: white;
+        }
+      }
+      
+      mat-icon {
+        margin-right: 8px;
+        font-size: 1.1rem !important;
+        width: 1.1rem !important;
+        height: 1.1rem !important;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .project-form-dialog {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .dialog-header {
+    padding: 16px;
+    
+    .dialog-title {
+      font-size: 1.3rem;
+      
+      .title-icon {
+        font-size: 1.3rem !important;
+        width: 1.3rem !important;
+        height: 1.3rem !important;
+      }
+    }
+  }
+  
+  .form-section {
+    padding: 16px;
+    
+    .section-title {
+      font-size: 1rem;
+    }
+  }
+  
+  .form-row.two-columns {
+    grid-template-columns: 1fr;
+  }
+  
+  .dialog-actions {
+    padding: 12px 16px;
+  }
+}
+
+// Animation for form fields
+::ng-deep .mat-form-field-appearance-outline {
+  .mat-form-field-outline {
+    transition: $transition;
+  }
+  
+  &.mat-focused .mat-form-field-outline-thick {
+    animation: focusGlow 0.3s ease-out;
+  }
+}
+
+@keyframes focusGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba($primary-color, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($primary-color, 0);
+  }
+}
+
+// Success/Error Snackbar Styles
+::ng-deep .success-snackbar {
+  background: $success-color !important;
+  color: white !important;
+  
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+}
+
+::ng-deep .error-snackbar {
+  background: $error-color !important;
+  color: white !important;
+  
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
+} 

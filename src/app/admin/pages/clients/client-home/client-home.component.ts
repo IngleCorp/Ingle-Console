@@ -46,9 +46,12 @@ export class ClientHomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    console.log('ClientHomeComponent initialized');
+    
     // Listen for client ID changes
     this.route.paramMap.subscribe(params => {
       this.clientId = params.get('id');
+      console.log('Client ID changed to:', this.clientId);
       this.getClientInfo();
       this.getClientProjects();
       this.getClientBills();
@@ -56,7 +59,8 @@ export class ClientHomeComponent implements OnInit {
     });
     
     // Listen for navigation events to detect project route changes
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: any) => {
+      console.log('Navigation event:', event.url);
       this.detectProjectRoute();
     });
   }
@@ -164,4 +168,5 @@ export class ClientHomeComponent implements OnInit {
   backToClients(): void {
     this.router.navigate(['../'], { relativeTo: this.route });
   }
+
 }

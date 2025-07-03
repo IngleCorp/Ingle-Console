@@ -28,34 +28,44 @@
     </div>
   </div>
 
-  <div class="activities-list" *ngIf="!isLoading">
-    <div *ngIf="filteredActivities.length === 0" class="empty-state">
-      <mat-icon class="empty-icon">inbox</mat-icon>
-      <h3 class="empty-title">No activities found</h3>
-      <p class="empty-description">No activities match your filters or search.</p>
-    </div>
-    <div *ngFor="let activity of filteredActivities" class="activity-card">
-      <div class="activity-icon" [ngClass]="activity.type">
-        <mat-icon>{{ activity.icon || 'info' }}</mat-icon>
+  <div class="main-content">
+    <div class="activities-list" *ngIf="!isLoading">
+      <div *ngIf="filteredActivities.length === 0" class="empty-state">
+        <div class="empty-content">
+          <mat-icon class="empty-icon">inbox</mat-icon>
+          <h3 class="empty-title">No activities found</h3>
+          <p class="empty-description">No activities match your filters or search.</p>
+        </div>
       </div>
-      <div class="activity-content">
+      <div *ngFor="let activity of filteredActivities" class="activity-card" [ngClass]="activity.type">
         <div class="activity-header">
-          <span class="activity-type">{{ activity.type | titlecase }}</span>
-          <span class="activity-time">{{ activity.createdAt?.toDate() ? (activity.createdAt.toDate() | date:'short') : (activity.createdAt | date:'short') }}</span>
+          <div class="activity-info">
+            <span class="activity-type" [ngClass]="activity.type">{{ activity.type | titlecase }}</span>
+            <div class="activity-action">{{ activity.action }}</div>
+            <div class="activity-entity">{{ activity.entityName }}</div>
+          </div>
+          <div class="activity-icon" [ngClass]="activity.type">
+            <mat-icon>{{ activity.icon || 'info' }}</mat-icon>
+          </div>
         </div>
+        
         <div class="activity-details">
-          <span class="activity-action">{{ activity.action }}</span>
-          <span class="activity-entity">{{ activity.entityName }}</span>
+          <div class="activity-description">{{ activity.details }}</div>
         </div>
+        
         <div class="activity-meta">
-          <span class="activity-user">By {{ activity.createdByName || 'Unknown' }}</span>
-          <span class="activity-info">{{ activity.details }}</span>
+          <div class="activity-user">
+            <mat-icon>person</mat-icon>
+            <span>{{ activity.createdByName || 'Unknown' }}</span>
+          </div>
+          <div class="activity-time">{{ activity.createdAt?.toDate() ? (activity.createdAt.toDate() | date:'short') : (activity.createdAt | date:'short') }}</div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="loading-state" *ngIf="isLoading">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading activities...</p>
+    
+    <div class="loading-state" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading activities...</p>
+    </div>
   </div>
 </div> 

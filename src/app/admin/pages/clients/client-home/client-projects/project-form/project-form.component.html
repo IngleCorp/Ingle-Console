@@ -1,0 +1,226 @@
+<div class="project-form-dialog">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Edit Project' : 'Create New Project' }}
+    </h2>
+    <p class="dialog-subtitle">
+      {{ isEditMode ? 'Update project details' : 'Add a new project for' }} 
+      <strong>{{ data.clientName }}</strong>
+    </p>
+  </div>
+
+  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form">
+    <div class="form-content">
+      
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>info</mat-icon>
+          Basic Information
+        </h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Project Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter project name">
+            <mat-icon matSuffix>title</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('name')">
+              {{ getFieldError('name') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3" 
+                      placeholder="Brief description of the project"></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Project Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option *ngFor="let type of projectTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>category</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('type')">
+              {{ getFieldError('type') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let priority of priorities" [value]="priority.value">
+                <span class="priority-option" [style.color]="priority.color">
+                  <mat-icon>flag</mat-icon>
+                  {{ priority.label }}
+                </span>
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>flag</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Project Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>settings</mat-icon>
+          Project Details
+        </h3>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let status of projectStatuses" [value]="status.value">
+                <span class="status-option">
+                  <mat-icon>{{ status.icon }}</mat-icon>
+                  {{ status.label }}
+                </span>
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>info</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Progress (%)</mat-label>
+            <input matInput type="number" formControlName="progress" min="0" max="100">
+            <mat-icon matSuffix>trending_up</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('progress')">
+              {{ getFieldError('progress') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Progress Bar Preview -->
+        <div class="progress-preview" *ngIf="projectForm.get('progress')?.value !== null">
+          <label class="progress-label">Progress Preview</label>
+          <mat-progress-bar 
+            [value]="projectForm.get('progress')?.value" 
+            [color]="getProgressColor(projectForm.get('progress')?.value) === '#4caf50' ? 'primary' : 
+                    getProgressColor(projectForm.get('progress')?.value) === '#ff9800' ? 'accent' : 'warn'"
+            mode="determinate">
+          </mat-progress-bar>
+          <span class="progress-text">{{ projectForm.get('progress')?.value || 0 }}%</span>
+        </div>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+            <mat-error *ngIf="isFieldInvalid('startDate')">
+              {{ getFieldError('startDate') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Date (Optional)</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+            <mat-error *ngIf="isFieldInvalid('endDate')">
+              {{ getFieldError('endDate') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Financial & Resources Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>account_balance_wallet</mat-icon>
+          Financial & Resources
+        </h3>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Budget (Optional)</mat-label>
+            <input matInput type="number" formControlName="budget" min="0" step="0.01">
+            <span matPrefix>$ </span>
+            <mat-icon matSuffix>attach_money</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('budget')">
+              {{ getFieldError('budget') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Estimated Hours (Optional)</mat-label>
+            <input matInput type="number" formControlName="estimatedHours" min="0" step="0.5">
+            <mat-icon matSuffix>schedule</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('estimatedHours')">
+              {{ getFieldError('estimatedHours') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Client Contact (Optional)</mat-label>
+            <input matInput formControlName="clientContact" placeholder="Primary contact person">
+            <mat-icon matSuffix>contact_phone</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Project Manager (Optional)</mat-label>
+            <input matInput formControlName="projectManager" placeholder="Assigned project manager">
+            <mat-icon matSuffix>supervisor_account</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Additional Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>more_horiz</mat-icon>
+          Additional Information
+        </h3>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tags (Optional)</mat-label>
+            <input matInput formControlName="tags" placeholder="e.g., urgent, redesign, mobile (comma-separated)">
+            <mat-icon matSuffix>local_offer</mat-icon>
+            <mat-hint>Separate multiple tags with commas</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes (Optional)</mat-label>
+            <textarea matInput formControlName="notes" rows="4" 
+                      placeholder="Additional notes, requirements, or special instructions"></textarea>
+            <mat-icon matSuffix>note</mat-icon>
+            <mat-error *ngIf="isFieldInvalid('notes')">
+              {{ getFieldError('notes') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="dialog-actions">
+      <button type="button" mat-button (click)="onCancel()" [disabled]="isLoading">
+        Cancel
+      </button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20" class="spinner"></mat-spinner>
+        <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ isEditMode ? 'Update Project' : 'Create Project' }}
+      </button>
+    </div>
+  </form>
+</div> 

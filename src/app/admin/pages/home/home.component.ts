@@ -7,6 +7,7 @@ interface ActivityItem {
   text: string;
   type: string;
   time: Date;
+  createdByName?: string;
 }
 
 @Component({
@@ -19,13 +20,10 @@ export class HomeComponent implements OnInit {
   tasksCount = 0;
   financeTotal = 0;
   isLoading = false;
-  recentActivity: ActivityItem[] = [
-    { icon: 'group_add', text: 'New client added: Acme Corp', type: 'clients', time: new Date(Date.now() - 1000 * 60 * 10) },
-    { icon: 'check_circle', text: 'Task completed: Update website', type: 'tasks', time: new Date(Date.now() - 1000 * 60 * 30) },
-    { icon: 'account_balance_wallet', text: 'Finance transaction: +$1,200', type: 'finance', time: new Date(Date.now() - 1000 * 60 * 60) },
-    { icon: 'event', text: 'Meeting scheduled: Project Kickoff', type: 'calendar', time: new Date(Date.now() - 1000 * 60 * 90) },
-    { icon: 'group', text: 'Client updated: Beta LLC', type: 'clients', time: new Date(Date.now() - 1000 * 60 * 120) },
-  ];
+  recentActivity: ActivityItem[] = [];
+  userName = localStorage.getItem('username') || 'Unknown';
+  // decode user from local storage
+  user = JSON.parse(atob(localStorage.getItem('ingle_user') || ''));
 
   constructor(private afs: AngularFirestore, private router: Router) {}
 
@@ -39,6 +37,48 @@ export class HomeComponent implements OnInit {
     this.afs.collection('moneytransactions').valueChanges().subscribe((txs: any[]) => {
       this.financeTotal = txs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
     });
+    // Fetch recent activities
+    this.afs.collection('activities', ref => ref.orderBy('createdAt', 'desc').limit(5))
+      .valueChanges()
+      .subscribe((activities: any[]) => {
+        this.recentActivity = activities.map(activity => {
+          // Map type to class and icon for consistent style
+          let typeClass = 'other';
+          let icon = 'info';
+          switch (activity.type) {
+            case 'client':
+              typeClass = 'clients';
+              icon = 'group_add';
+              break;
+            case 'project':
+              typeClass = 'projects';
+              icon = 'folder_open';
+              break;
+            case 'task':
+              typeClass = 'tasks';
+              icon = 'check_circle';
+              break;
+            case 'transaction':
+              typeClass = 'finance';
+              icon = 'account_balance_wallet';
+              break;
+            case 'calendar':
+              typeClass = 'calendar';
+              icon = 'event';
+              break;
+            default:
+              typeClass = activity.type || 'other';
+              icon = activity.icon || 'info';
+          }
+          return {
+            icon: icon,
+            text: activity.details || activity.action,
+            type: typeClass,
+            time: activity.createdAt?.toDate ? activity.createdAt.toDate() : activity.createdAt,
+            createdByName: activity.createdByName || 'Unknown'
+          };
+        });
+      });
   }
 
   getCurrentDate(): string {

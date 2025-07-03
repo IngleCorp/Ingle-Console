@@ -13,8 +13,8 @@
         <button class="demo-btn" (click)="fillWithDemoData()">
           <mat-icon>auto_fix_high</mat-icon>
           <span>Demo Data</span>
-        </button>
-      </div>
+    </button>
+  </div>
     </div>
   </div>
 
@@ -45,7 +45,7 @@
           <textarea class="form-textarea" formControlName="address" placeholder="Enter company address" rows="3"></textarea>
         </div>
       </div>
-    </div>
+  </div>
 
     <!-- Invoice Details Section -->
     <div class="form-section">
@@ -54,7 +54,7 @@
           <mat-icon>description</mat-icon>
           Invoice Details
         </h3>
-      </div>
+  </div>
       
       <div class="form-grid">
         <div class="form-field">
@@ -62,17 +62,17 @@
           <input class="form-input" formControlName="invoiceNumber" placeholder="Enter invoice number" required />
           <div *ngIf="form.get('invoiceNumber')?.invalid && (form.get('invoiceNumber')?.touched || form.get('invoiceNumber')?.dirty)" class="error-message">
             Invoice Number is required
-          </div>
-        </div>
-        
+  </div>
+</div>
+
         <div class="form-field">
           <label class="field-label">Invoice Date</label>
           <input class="form-input" type="date" formControlName="invoiceDate" required />
           <div *ngIf="form.get('invoiceDate')?.invalid && (form.get('invoiceDate')?.touched || form.get('invoiceDate')?.dirty)" class="error-message">
             Invoice Date is required
-          </div>
-        </div>
-        
+  </div>
+</div>
+
         <div class="form-field">
           <label class="field-label">Due Date</label>
           <input class="form-input" type="date" formControlName="dueDate" required />
@@ -91,7 +91,7 @@
           <input class="form-input" formControlName="placeOfSupply" placeholder="Place of supply" />
         </div>
       </div>
-    </div>
+      </div>
 
     <!-- Client Information Section -->
     <div class="form-section">
@@ -108,26 +108,26 @@
           <input class="form-input" formControlName="company" placeholder="Enter client name" required />
           <div *ngIf="form.get('billTo.company')?.invalid && (form.get('billTo.company')?.touched || form.get('billTo.company')?.dirty)" class="error-message">
             Client Name is required
-          </div>
-        </div>
+      </div>
+    </div>
         
         <div class="form-field">
           <label class="field-label">Client GSTIN</label>
           <input class="form-input" formControlName="gstin" placeholder="Enter client GSTIN" required />
           <div *ngIf="form.get('billTo.gstin')?.invalid && (form.get('billTo.gstin')?.touched || form.get('billTo.gstin')?.dirty)" class="error-message">
             Client GSTIN is required
-          </div>
-        </div>
+  </div>
+  </div>
         
         <div class="form-field full-width">
           <label class="field-label">Client Address</label>
           <textarea class="form-textarea" formControlName="address" placeholder="Enter client address" rows="3" required></textarea>
           <div *ngIf="form.get('billTo.address')?.invalid && (form.get('billTo.address')?.touched || form.get('billTo.address')?.dirty)" class="error-message">
             Client Address is required
-          </div>
-        </div>
+  </div>
+</div>
       </div>
-      
+    
     </div>
 
     <!-- Client & Project Selection Section -->
@@ -208,9 +208,9 @@
                 
                 <div class="table-cell hsn" data-label="HSN/SAC">
                   <select class="table-select" [formControl]="getFormControl(row, 'hsn')">
-                    <option value="" disabled selected>Select HSN/SAC</option>
-                    <option *ngFor="let code of hsnCodes" [value]="code.SAC">{{code.SAC}} - {{code.Description}}</option>
-                  </select>
+                  <option value="" disabled selected>Select HSN/SAC</option>
+                  <option *ngFor="let code of hsnCodes" [value]="code.SAC">{{code.SAC}} - {{code.Description}}</option>
+                </select>
                   <div *ngIf="getFormControl(row, 'hsn').invalid && (getFormControl(row, 'hsn').touched || getFormControl(row, 'hsn').dirty)" class="error-message">
                     Required
                   </div>
@@ -247,7 +247,7 @@
                 <div class="table-cell actions" data-label="Actions">
                   <button type="button" class="delete-btn" (click)="removeItem(i)" [disabled]="items.length === 1">
                     <mat-icon>delete</mat-icon>
-                  </button>
+                </button>
                 </div>
               </div>
             </div>
@@ -348,6 +348,6 @@
         <mat-icon>save</mat-icon>
         <span>{{ isEditing ? 'Update' : 'Save' }} Invoice</span>
       </button>
-    </div>
-  </form>
+  </div>
+</form>
 </div>

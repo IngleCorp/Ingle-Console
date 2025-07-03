@@ -29,8 +29,8 @@ const routes: Routes = [
     component: ClientHomeComponent, 
     children: [
       { path: '', redirectTo: 'projects', pathMatch: 'full' },
-      { path: 'info', component: ClientInfoComponent },
       { path: 'projects', component: ClientProjectsComponent },
+      { path: 'info', component: ClientInfoComponent },
       { path: 'bills', component: ClientBillsComponent },
       { 
         path: 'projects/:projectId', 
