@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GeneralService } from '../../../../../core/services/general.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-client-info',
   templateUrl: './client-info.component.html',
   styleUrls: ['./client-info.component.scss']
 })
-export class ClientInfoComponent implements OnInit {
+export class ClientInfoComponent implements OnInit, OnDestroy {
   clientId: string | null = null;
   clientInfo: any;
   editmode: string = '';
@@ -26,6 +27,9 @@ export class ClientInfoComponent implements OnInit {
   // Allowed image types
   allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
   maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+  // Subscription management
+  private destroy$ = new Subject<void>();
 
   constructor(
     private afs: AngularFirestore, 
@@ -36,44 +40,62 @@ export class ClientInfoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.clientId = this.route.parent?.snapshot.paramMap.get('id') ?? null;
+    // Listen for route parameter changes
+    this.route.parent?.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.clientId = params.get('id');
+      console.log('Client-info component: Client ID changed to:', this.clientId);
+      this.loadClientData();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadClientData(): void {
+    if (!this.clientId) return;
     this.getClientInfo();
     this.getClientLoginInfo();
   }
 
   getClientInfo(): void {
     if (!this.clientId) return;
-    this.afs.collection('clients').doc(this.clientId).valueChanges({ idField: 'id' }).subscribe((res: any) => {
-      this.clientInfo = res;
-    });
+    this.afs.collection('clients').doc(this.clientId).valueChanges({ idField: 'id' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.clientInfo = res;
+      });
   }
 
   getClientLoginInfo(): void {
     if (!this.clientId) return;
-    this.afs.collection('client-login').doc(this.clientId).valueChanges({ idField: 'id' }).subscribe((res: any) => {
-      try {
-        if (res && res.password) {
-          let decrypted = this.decryptText(res.password, this.key);
-          this.password = decrypted;
-          this.username = res.userid || '';
-          this.is_clientLoginExist = true;
-        } else {
+    this.afs.collection('client-login').doc(this.clientId).valueChanges({ idField: 'id' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        try {
+          if (res && res.password) {
+            let decrypted = this.decryptText(res.password, this.key);
+            this.password = decrypted;
+            this.username = res.userid || '';
+            this.is_clientLoginExist = true;
+          } else {
+            this.password = '';
+            this.username = '';
+            this.is_clientLoginExist = false;
+          }
+        } catch (error) {
+          console.error('Error processing client login info:', error);
           this.password = '';
           this.username = '';
           this.is_clientLoginExist = false;
         }
-      } catch (error) {
-        console.error('Error processing client login info:', error);
+      }, (error) => {
+        console.error('Error fetching client login info:', error);
         this.password = '';
         this.username = '';
         this.is_clientLoginExist = false;
-      }
-    }, (error) => {
-      console.error('Error fetching client login info:', error);
-      this.password = '';
-      this.username = '';
-      this.is_clientLoginExist = false;
-    });
+      });
   }
 
   updateClientInfo(): void {

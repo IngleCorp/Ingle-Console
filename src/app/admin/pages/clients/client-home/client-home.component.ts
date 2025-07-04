@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { GeneralService } from '../../../../core/services/general.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-client-home',
@@ -27,7 +28,7 @@ import { filter } from 'rxjs/operators';
     ])
   ]
 })
-export class ClientHomeComponent implements OnInit {
+export class ClientHomeComponent implements OnInit, OnDestroy {
   // Client data properties
   activetab: string = 'projects';
   clientId: string | null = null;
@@ -37,6 +38,9 @@ export class ClientHomeComponent implements OnInit {
   isHeaderCollapsed: boolean = true;
   currentProjectId: string | null = null;
   currentProjectInfo: any = null;
+  
+  // Subscription management
+  private destroy$ = new Subject<void>();
 
   constructor(
     private afs: AngularFirestore,
@@ -49,20 +53,35 @@ export class ClientHomeComponent implements OnInit {
     console.log('ClientHomeComponent initialized');
     
     // Listen for client ID changes
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.clientId = params.get('id');
       console.log('Client ID changed to:', this.clientId);
-      this.getClientInfo();
-      this.getClientProjects();
-      this.getClientBills();
-      this.detectProjectRoute();
+      this.loadClientData();
     });
     
     // Listen for navigation events to detect project route changes
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: any) => {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe((event: any) => {
       console.log('Navigation event:', event.url);
       this.detectProjectRoute();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadClientData(): void {
+    if (!this.clientId) return;
+    
+    // Load all client data
+    this.getClientInfo();
+    this.getClientProjects();
+    this.getClientBills();
+    this.detectProjectRoute();
   }
 
   toggleHeader(): void {
@@ -90,11 +109,13 @@ export class ClientHomeComponent implements OnInit {
   getCurrentProjectInfo(): void {
     if (!this.currentProjectId) return;
     
-    this.afs.collection('projects').doc(this.currentProjectId).valueChanges().subscribe((res: any) => {
-      this.currentProjectInfo = res;
-    }, (err: any) => {
-      console.log('Error fetching project info:', err);
-    });
+    this.afs.collection('projects').doc(this.currentProjectId).valueChanges()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.currentProjectInfo = res;
+      }, (err: any) => {
+        console.log('Error fetching project info:', err);
+      });
   }
 
   getCurrentProjectName(): string {
@@ -103,23 +124,26 @@ export class ClientHomeComponent implements OnInit {
 
   getClientInfo(): void {
     if (!this.clientId) return;
-    this.afs.collection('clients').doc(this.clientId).valueChanges().subscribe((res: any) => {
-      this.clientInfo = res || {};
-      console.log('client info:', this.clientInfo);
-    }, (err: any) => {
-      console.log(err);
-    });
+    this.afs.collection('clients').doc(this.clientId).valueChanges()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.clientInfo = res || {};
+        console.log('client info:', this.clientInfo);
+      }, (err: any) => {
+        console.log('Error fetching client info:', err);
+      });
   }
 
   getClientProjects(): void {
     if (!this.clientId) return;
     this.afs.collection('projects', ref => ref.where('clientid', '==', this.clientId))
       .valueChanges({ idField: 'id' })
+      .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.clientProjects = res || [];
         console.log('client projects:', this.clientProjects);
       }, (err: any) => {
-        console.log(err);
+        console.log('Error fetching client projects:', err);
       });
   }
 
@@ -127,11 +151,12 @@ export class ClientHomeComponent implements OnInit {
     if (!this.clientId) return;
     this.afs.collection('bills', ref => ref.where('clientid', '==', this.clientId))
       .valueChanges({ idField: 'id' })
+      .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.clientBills = res || [];
         console.log('client bills:', this.clientBills);
       }, (err: any) => {
-        console.log(err);
+        console.log('Error fetching client bills:', err);
       });
   }
 

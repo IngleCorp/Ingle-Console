@@ -171,6 +171,34 @@ export class TasksComponent implements OnInit {
     return task.createdBy || task.createdbyid || '';
   }
 
+  // 🔧 Helper method to convert Firebase Timestamp to Date
+  private convertTimestampToDate(timestamp: any): Date | null {
+    if (!timestamp) return null;
+    
+    // If it's already a Date object, return it
+    if (timestamp instanceof Date) {
+      return timestamp;
+    }
+    
+    // If it's a Firebase Timestamp object
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate();
+    }
+    
+    // If it's a Timestamp-like object with seconds and nanoseconds
+    if (timestamp && typeof timestamp.seconds === 'number') {
+      return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+    }
+    
+    // Try to parse as string or number
+    if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+      const date = new Date(timestamp);
+      return isNaN(date.getTime()) ? null : date;
+    }
+    
+    return null;
+  }
+
   transformLegacyTask(task: any): Task {
     // Transform legacy task data to new format
     const transformedTask: Task = {
@@ -186,7 +214,9 @@ export class TasksComponent implements OnInit {
       status: task.status || 'todo',
       progress: task.progress || 0,
       isActive: task.isActive !== false, // Default to true
-      createdAt: task.createdAt || new Date(),
+      createdAt: this.convertTimestampToDate(task.createdAt) || new Date(),
+      updatedAt: this.convertTimestampToDate(task.updatedAt),
+      dueDate: this.convertTimestampToDate(task.dueDate),
       tags: task.tags || []
     };
 

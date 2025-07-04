@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { SignaturePad } from 'angular2-signaturepad';
 
 @Component({
@@ -45,7 +46,8 @@ export class InvoiceFormComponent implements OnInit {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<InvoiceFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    private auth: AngularFireAuth
   ) {}
 
   ngOnInit() {
@@ -205,12 +207,55 @@ export class InvoiceFormComponent implements OnInit {
     this.saveSignature();
     if (this.form.valid) {
       try {
-        await this.afs.collection('invoices').add({
-          ...this.form.value,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-        this.dialogRef.close(this.form.value);
+        const formData = this.form.value;
+        const user = await this.auth.currentUser;
+        
+        if (this.isEditing && this.data.invoice?.id) {
+          // Update existing invoice
+          await this.afs.collection('invoices').doc(this.data.invoice.id).update({
+            ...formData,
+            updatedAt: new Date()
+          });
+          
+          // Create activity record for update
+          if (user) {
+            await this.afs.collection('activities').add({
+              type: 'invoice',
+              action: 'Updated',
+              entityId: this.data.invoice.id,
+              entityName: formData.invoiceNumber,
+              details: `Invoice ${formData.invoiceNumber} updated for ${formData.billTo.company}`,
+              createdAt: new Date(),
+              createdBy: user.uid,
+              createdByName: user.displayName || user.email || 'Unknown User',
+              icon: 'edit'
+            });
+          }
+        } else {
+          // Create new invoice
+          const docRef = await this.afs.collection('invoices').add({
+            ...formData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+          
+          // Create activity record for creation
+          if (user) {
+            await this.afs.collection('activities').add({
+              type: 'invoice',
+              action: 'Created',
+              entityId: docRef.id,
+              entityName: formData.invoiceNumber,
+              details: `New invoice ${formData.invoiceNumber} created for ${formData.billTo.company}`,
+              createdAt: new Date(),
+              createdBy: user.uid,
+              createdByName: user.displayName || user.email || 'Unknown User',
+              icon: 'receipt'
+            });
+          }
+        }
+        
+        this.dialogRef.close(formData);
       } catch (error) {
         alert('Failed to save invoice: ' + (error as any).message);
       }

@@ -109,13 +109,19 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   projects: any[] = [];
+  clients: any[] = [];
   private projectsSub?: Subscription;
+  private clientsSub?: Subscription;
 
   constructor(private observer: BreakpointObserver, private router: Router, private auth: AngularFireAuth, private firestore: AngularFirestore, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.projectsSub = this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
       this.projects = projects;
+    });
+    
+    this.clientsSub = this.firestore.collection('clients').valueChanges({ idField: 'id' }).subscribe((clients: any[]) => {
+      this.clients = clients;
     });
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if(screenSize.matches){
@@ -136,6 +142,7 @@ export class NavComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.projectsSub?.unsubscribe();
+    this.clientsSub?.unsubscribe();
   }
 
   toggleMenu() {
@@ -248,6 +255,7 @@ export class NavComponent implements OnInit, OnDestroy {
 
   performSearch(): void {
     const query = this.searchQuery.toLowerCase();
+    
     // Project search from Firestore
     const projectResults = this.projects
       .filter(project =>
@@ -262,12 +270,31 @@ export class NavComponent implements OnInit, OnDestroy {
         icon: 'folder',
         url: project.clientid ? `/admin/clients/${project.clientid}/projects/${project.id}` : `/admin/projects/${project.id}`
       }));
-    // You can keep or merge with other search results if needed
-    this.searchResults = projectResults;
+    
+    // Client search from Firestore
+    const clientResults = this.clients
+      .filter(client =>
+        (client.name && client.name.toLowerCase().includes(query)) ||
+        (client.companyName && client.companyName.toLowerCase().includes(query)) ||
+        (client.email && client.email.toLowerCase().includes(query)) ||
+        (client.phone && client.phone.toLowerCase().includes(query))
+      )
+      .map(client => ({
+        id: client.id,
+        title: client.name || client.companyName || 'Unnamed Client',
+        subtitle: client.email || client.phone || '',
+        type: 'client' as const,
+        icon: 'business',
+        url: `/admin/clients/${client.id}`
+      }));
+    
+    // Combine results with clients first, then projects
+    this.searchResults = [...clientResults, ...projectResults];
   }
 
   selectSearchResult(result: SearchResult): void {
-    console.log('NAV DEBUG', { result, projects: this.projects, currentUrl: window.location.href });
+    console.log('NAV DEBUG', { result, projects: this.projects, clients: this.clients, currentUrl: window.location.href });
+    
     if (result.type === 'project') {
       const project = this.projects.find(p => p.id === result.id);
       if (project && project.clientid) {
@@ -275,6 +302,9 @@ export class NavComponent implements OnInit, OnDestroy {
       } else {
         this.router.navigateByUrl(`/admin/projects/${result.id}`);
       }
+    } else if (result.type === 'client') {
+      // Navigate to client homepage
+      this.router.navigateByUrl(`/admin/clients/${result.id}`);
     } else {
       this.router.navigateByUrl(result.url);
     }

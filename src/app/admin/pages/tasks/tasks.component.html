@@ -278,7 +278,7 @@
                 </div>
               </div>
               <div class="task-info">
-                <div class="info-item completion-info">
+                <div class="info-item completion-info" *ngIf="task.updatedAt">
                   <mat-icon>event_available</mat-icon>
                   <span>Completed: {{ task.updatedAt | date:'shortDate' }}</span>
                 </div>
@@ -354,7 +354,7 @@
                   <mat-icon>folder</mat-icon>
                   <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
                 </div>
-                <div class="info-item hold-info">
+                <div class="info-item hold-info" *ngIf="task.updatedAt">
                   <mat-icon>schedule</mat-icon>
                   <span>On hold since: {{ task.updatedAt | date:'shortDate' }}</span>
                 </div>

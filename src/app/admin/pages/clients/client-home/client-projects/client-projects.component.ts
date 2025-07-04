@@ -1,22 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GeneralService } from '../../../../../core/services/general.service';
 import { ProjectFormComponent, ProjectFormData } from './project-form/project-form.component';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-client-projects',
   templateUrl: './client-projects.component.html',
   styleUrls: ['./client-projects.component.scss']
 })
-export class ClientProjectsComponent implements OnInit {
+export class ClientProjectsComponent implements OnInit, OnDestroy {
   clientProjects: any;
   clientId: string | null = null;
   clientName: string = '';
   currentUrl: string = '';
   isLoading = false;
+  
+  // Subscription management
+  private destroy$ = new Subject<void>();
   
   constructor(
     private dialog: MatDialog,
@@ -29,10 +34,26 @@ export class ClientProjectsComponent implements OnInit {
 
   ngOnInit(): void {
     localStorage.setItem('pactivetab', 'tasks');
-    this.clientId = this.route.parent?.snapshot.paramMap.get('id') ?? null;
+    
+    // Listen for route parameter changes
+    this.route.parent?.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.clientId = params.get('id');
+      console.log('Client-projects component: Client ID changed to:', this.clientId);
+      this.loadClientData();
+    });
+    
+    this.currentUrl = this.router.url;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadClientData(): void {
+    if (!this.clientId) return;
     this.getProjects();
     this.getClientName();
-    this.currentUrl = this.router.url;
   }
 
   getProjects(): void {

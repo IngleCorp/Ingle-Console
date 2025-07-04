@@ -4,6 +4,7 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { InvoicePdfDialogComponent } from './invoice-pdf-dialog/invoice-pdf-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog/confirm-delete-dialog.component';
@@ -56,7 +57,12 @@ export class InvoiceComponent implements OnInit {
   pdfInvoice: Invoice | null = null;
   @ViewChild('pdfInvoiceTemplate') pdfInvoiceTemplate!: ElementRef;
 
-  constructor(private dialog: MatDialog, private afs: AngularFirestore, private snackBar: MatSnackBar) {}
+  constructor(
+    private dialog: MatDialog, 
+    private afs: AngularFirestore, 
+    private auth: AngularFireAuth, 
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.afs.collection<Invoice>('invoices').valueChanges({ idField: 'id' }).subscribe((invoices) => {
@@ -161,7 +167,7 @@ export class InvoiceComponent implements OnInit {
     return invoice.items?.reduce((sum, item) => sum + (item.qty * item.rate) * (item.igst/100), 0) || 0;
   }
 
-  deleteInvoice(invoice: Invoice, index: number) {
+  async deleteInvoice(invoice: Invoice, index: number) {
     const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
       width: '400px',
       data: { 
@@ -172,11 +178,28 @@ export class InvoiceComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((result: boolean) => {
+    dialogRef.afterClosed().subscribe(async (result: boolean) => {
       if (result) {
+        const user = await this.auth.currentUser;
+        
         if (invoice.id) {
           // Delete from Firestore if it has an ID
-          this.afs.collection('invoices').doc(invoice.id).delete().then(() => {
+          this.afs.collection('invoices').doc(invoice.id).delete().then(async () => {
+            // Create activity record for deletion
+            if (user) {
+              await this.afs.collection('activities').add({
+                type: 'invoice',
+                action: 'Deleted',
+                entityId: invoice.id,
+                entityName: invoice.invoiceNumber,
+                details: `Invoice ${invoice.invoiceNumber} deleted for ${invoice.billTo.company}`,
+                createdAt: new Date(),
+                createdBy: user.uid,
+                createdByName: user.displayName || user.email || 'Unknown User',
+                icon: 'delete'
+              });
+            }
+            
             this.snackBar.open('Invoice deleted successfully', 'Close', { 
               duration: 3000,
               horizontalPosition: 'center',
