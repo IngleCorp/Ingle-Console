@@ -1,40 +1,174 @@
 <!-- create a reactive form with filed  name category position is_active is_deleted  with bootstrap class -->
 
-<div class="container">
-  <form [formGroup]="typesForm" (ngSubmit)="onSubmit()" class="mt-4">
-    <div class="mb-3">
-      <label for="name" class="form-label">Name</label>
-      <input type="text" id="name" formControlName="name" class="form-control" />
-      <div *ngIf="typesForm.get('name')?.invalid && typesForm.get('name')?.touched" class="text-danger">
-        Name is required
+<div class="types-form-container">
+  <!-- Form Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h2 class="form-title">
+          <mat-icon class="title-icon">category</mat-icon>
+          {{ isEditing ? 'Edit Type' : 'Create New Type' }}
+        </h2>
+        <p class="form-subtitle">{{ isEditing ? 'Update' : 'Create' }} a new expense or income category</p>
+      </div>
+      <div class="header-actions">
+        <button mat-button class="cancel-btn" (click)="onCancel()">
+          <mat-icon>close</mat-icon>
+          Cancel
+        </button>
       </div>
     </div>
+  </div>
 
-    <div class="mb-3">
-      <label for="category" class="form-label">Category</label>
-      <input type="text" id="category" formControlName="category" class="form-control" />
-      <div *ngIf="typesForm.get('category')?.invalid && typesForm.get('category')?.touched" class="text-danger">
-        Category is required
+  <!-- Form Content -->
+  <div class="form-content">
+    <form [formGroup]="typesForm" (ngSubmit)="onSubmit()" class="types-form">
+      <!-- Type Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Type Information
+          </h3>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Name Field -->
+          <div class="form-field full-width">
+            <mat-form-field appearance="outline">
+              <mat-label>Type Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter type name" required>
+              <mat-icon matPrefix>label</mat-icon>
+              <mat-error *ngIf="typesForm.get('name')?.hasError('required')">
+                Type name is required
+              </mat-error>
+              <mat-error *ngIf="typesForm.get('name')?.hasError('minlength')">
+                Type name must be at least 2 characters long
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Category Field -->
+          <div class="form-field">
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select formControlName="category" required>
+                <mat-option value="EXPENSE">
+                  <div class="category-option expense">
+                  
+                    <span>Expense</span>
+                  </div>
+                </mat-option>
+                <mat-option value="INCOME">
+                  <div class="category-option income">
+                
+                    <span>Income</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+              <mat-error *ngIf="typesForm.get('category')?.hasError('required')">
+                Please select a category
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Position Field -->
+          <div class="form-field">
+            <mat-form-field appearance="outline">
+              <mat-label>Position</mat-label>
+              <input matInput type="number" formControlName="position" placeholder="Display order" required min="1">
+              <mat-icon matPrefix>sort</mat-icon>
+              <mat-hint>Lower numbers appear first in lists</mat-hint>
+              <mat-error *ngIf="typesForm.get('position')?.hasError('required')">
+                Position is required
+              </mat-error>
+              <mat-error *ngIf="typesForm.get('position')?.hasError('min')">
+                Position must be at least 1
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="mb-3">
-      <label for="position" class="form-label">Position</label>
-      <input type="number" id="position" formControlName="position" class="form-control" />
-      <div *ngIf="typesForm.get('position')?.invalid && typesForm.get('position')?.touched" class="text-danger">
-        Position is required
+      <!-- Status Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>settings</mat-icon>
+            Status Settings
+          </h3>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Active Status -->
+          <div class="form-field">
+            <div class="checkbox-field">
+              <mat-slide-toggle formControlName="is_active" color="primary">
+                <div class="toggle-content">
+                  <div class="toggle-label">
+                    <mat-icon>{{ typesForm.get('is_active')?.value ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+                    <span>Active Status</span>
+                  </div>
+                  <div class="toggle-description">
+                    {{ typesForm.get('is_active')?.value ? 'This type is active and can be used' : 'This type is inactive and hidden from users' }}
+                  </div>
+                </div>
+              </mat-slide-toggle>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="mb-3 form-check">
-      <input type="checkbox" id="is_active" formControlName="is_active" class="form-check-input" />
-      <label for="is_active" class="form-check-label">Is Active</label>
-    </div>
+      <!-- Preview Section -->
+      <div class="form-section" *ngIf="typesForm.get('name')?.value">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>preview</mat-icon>
+            Preview
+          </h3>
+        </div>
+        
+        <div class="preview-container">
+          <div class="type-preview-card" [ngClass]="typesForm.get('category')?.value?.toLowerCase()">
+            <div class="preview-header">
+              <div class="preview-category">
+                <mat-icon>{{ getCategoryIcon(typesForm.get('category')?.value) }}</mat-icon>
+                <span>{{ typesForm.get('category')?.value || 'Category' }}</span>
+              </div>
+              <div class="preview-status">
+                <span class="status-badge" [ngClass]="typesForm.get('is_active')?.value ? 'active' : 'inactive'">
+                  {{ typesForm.get('is_active')?.value ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+            </div>
+            <div class="preview-content">
+              <h4 class="preview-name">{{ typesForm.get('name')?.value || 'Type Name' }}</h4>
+              <div class="preview-meta">
+                <div class="meta-item">
+                  <mat-icon>sort</mat-icon>
+                  <span>Position: {{ typesForm.get('position')?.value || 'Not set' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="mb-3 form-check">
-      <input type="checkbox" id="is_deleted" formControlName="is_deleted" class="form-check-input" />
-      <label for="is_deleted" class="form-check-label">Is Deleted</label>
-    </div>
-
-    <button type="submit" [disabled]="typesForm.invalid || loading" class="btn btn-primary">Submit</button>
-  </form>
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" mat-button class="cancel-btn" (click)="onCancel()">
+          <mat-icon>close</mat-icon>
+          Cancel
+        </button>
+        
+        <button type="submit" mat-raised-button color="primary" class="submit-btn" 
+                [disabled]="typesForm.invalid || loading">
+          <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
+          <span>{{ isEditing ? 'Update Type' : 'Create Type' }}</span>
+          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

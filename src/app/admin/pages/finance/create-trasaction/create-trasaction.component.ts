@@ -16,13 +16,13 @@ export class CreateTrasactionComponent {
 
   loanersList: any;
   loading: boolean = false;
-  expencetypes: any;
+  expensetypes: any;
   incometypes: any;
   lenders: any;
   loanFrom: any;
   lendedList: any;
   consumedFrom: any;
-  consumedList: any;
+  
   todayIn: number=0;
   todayOut: number=0;
   constructor(private afs: AngularFirestore,private service:GeneralService) { }
@@ -31,8 +31,8 @@ export class CreateTrasactionComponent {
   actionType: any = ["IN", "OUT"];
   outcome='WANT';
   datePin:boolean=false;
-  typeListOut: any = ["EXPENCE","LENDING"];
-  type: any = this.action=='IN'?'INCOME':'EXPENCE';
+  typeListOut: any = ["EXPENSE","LENDING"];
+  type: any = this.action=='IN'?'INCOME':'EXPENSE';
   typeListIn: any = ["INCOME","LOAN","RETURN"];
   expenseType: any = ["FOOD", "RENT", "OTHER", "BILL"];
   expenceOutcome: any = ["WANT","NEED"];
@@ -53,8 +53,7 @@ export class CreateTrasactionComponent {
     
     this.getTypes();
     this.getLenders();
-    this.getIncomeTypes();
-    this.getAccountTypes();
+   
     this.getMoneyTranaction();
   }
 
@@ -79,40 +78,27 @@ export class CreateTrasactionComponent {
 
 
 
-  getAccountTypes(){
-    this.afs.collection('accounttypes').valueChanges({idField: 'id'}).subscribe((res:any) => {
-      this.consumedList=res;
-      // order by position
-      this.consumedList.sort((a: any, b: any) => a.position - b.position);
-      this.consumedFrom=this.consumedList[0].id;
-    })
-  }
-
+ 
 
 
   getTypes() {
     //  get customers where is_active is true
-      this.afs.collection('expencetypes').valueChanges({idField:'id'}).subscribe((res:any) => {
-        console.log("expence type:",res);
-        this.expencetypes = res;
-        // sort expence types by position
-        this.expencetypes.sort((a: any, b: any) => a.position - b.position);
-        this.expencetypes = this.expencetypes.filter((element: any) => element.is_active === true);
+      this.afs.collection('types').valueChanges({idField:'id'}).subscribe((res:any) => {
+        console.log("expense type:",res);
+        this.expensetypes = res.filter((item:any) => item.category=='EXPENSE');
+        console.log("expense type:",this.expensetypes);
+        this.incometypes = res.filter((item:any) => item.category=='INCOME');
+        console.log("income type:",this.incometypes);
+        // sort expense types by positio  n
+        this.expensetypes.sort((a: any, b: any) => a.position - b.position);
+        this.expensetypes = this.expensetypes.filter((element: any) => element.is_active === true);
 
            })
 
           
     }
 
-    getIncomeTypes() {
-      //  get customers where is_active is true
-        this.afs.collection('incometypes').valueChanges({idField:'id'}).subscribe((res:any) => {
-          console.log(res);
-          this.incometypes = res;
-        })
-        console.log(this.incometypes);
-      }
-
+  
 
 
   getLenders() {
@@ -125,7 +111,7 @@ export class CreateTrasactionComponent {
         // });
         // console.log("options",this.options);
       })
-      console.log(this.expencetypes);
+      console.log(this.expensetypes);
     }
 
     createLenders(name: any) {
@@ -221,7 +207,7 @@ if(this.amount>0){
         });
         this.service.openSnackBar('Transaction Added Successfully', 'Close');
         this.loading = false;
-        this.updateAccount(this.consumedFrom,this.action,this.amount);
+       
         this.resetForm();
         
       }).catch((error: any) => {
@@ -351,39 +337,7 @@ if(this.amount>0){
 
 
 
-  updateAccount(id:any,action:any,amount:any) {
-     const acc= this.consumedList.filter((item: any) => {
-        return item.id == id
-      });
-      let newbalence=0;
-
-      if(action=='INCOME'){
-        newbalence=acc[0].balence+amount;
-      }
-      else{
-        newbalence=acc[0].balence-amount;
-      }
-
-      let statement={
-        date:this.date,
-        amount:amount,
-        type:action
-      };
-      let oldStatement=acc?.statement?acc?.statement:[];
-      oldStatement.push(statement);
-
-    this.afs.collection('accounttypes').doc(id).update({
-      balence: newbalence,
-      updatedAt: new Date(),
-      statement:oldStatement
-    }).then((res:any) => {
-      
-    }).catch((err:any) => {
-      console.log(err);
-      
-    })
-  }
-
+ 
 
 
 

@@ -34,6 +34,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
@@ -129,6 +130,7 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
     MatDividerModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatButtonToggleModule,
     MatTooltipModule,
     ClipboardModule,
   ],

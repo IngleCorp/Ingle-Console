@@ -1,148 +1,244 @@
-import { Component, OnInit } from '@angular/core';
-import {Settings} from "angular2-smart-table";
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+export interface Type {
+  id?: string;
+  name: string;
+  category: 'EXPENSE' | 'INCOME';
+  position: number;
+  is_active: boolean;
+  is_deleted: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: string;
+  createdByName?: string;
+}
 
 @Component({
   selector: 'app-types',
   templateUrl: './types.component.html',
   styleUrl: './types.component.scss'
 })
-export class TypesComponent  implements OnInit {
-  constructor(private firestore: AngularFirestore, private router: Router) { }
-  settings: Settings = {
-    mode: 'external',
-    actions: {
-      
-      add: true,
-      edit: true,
-      delete: true,
+export class TypesComponent implements OnInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-      position: 'right'
-    },
-    add: {
-      addButtonContent: '<i class="material-icons">add</i>',
-      createButtonContent: '<i class="material-icons">checkmark</i>',
-      cancelButtonContent: '<i class="material-icons">close</i>',
-      confirmCreate: true
-    },
-    edit: {
-      editButtonContent: '<i class="material-icons">edit</i>',
-      saveButtonContent: '<i class="material-icons">checkmark</i>',
-      cancelButtonContent:'<i class="material-icons">close</i>',
-    },
-    delete: {
-      deleteButtonContent: '<i class="material-icons">delete</i>',
-      confirmDelete: true
-    },
-    columns: {
-      id: {
-        title: 'ID'
-      },
-      name: {
-        title: 'Full Name'
-      },
-      username: {
-        title: 'User Name'
-      },
-      email: {
-        title: 'Email'
-      }
-    }
-  };
-  data = [
-    {
-      id: 1,
-      name: 'Leanne Graham',
-      username: 'Bret',
-      email: 'Sincere@april.biz',
-    },
-    {
-      id: 2,
-      name: 'Ervin Howell',
-      username: 'Antonette',
-      email: 'Shanna@melissa.tv',
-    },
-    {
-      id: 3,
-      name: 'Clementine Bauch',
-      username: 'Samantha',
-      email: 'Nathan@yesenia.net',
-    },
-    {
-      id: 4,
-      name: 'Patricia Lebsack',
-      username: 'Karianne',
-      email: 'Julianne.OConner@kory.org',
-    },
-    {
-      id: 5,
-      name: 'Chelsey Dietrich',
-      username: 'Kamren',
-      email: 'Lucio_Hettinger@annie.ca',
-    },
-    {
-      id: 6,
-      name: 'Mrs. Dennis Schulist',
-      username: 'Leopoldo_Corkery',
-      email: 'Karley_Dach@jasper.info',
-    },
-    {
-      id: 7,
-      name: 'Kurtis Weissnat',
-      username: 'Elwyn.Skiles',
-      email: 'Telly.Hoeger@billy.biz',
-    },
-    {
-      id: 8,
-      name: 'Nicholas Runolfsdottir V',
-      username: 'Maxime_Nienow',
-      email: 'Sherwood@rosamond.me',
-    },
-    {
-      id: 9,
-      name: 'Glenna Reichert',
-      username: 'Delphine',
-      email: 'Chaim_McDermott@dana.io',
-    },
-    {
-      id: 10,
-      name: 'Clementina DuBuque',
-      username: 'Moriah.Stanton',
-      email: 'Rey.Padberg@karina.biz',
-    },
-    {
-      id: 11,
-      name: 'Nicholas DuBuque',
-      username: 'Nicholas.Stanton',
-      email: 'Rey.Padberg@rosamond.biz',
-    },
-    {
-      id: 12,
-      name: 'Gordon Freeman',
-      username: 'Crowbar',
-      email: 'gordon.freeman@black-mesa.science',
-    },
-  ];
+  types: Type[] = [];
+  filteredTypes: Type[] = [];
+  dataSource = new MatTableDataSource<Type>([]);
+  displayedColumns: string[] = ['name', 'category', 'position', 'status', 'actions'];
+  
+  // Filter properties
+  searchTerm: string = '';
+  selectedCategory: string = 'all';
+  selectedStatus: string = 'all';
+  
+  // UI properties
+  isLoading: boolean = false;
+  viewMode: 'grid' | 'list' = 'grid';
+  
+  // Subscription management
+  private destroy$ = new Subject<void>();
 
-
-
+  constructor(
+    private firestore: AngularFirestore,
+    private auth: AngularFireAuth,
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
-    this.getTypes();
+    this.loadTypes();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  loadTypes(): void {
+    this.isLoading = true;
+    this.firestore.collection('types', ref => ref.orderBy('position'))
+      .valueChanges({ idField: 'id' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data: any[]) => {
+        this.types = data.filter(type => !type.is_deleted);
+        this.applyFilter();
+        this.isLoading = false;
+        console.log('Types loaded:', this.types);
+      }, (error) => {
+        console.error('Error loading types:', error);
+        this.showNotification('Error loading types', 'error');
+        this.isLoading = false;
+      });
+  }
+
+  applyFilter(): void {
+    let filtered = [...this.types];
+
+    // Filter by search term
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(type => 
+        type.name.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filter by category
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(type => type.category === this.selectedCategory);
+    }
+
+    // Filter by status
+    if (this.selectedStatus !== 'all') {
+      const isActive = this.selectedStatus === 'active';
+      filtered = filtered.filter(type => type.is_active === isActive);
+    }
+
+    this.filteredTypes = filtered;
+    this.dataSource.data = filtered;
+  }
+
+  onViewModeChange(): void {
+    // Handle view mode change if needed
+    console.log('View mode changed to:', this.viewMode);
+  }
+
+  openTypesForm(type?: Type): void {
+    if (type) {
+      // Navigate to edit form with type data
+      this.router.navigate(['/admin/types/form'], { queryParams: { id: type.id } });
+    } else {
+      // Navigate to create form
+      this.router.navigate(['/admin/types/form']);
+    }
+  }
+
+  editType(type: Type): void {
+    this.openTypesForm(type);
+  }
+
+  async toggleTypeStatus(type: Type): Promise<void> {
+    try {
+      const user = await this.auth.currentUser;
+      const newStatus = !type.is_active;
+      
+      await this.firestore.collection('types').doc(type.id).update({
+        is_active: newStatus,
+        updatedAt: new Date(),
+        updatedBy: user?.uid,
+        updatedByName: user?.displayName || user?.email || 'Unknown User'
+      });
+
+      // Create activity record
+      if (user) {
+        await this.firestore.collection('activities').add({
+          type: 'type',
+          action: newStatus ? 'Activated' : 'Deactivated',
+          entityId: type.id,
+          entityName: type.name,
+          details: `Type "${type.name}" ${newStatus ? 'activated' : 'deactivated'}`,
+          createdAt: new Date(),
+          createdBy: user.uid,
+          createdByName: user.displayName || user.email || 'Unknown User',
+          icon: newStatus ? 'toggle_on' : 'toggle_off'
+        });
+      }
+
+      this.showNotification(
+        `Type ${newStatus ? 'activated' : 'deactivated'} successfully`,
+        'success'
+      );
+    } catch (error) {
+      console.error('Error updating type status:', error);
+      this.showNotification('Error updating type status', 'error');
+    }
+  }
+
+  async deleteType(type: Type): Promise<void> {
+    const confirmMessage = `Are you sure you want to delete "${type.name}"? This action cannot be undone.`;
     
+    if (confirm(confirmMessage)) {
+      try {
+        const user = await this.auth.currentUser;
+        
+        // Soft delete - mark as deleted
+        await this.firestore.collection('types').doc(type.id).update({
+          is_deleted: true,
+          updatedAt: new Date(),
+          updatedBy: user?.uid,
+          updatedByName: user?.displayName || user?.email || 'Unknown User'
+        });
+
+        // Create activity record
+        if (user) {
+          await this.firestore.collection('activities').add({
+            type: 'type',
+            action: 'Deleted',
+            entityId: type.id,
+            entityName: type.name,
+            details: `Type "${type.name}" deleted`,
+            createdAt: new Date(),
+            createdBy: user.uid,
+            createdByName: user.displayName || user.email || 'Unknown User',
+            icon: 'delete'
+          });
+        }
+
+        this.showNotification('Type deleted successfully', 'success');
+      } catch (error) {
+        console.error('Error deleting type:', error);
+        this.showNotification('Error deleting type', 'error');
+      }
+    }
   }
 
-  getTypes() {
-    this.firestore.collection('types').valueChanges({ idField: 'id'}).subscribe((data:any) => {
-      console.log(data);
-      this.data = data;
-    })
+  // Statistics methods
+  getExpenseTypesCount(): number {
+    return this.types.filter(type => type.category === 'EXPENSE' && type.is_active).length;
   }
 
-  openTypesForm() {
-    this.router.navigate(['/admin/types/form']);
+  getIncomeTypesCount(): number {
+    return this.types.filter(type => type.category === 'INCOME' && type.is_active).length;
   }
 
+  getActiveTypesCount(): number {
+    return this.types.filter(type => type.is_active).length;
+  }
+
+  // Helper methods
+  getCategoryIcon(category: string): string {
+    switch (category) {
+      case 'EXPENSE':
+        return 'remove_circle';
+      case 'INCOME':
+        return 'add_circle';
+      default:
+        return 'category';
+    }
+  }
+
+  private showNotification(message: string, type: 'success' | 'error'): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: type === 'success' ? 'success-snackbar' : 'error-snackbar'
+    });
+  }
 }

@@ -1,1 +1,242 @@
-<angular2-smart-table [settings]="settings" [source]="data" (create)="openTypesForm()" class="table-ngx2"></angular2-smart-table>
+<div class="types-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">category</mat-icon>
+          Type Management
+        </h1>
+        <p class="page-subtitle">Manage expense and income categories for your business</p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" class="add-type-btn" (click)="openTypesForm()">
+          <mat-icon>add</mat-icon>
+          Add Type
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <mat-icon>category</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ types.length }}</div>
+          <div class="stat-label">Total Types</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon expense">
+          <mat-icon>remove_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getExpenseTypesCount() }}</div>
+          <div class="stat-label">Expense Types</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon income">
+          <mat-icon>add_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getIncomeTypesCount() }}</div>
+          <div class="stat-label">Income Types</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon active">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getActiveTypesCount() }}</div>
+          <div class="stat-label">Active Types</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Types</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by name...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Categories</mat-option>
+          <mat-option value="EXPENSE">Expense</mat-option>
+          <mat-option value="INCOME">Income</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>filter_list</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilter()">
+          <mat-option value="all">All Status</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="inactive">Inactive</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>toggle_on</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Types List -->
+  <div class="types-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <mat-icon>list</mat-icon>
+        Types List
+      </h2>
+      <div class="view-toggles">
+        <mat-button-toggle-group [(value)]="viewMode" (change)="onViewModeChange()">
+          <mat-button-toggle value="grid">
+            <mat-icon>grid_view</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="list">
+            <mat-icon>view_list</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+
+    <!-- Grid View -->
+    <div class="types-grid" *ngIf="viewMode === 'grid'">
+      <div *ngIf="filteredTypes.length === 0" class="empty-state">
+        <div class="empty-content">
+          <mat-icon class="empty-icon">category</mat-icon>
+          <h3 class="empty-title">No types found</h3>
+          <p class="empty-description">Create your first type to get started</p>
+          <button mat-raised-button color="primary" (click)="openTypesForm()">
+            <mat-icon>add</mat-icon>
+            Add Type
+          </button>
+        </div>
+      </div>
+
+              <div *ngFor="let type of filteredTypes" class="type-card" [class.inactive]="!type.is_active">
+          <div class="type-header">
+            <div class="type-category" [ngClass]="type.category.toLowerCase()">
+              <mat-icon>{{ getCategoryIcon(type.category) }}</mat-icon>
+              <span class="category-label">{{ type.category }}</span>
+            </div>
+          <div class="type-status">
+            <span class="status-badge" [ngClass]="type.is_active ? 'active' : 'inactive'">
+              {{ type.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="type-content">
+          <h3 class="type-name">{{ type.name }}</h3>
+          <div class="type-meta">
+            <div class="meta-item">
+              <mat-icon>sort</mat-icon>
+              <span>Position: {{ type.position }}</span>
+            </div>
+            <div class="meta-item" *ngIf="type.createdAt">
+              <mat-icon>schedule</mat-icon>
+              <span>Created: {{ type.createdAt | date:'shortDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="type-actions">
+          <button mat-icon-button class="action-btn edit-btn" (click)="editType(type)" matTooltip="Edit Type">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="action-btn toggle-btn" (click)="toggleTypeStatus(type)" 
+                  [matTooltip]="type.is_active ? 'Deactivate' : 'Activate'">
+            <mat-icon>{{ type.is_active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+          </button>
+          <button mat-icon-button class="action-btn delete-btn" (click)="deleteType(type)" matTooltip="Delete Type">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="types-list" *ngIf="viewMode === 'list'">
+      <mat-table [dataSource]="dataSource" class="types-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+          <mat-cell *matCellDef="let type">
+            <div class="name-cell">
+              <span class="type-name">{{ type.name }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <mat-header-cell *matHeaderCellDef>Category</mat-header-cell>
+          <mat-cell *matCellDef="let type">
+            <div class="category-cell" [ngClass]="type.category.toLowerCase()">
+              <mat-icon>{{ getCategoryIcon(type.category) }}</mat-icon>
+              <span>{{ type.category }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="position">
+          <mat-header-cell *matHeaderCellDef>Position</mat-header-cell>
+          <mat-cell *matCellDef="let type">{{ type.position }}</mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+          <mat-cell *matCellDef="let type">
+            <span class="status-badge" [ngClass]="type.is_active ? 'active' : 'inactive'">
+              {{ type.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+          <mat-cell *matCellDef="let type">
+            <button mat-icon-button class="action-btn edit-btn" (click)="editType(type)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn toggle-btn" (click)="toggleTypeStatus(type)" 
+                    [matTooltip]="type.is_active ? 'Deactivate' : 'Activate'">
+              <mat-icon>{{ type.is_active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn delete-btn" (click)="deleteType(type)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading types...</p>
+  </div>
+</div>

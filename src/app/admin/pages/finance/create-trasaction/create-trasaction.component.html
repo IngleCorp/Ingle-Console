@@ -22,7 +22,7 @@
     </div>
 
     <div class="actiontype-box">
-        <div class="action" [ngClass]="{'a-active':action=='OUT'}" (click)="action='OUT';type='EXPENCE'">OUT</div>
+        <div class="action" [ngClass]="{'a-active':action=='OUT'}" (click)="action='OUT';type='EXPENSE'">OUT</div>
         <div class="action" [ngClass]="{'a-active':action=='IN'}" (click)="action='IN';type='INCOME'">IN</div>
 
     </div>
@@ -33,18 +33,16 @@
     <div class="actiontype-box" *ngIf="action=='IN'">
         <div class="action" *ngFor="let item of typeListIn" [ngClass]="{'a-active':type==item}" (click)="type=item">{{item}}</div>
     </div>
-    <div class="actiontype-box" *ngIf="type=='EXPENCE'">
-        <div class="action" *ngFor="let item of expencetypes" [ngClass]="{'a-active':expenceof==item?.expencetype}" (click)="expenceof=item?.expencetype">{{item?.expencetype}}</div>
+    <div class="actiontype-box" *ngIf="type=='EXPENSE'">
+        <div class="action" *ngFor="let item of expensetypes" [ngClass]="{'a-active':expenceof==item?.name}" (click)="expenceof=item?.name">{{item?.name}}</div>
     </div>
     <div class="actiontype-box" *ngIf="type=='INCOME'">
-        <div class="action" *ngFor="let item of incometypes" [ngClass]="{'a-active':incomeof==item?.incometype}" (click)="incomeof=item?.incometype">{{item?.incometype}}</div>
+        <div class="action" *ngFor="let item of incometypes" [ngClass]="{'a-active':incomeof==item?.name}" (click)="incomeof=item?.name">{{item?.name}}</div>
     </div>
-    <div class="actiontype-box" *ngIf="type=='EXPENCE'">
+    <div class="actiontype-box" *ngIf="type=='EXPENSE'">
         <div class="action" *ngFor="let item of expenceOutcome" [ngClass]="{'a-active':outcome==item}" (click)="outcome=item">{{item}}</div>
     </div>
-    <div class="actiontype-box">
-        <div class="action" *ngFor="let item of consumedList" [ngClass]="{'a-active':consumedFrom==item.id}" (click)="consumedFrom=item.id">{{item.shortname}}</div>
-    </div>
+   
 
     <div *ngIf="type=='LENDING'">
         <mat-form-field class="example-full-width" appearance="fill">
