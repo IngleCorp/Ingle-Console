@@ -1,0 +1,262 @@
+<div class="income-expense-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Financial Analytics Dashboard</h2>
+      <p>Comprehensive insights into your income, expenses, and financial trends</p>
+    </div>
+    <div class="header-stats">
+      <div class="quick-stat">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <div class="stat-content">
+          <span class="stat-value" [class]="getAmountSizeClass(stats.netIncome)">{{ formatCurrency(stats.netIncome) }}</span>
+          <span class="stat-label">Net Income</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner></mat-spinner>
+    <p>Loading financial analytics...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content" *ngIf="!isLoading">
+    
+    <!-- Key Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card income-card">
+        <div class="stat-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h4>Total Income</h4>
+          <p class="stat-amount" [class]="getAmountSizeClass(stats.totalIncome)">{{ formatCurrency(stats.totalIncome) }}</p>
+          <span class="stat-trend" [class.positive]="stats.incomeGrowthRate > 0" [class.negative]="stats.incomeGrowthRate < 0">
+            <mat-icon>{{ stats.incomeGrowthRate > 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            {{ Math.abs(stats.incomeGrowthRate).toFixed(1) }}%
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card expense-card">
+        <div class="stat-icon">
+          <mat-icon>trending_down</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h4>Total Expenses</h4>
+          <p class="stat-amount" [class]="getAmountSizeClass(stats.totalExpenses)">{{ formatCurrency(stats.totalExpenses) }}</p>
+          <span class="stat-trend" [class.positive]="stats.expenseGrowthRate < 0" [class.negative]="stats.expenseGrowthRate > 0">
+            <mat-icon>{{ stats.expenseGrowthRate > 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            {{ Math.abs(stats.expenseGrowthRate).toFixed(1) }}%
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card savings-card">
+        <div class="stat-icon">
+          <mat-icon>savings</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h4>Savings Rate</h4>
+          <p class="stat-amount">{{ stats.savingsRate.toFixed(1) }}%</p>
+          <span class="stat-description">
+            {{ stats.savingsRate > 20 ? 'Excellent' : stats.savingsRate > 10 ? 'Good' : 'Needs Improvement' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card average-card">
+        <div class="stat-icon">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h4>Monthly Average</h4>
+          <p class="stat-amount" [class]="getAmountSizeClass(stats.averageMonthlyIncome)">{{ formatCurrency(stats.averageMonthlyIncome) }}</p>
+          <span class="stat-description">Income per month</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-container">
+      
+      <!-- Monthly Trends Chart -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <h3>Monthly Income vs Expenses Trend</h3>
+          <p>Track your financial performance over the last 12 months</p>
+        </div>
+        <div class="chart-content">
+          <canvas #monthlyChart></canvas>
+        </div>
+      </div>
+
+      <!-- Category Analysis Charts -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Income by Category</h3>
+          <p>Distribution of income sources</p>
+        </div>
+        <div class="chart-content">
+          <canvas #categoryChart></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Top Expense Categories</h3>
+          <p>Where your money is going</p>
+        </div>
+        <div class="chart-content">
+          <canvas #expenseCategoryChart></canvas>
+        </div>
+      </div>
+
+      <!-- Net Income Trend -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <h3>Monthly Net Income (Profit/Loss)</h3>
+          <p>Your monthly profit or loss breakdown</p>
+        </div>
+        <div class="chart-content">
+          <canvas #trendChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Details Section -->
+    <div class="category-details">
+      
+      <!-- Income Categories -->
+      <div class="category-section">
+        <h3>Income Categories Breakdown</h3>
+        <div class="category-list">
+          <div class="category-item" *ngFor="let category of incomeCategories.slice(0, 8)">
+            <div class="category-info">
+              <div class="category-color" [style.background-color]="category.color"></div>
+              <div class="category-content">
+                <h4>{{ category.name }}</h4>
+                <p>{{ category.transactions }} transactions</p>
+              </div>
+            </div>
+            <div class="category-amount">
+              <span class="amount" [class]="getAmountSizeClass(category.amount)">{{ formatCurrency(category.amount) }}</span>
+              <span class="percentage">{{ category.percentage.toFixed(1) }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense Categories -->
+      <div class="category-section">
+        <h3>Expense Categories Breakdown</h3>
+        <div class="category-list">
+          <div class="category-item" *ngFor="let category of expenseCategories.slice(0, 8)">
+            <div class="category-info">
+              <div class="category-color" [style.background-color]="category.color"></div>
+              <div class="category-content">
+                <h4>{{ category.name }}</h4>
+                <p>{{ category.transactions }} transactions</p>
+              </div>
+            </div>
+            <div class="category-amount">
+              <span class="amount" [class]="getAmountSizeClass(category.amount)">{{ formatCurrency(category.amount) }}</span>
+              <span class="percentage">{{ category.percentage.toFixed(1) }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Insights Section -->
+    <div class="insights-section">
+      <h3>Financial Insights & Recommendations</h3>
+      <div class="insights-grid">
+        <div class="insight-card" *ngFor="let insight of insights" [class]="getInsightClass(insight.type)">
+          <div class="insight-icon">
+            <mat-icon>{{ getInsightIcon(insight.type) }}</mat-icon>
+          </div>
+          <div class="insight-content">
+            <h4>{{ insight.title }}</h4>
+            <p>{{ insight.message }}</p>
+            <div class="insight-value" *ngIf="insight.value !== undefined">
+              <span>{{ insight.value.toFixed(1) }}{{ insight.title.includes('Rate') || insight.title.includes('Growth') ? '%' : '' }}</span>
+              <mat-icon *ngIf="insight.trend" class="trend-icon">
+                {{ insight.trend === 'up' ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="performance-summary">
+      <h3>Financial Performance Summary</h3>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-icon">
+            <mat-icon>bar_chart</mat-icon>
+          </div>
+          <div class="summary-content">
+            <h4>Best Income Month</h4>
+            <p>{{ stats.highestIncomeMonth.month }}</p>
+            <span class="summary-value" [class]="getAmountSizeClass(stats.highestIncomeMonth.amount)">
+              {{ formatCurrency(stats.highestIncomeMonth.amount) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-icon">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <div class="summary-content">
+            <h4>Highest Expense Month</h4>
+            <p>{{ stats.highestExpenseMonth.month }}</p>
+            <span class="summary-value" [class]="getAmountSizeClass(stats.highestExpenseMonth.amount)">
+              {{ formatCurrency(stats.highestExpenseMonth.amount) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-icon">
+            <mat-icon>category</mat-icon>
+          </div>
+          <div class="summary-content">
+            <h4>Top Income Source</h4>
+            <p>{{ stats.topIncomeCategory.name || 'N/A' }}</p>
+            <span class="summary-value" [class]="getAmountSizeClass(stats.topIncomeCategory.amount)">
+              {{ formatCurrency(stats.topIncomeCategory.amount) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-icon">
+            <mat-icon>shopping_cart</mat-icon>
+          </div>
+          <div class="summary-content">
+            <h4>Top Expense Category</h4>
+            <p>{{ stats.topExpenseCategory.name || 'N/A' }}</p>
+            <span class="summary-value" [class]="getAmountSizeClass(stats.topExpenseCategory.amount)">
+              {{ formatCurrency(stats.topExpenseCategory.amount) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data-state" *ngIf="incomeData.length === 0 && expenseData.length === 0">
+      <mat-icon>assessment</mat-icon>
+      <h3>No Financial Data Available</h3>
+      <p>Start adding income and expense transactions to see detailed analytics and insights.</p>
+    </div>
+
+  </div>
+</div> 

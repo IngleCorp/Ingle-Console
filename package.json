@@ -28,6 +28,7 @@
     "angular2-signaturepad": "^4.0.2",
     "angular2-smart-table": "^3.6.1",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.5.0",
     "file-saver": "^2.0.5",
     "firebase": "^11.1.0",
     "html-docx-js-typescript": "^0.1.5",
@@ -40,6 +41,7 @@
     "rxjs": "~7.8.0",
     "signature_pad": "^5.0.9",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {

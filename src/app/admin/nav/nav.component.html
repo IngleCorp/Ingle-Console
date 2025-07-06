@@ -266,12 +266,12 @@
           </a>
 
              <!-- Finance/Accounts -->
-             <a mat-list-item routerLink="finance/create" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+             <a mat-list-item routerLink="finance" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
               <div class="nav-item-content">
                 <div class="nav-icon-wrapper">
                   <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
                 </div>
-                <span class="nav-label" *ngIf="!isCollapsed">Accounts</span>
+                <span class="nav-label" *ngIf="!isCollapsed">Finance</span>
               </div>
             </a>
 
@@ -331,7 +331,17 @@
                 <span class="nav-label" *ngIf="!isCollapsed">Orders</span>
               </div>
             </a>
-         
+          
+             <!-- Bug Report -->
+          <a mat-list-item routerLink="bug-report" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">bug_report</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Bug Reports</span>
+            </div>
+          </a>
+
              <!-- Users Management -->
           <a mat-list-item routerLink="users" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
             <div class="nav-item-content">

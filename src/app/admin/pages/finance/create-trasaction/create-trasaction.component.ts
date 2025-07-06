@@ -3,13 +3,22 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { GeneralService } from '../../../../core/services/general.service';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 export interface User {
   name: string;
 }
 @Component({
   selector: 'app-create-trasaction',
   templateUrl: './create-trasaction.component.html',
-  styleUrl: './create-trasaction.component.scss'
+  styleUrl: './create-trasaction.component.scss',
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('300ms ease-in', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 
 export class CreateTrasactionComponent {
@@ -20,28 +29,26 @@ export class CreateTrasactionComponent {
   incometypes: any;
   lenders: any;
   loanFrom: any;
-  lendedList: any;
+  lendedList: any[] = []; // Initialize as empty array
   consumedFrom: any;
   
   todayIn: number=0;
   todayOut: number=0;
   constructor(private afs: AngularFirestore,private service:GeneralService) { }
+  datePin:boolean=false;
   amount: any;
   action: any = 'OUT';
   actionType: any = ["IN", "OUT"];
-  outcome='WANT';
-  datePin:boolean=false;
   typeListOut: any = ["EXPENSE","LENDING"];
-  type: any = this.action=='IN'?'INCOME':'EXPENSE';
   typeListIn: any = ["INCOME","LOAN","RETURN"];
+  type: any = this.action=='IN'?'INCOME':'EXPENSE'; 
   expenseType: any = ["FOOD", "RENT", "OTHER", "BILL"];
-  expenceOutcome: any = ["WANT","NEED"];
-  expenceof: any = '';
+  expenseof: any = '';
   incomeof: any = '';
   tid: any;
   date: any = new Date();
   editDate: boolean = false;
-  loanTo: any = '';
+  lendedBy: any = '';
   notes: any = '';
   loanReturn: any;
   loanToClear: any = '';
@@ -53,7 +60,6 @@ export class CreateTrasactionComponent {
     
     this.getTypes();
     this.getLenders();
-   
     this.getMoneyTranaction();
   }
 
@@ -81,8 +87,7 @@ export class CreateTrasactionComponent {
  
 
 
-  getTypes() {
-    //  get customers where is_active is true
+  getTypes() {//  get customers where is_active is true
       this.afs.collection('types').valueChanges({idField:'id'}).subscribe((res:any) => {
         console.log("expense type:",res);
         this.expensetypes = res.filter((item:any) => item.category=='EXPENSE');
@@ -92,10 +97,7 @@ export class CreateTrasactionComponent {
         // sort expense types by positio  n
         this.expensetypes.sort((a: any, b: any) => a.position - b.position);
         this.expensetypes = this.expensetypes.filter((element: any) => element.is_active === true);
-
-           })
-
-          
+           })  
     }
 
   
@@ -124,7 +126,6 @@ export class CreateTrasactionComponent {
       console.log(temp);
       this.afs.collection('lenders').add(temp).then((docRef: any) => {
         console.log("Document written with ID: ", docRef.id);
-
       }).catch((error: any) => {
           console.error("Error adding document: ", error);
         });
@@ -134,40 +135,62 @@ export class CreateTrasactionComponent {
   add() {
 if(this.amount>0){
 
+    // Validation for RETURN transactions
+    if(this.type === 'RETURN' && (!this.loanReturn || !this.loanToClear)) {
+      this.service.openSnackBar('Please select both a person and a loan to clear for return transactions', 'Close');
+      return;
+    }
+
+    // Validate return amount doesn't exceed loan amount
+    if(this.type === 'RETURN' && this.loanToClear && this.lendedList && Array.isArray(this.lendedList)) {
+      const selectedLoan = this.lendedList.find((loan: any) => loan.id === this.loanToClear);
+      if(selectedLoan && this.amount > selectedLoan.amount) {
+        this.service.openSnackBar(`Return amount cannot exceed the loan amount of ${this.formatCurrency(selectedLoan.amount)}`, 'Close');
+        return;
+      }
+    }
+
     this.loading = true;
     let Tid= 'TX-'+new Date().getTime();
-      let temp={
+      let temp: any = {
         amount: this.amount,
         action: this.action,
         date: this.date,
         type: this.type,
-        expenceof: this.expenceof,
+        expenseof: this.expenseof,
         incomeof: this.incomeof,
-        loanTo: this.loanTo.name?this.loanTo?.name:this.loanTo?this.loanTo:'',
+        lendedBy: this.lendedBy.name?this.lendedBy?.name:this.lendedBy?this.lendedBy:'',
         loanClear: false,
         loanFrom: this.loanFrom?.name?this.loanFrom?.name:this.loanFrom?this.loanFrom:'',
         createdAt: new Date(),
         updateAt: new Date(),
         notes: this.notes,
-        expanceOutcome: this.outcome,
         tid: Tid,
-        consumedFrom: this.consumedFrom,
+        createdBy: localStorage.getItem('userid') || '',
+        createdByName: localStorage.getItem('username') || 'Unknown User',
       }
+
+      // Add return-specific fields for RETURN transactions
+      if(this.type=='RETURN' && this.loanToClear){
+        temp.originalLendingId = this.loanToClear;
+        temp.loanReturn = this.loanReturn?.name || this.loanReturn;
+      }
+
       console.log("Temo ### ,",temp);
-      console.log("Temo ### ,",this.loanTo?.name);
+      console.log("Temo ### ,",this.lendedBy?.name);
 
 
       if(this.type=='LENDING'){
           //check if loaner is already exist
           let loanerExist=false;
           this.lenders.forEach((element: any) => {
-            if(element.name==this.loanTo?.name){
+            if(element.name==this.lendedBy?.name){
               loanerExist=true;
             }
           }
           );
           if(!loanerExist){
-            this.createLenders(this.loanTo);
+            this.createLenders(this.lendedBy);
           }
     
       }
@@ -199,7 +222,7 @@ if(this.amount>0){
           action: 'Created',
           entityId: docRef.id,
           entityName: Tid,
-          details: `New transaction recorded: ${this.amount} (${this.action})`,
+          details: `New transaction recorded: ${this.amount} (${this.action}) (${this.type}) (${this.expenseof}) (${this.incomeof})`,
           createdAt: new Date(),
           createdBy: localStorage.getItem('userid') || '',
           createdByName: localStorage.getItem('username') || 'Unknown User',
@@ -226,9 +249,13 @@ if(this.amount>0){
       this.amount=0;
       // this.action=this.a;
       // this.type='INCOME';
-      this.expenceof='';
+      this.expenseof='';
       this.incomeof='';
-      this.loanTo='';
+      this.lendedBy='';
+      this.loanFrom='';
+      this.loanReturn='';
+      this.loanToClear='';
+      this.lendedList=[];
       this.notes='';
       if(!this.datePin){
         this.date=new Date();
@@ -271,8 +298,26 @@ if(this.amount>0){
 
 
   onselect(){
-    console.log(this.loanReturn);
-    if(this.type=='RETURN'){
+    console.log('onselect called, loanReturn:', this.loanReturn);
+    if(this.type === 'RETURN' && this.loanReturn){
+      // Small delay to ensure the value is set
+      setTimeout(() => {
+        this.getLendings();
+      }, 100);
+    }
+  }
+
+  // Handle return person selection
+  onReturnPersonSelected(event: any) {
+    console.log('Return person selected:', event.option.value);
+    this.loanReturn = event.option.value;
+    
+    // Clear previous loan selection
+    this.loanToClear = '';
+    this.lendedList = [];
+    
+    // Fetch lendings for the selected person
+    if(this.type === 'RETURN' && this.loanReturn) {
       this.getLendings();
     }
   }
@@ -284,15 +329,21 @@ if(this.amount>0){
 
   getLendings() {
     this.afs.collection('moneytransactions', ref => ref.where('type', '==', 'LENDING').orderBy('createdAt', 'desc')).valueChanges({idField:'id'}).subscribe((res:any) => {
-      console.log(res);
+      console.log('All lending transactions:', res);
       this.lendedList = res;
-     let temp= this.lendedList.filter((item: any) => item.loanTo==this.loanReturn?.name && item.loanClear==false);
-      console.log(temp);
-      this.lendedList=temp;
+      
+      // Filter by the person we're returning money to and loans that are not fully cleared
+      let temp = this.lendedList.filter((item: any) => {
+        const personName = this.loanReturn?.name || this.loanReturn;
+        return item.lendedBy === personName && item.loanClear === false;
+      });
+      
+      console.log('Filtered lending transactions for', this.loanReturn?.name || this.loanReturn, ':', temp);
+      this.lendedList = temp;
 
     },
     (error: any) => {
-      console.log(error);
+      console.log('Error fetching lendings:', error);
     }
     );
   }
@@ -300,6 +351,12 @@ if(this.amount>0){
 
   updateLoanToClear() {
     console.log(this.loanToClear); // Display the selected value
+    
+    if (!this.lendedList || !Array.isArray(this.lendedList)) {
+      console.error('lendedList is not available');
+      return;
+    }
+    
     this.lendedList.forEach((element: any) => {
       if(element.id==this.loanToClear){
         let payload;
@@ -334,6 +391,35 @@ if(this.amount>0){
     );
   }
 
+  // Enhanced method to handle return transaction creation with proper linking
+  createReturnTransaction() {
+    if (this.type === 'RETURN' && this.loanToClear) {
+      // Create the return transaction with originalLendingId
+      const returnTransaction = {
+        amount: this.amount,
+        action: 'IN',
+        type: 'RETURN',
+        date: this.date,
+        notes: this.notes,
+        createdAt: new Date(),
+        createdBy: localStorage.getItem('userid') || '',
+        createdByName: localStorage.getItem('username') || 'Unknown User',
+        tid: this.tid,
+        originalLendingId: this.loanToClear // Link to the original lending transaction
+      };
+
+      // Create the return transaction
+      this.afs.collection('moneytransactions').add(returnTransaction).then((docRef) => {
+        console.log('Return transaction created with ID:', docRef.id);
+        // Then update the lending transaction
+        this.updateLoanToClear();
+      }).catch((error) => {
+        console.error('Error creating return transaction:', error);
+        this.service.openSnackBar('Error creating return transaction', 'Close');
+      });
+    }
+  }
+
 
 
 
@@ -358,9 +444,11 @@ if(this.amount>0){
         }
       });
       todaysTranaction.forEach((item:any) => {
-        if(item.action=='IN'){
+        if(item.action=='IN' && item.type !== 'RETURN'){
+          // Exclude RETURN transactions from income as they are not actual income
           todaysIN += item.amount;
-        }else{
+        }else if(item.action=='OUT' && item.type !== 'LENDING'){
+          // Exclude LENDING transactions from expenses calculation
           todaysOUT += item.amount;
         }
       });
@@ -368,6 +456,97 @@ if(this.amount>0){
       this.todayOut = todaysOUT;
       // get active lendings
     })
+  }
+
+  // Helper method to format currency
+  formatCurrency(amount: number): string {
+    if (!amount && amount !== 0) return '₹0';
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(amount);
+  }
+
+  // Helper method to get category icons
+  getCategoryIcon(category: string): string {
+    const iconMap: { [key: string]: string } = {
+      'EXPENSE': 'remove_circle_outline',
+      'LENDING': 'handshake',
+      'INCOME': 'add_circle_outline',
+      'LOAN': 'account_balance',
+      'RETURN': 'assignment_return'
+    };
+    return iconMap[category] || 'category';
+  }
+
+
+
+  // Helper method to get lending title
+  getLendingTitle(): string {
+    if (this.type === 'LENDING') {
+      return 'Lending Details';
+    } else if (this.type === 'LOAN') {
+      return 'Loan Details';
+    } else if (this.type === 'RETURN') {
+      return 'Return Details';
+    }
+    return 'Transaction Details';
+  }
+
+  // Helper method to get notes step number
+  getNotesStepNumber(): number {
+    let stepNumber = 1; // Step 1: Transaction Type (always present)
+    
+    if (this.action) {
+      stepNumber++; // Step 2: Category Selection
+    }
+    
+    // Step 3: Either subcategory or lending details (mutually exclusive)
+    if (this.type === 'EXPENSE' && this.expensetypes && this.expensetypes.length > 0) {
+      stepNumber++; // Step 3: Expense subcategory
+    } else if (this.type === 'INCOME' && this.incometypes && this.incometypes.length > 0) {
+      stepNumber++; // Step 3: Income subcategory
+    } else if (this.type === 'LENDING' || this.type === 'LOAN' || this.type === 'RETURN') {
+      stepNumber++; // Step 3: Lending/Loan Details
+    }
+    
+    stepNumber++; // Final step: Additional Notes
+    
+    return stepNumber;
+  }
+
+  // Helper method to get category step number
+  getCategoryStepNumber(): number {
+    return 2; // Category is always step 2
+  }
+
+  // Helper method to get subcategory step number
+  getSubcategoryStepNumber(): number {
+    return 3; // Subcategory is always step 3 when it exists
+  }
+
+  // Helper method to get lending details step number
+  getLendingStepNumber(): number {
+    return 3; // Lending details is always step 3 for lending transactions
+  }
+
+  // Helper method to calculate total outstanding amount for a person
+  getTotalOutstandingAmount(): number {
+    if (!this.lendedList || !Array.isArray(this.lendedList) || this.lendedList.length === 0) return 0;
+    
+    return this.lendedList.reduce((total: number, item: any) => {
+      return total + (item.amount || 0);
+    }, 0);
+  }
+
+  // Helper method to get selected loan amount
+  getSelectedLoanAmount(): number {
+    if (!this.loanToClear || !this.lendedList || !Array.isArray(this.lendedList)) return 0;
+    
+    const selectedLoan = this.lendedList.find((loan: any) => loan.id === this.loanToClear);
+    return selectedLoan ? selectedLoan.amount : 0;
   }
 
 }

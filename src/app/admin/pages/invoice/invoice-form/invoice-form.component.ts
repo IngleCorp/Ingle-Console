@@ -77,9 +77,17 @@ export class InvoiceFormComponent implements OnInit {
       notes: [this.data.invoice?.notes || ''],
       paymentOptions: [this.data.invoice?.paymentOptions || ''],
       total: [this.data.invoice?.total || 0],
-      signature: new FormControl(''),
+      signature: new FormControl(this.data.invoice?.signature || ''),
+      paymentStatus: [this.data.invoice?.paymentStatus || 'unpaid'],
+      transactionId: [this.data.invoice?.transactionId || null]
     });
     this.form.get('items')!.valueChanges.subscribe(() => this.updateTotal());
+    
+    // Initialize signature data if editing
+    if (this.isEditing && this.data.invoice?.signature) {
+      this.signatureImage = this.data.invoice.signature;
+      this.hasSignature = true;
+    }
     
     // Load clients and projects
     this.loadClients();
@@ -121,16 +129,23 @@ export class InvoiceFormComponent implements OnInit {
         this.signaturePad.clear();
         this.signaturePad.resizeCanvas();
         
-        if (this.form.value.signature) {
-          this.signaturePad.fromDataURL(this.form.value.signature);
-          this.signatureImage = this.form.value.signature;
-          this.hasSignature = true;
+        // Check for existing signature data from the invoice being edited
+        const existingSignature = this.data.invoice?.signature || this.form.get('signature')?.value;
+        if (existingSignature) {
+          try {
+            this.signaturePad.fromDataURL(existingSignature);
+            this.signatureImage = existingSignature;
+            this.hasSignature = true;
+            console.log('Loaded existing signature successfully');
+          } catch (error) {
+            console.error('Error loading existing signature:', error);
+            this.signatureImage = null;
+            this.hasSignature = false;
+          }
         }
       }
     }, 100);
   }
-
-
 
   onSignatureBegin() {
     this.hasSignature = true;

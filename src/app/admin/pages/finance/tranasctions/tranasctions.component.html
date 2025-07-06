@@ -1,1 +1,231 @@
-<p>tranasctions works!</p>
+<div class="transactions-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">list</mat-icon>
+          All Transactions
+        </h1>
+        <p class="page-subtitle">View and manage all your financial transactions</p>
+      </div>
+      <div class="header-actions">
+        <!-- Navigation handled by parent tabs -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-section">
+    <div class="summary-grid">
+      <div class="summary-card income">
+        <div class="summary-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-amount">{{ formatCurrency(totalIncome) }}</div>
+          <div class="summary-label">Total Income</div>
+        </div>
+      </div>
+
+      <div class="summary-card expense">
+        <div class="summary-icon">
+          <mat-icon>trending_down</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-amount">{{ formatCurrency(totalExpenses) }}</div>
+          <div class="summary-label">Total Expenses</div>
+        </div>
+      </div>
+
+      <div class="summary-card net" [ngClass]="netAmount >= 0 ? 'positive' : 'negative'">
+        <div class="summary-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-amount">{{ formatCurrency(netAmount) }}</div>
+          <div class="summary-label">Net Amount</div>
+        </div>
+      </div>
+
+      <div class="summary-card total">
+        <div class="summary-icon">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-amount">{{ totalTransactions }}</div>
+          <div class="summary-label">Total Transactions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-card">
+      <div class="filters-header">
+        <h3>
+          <mat-icon>filter_list</mat-icon>
+          Filters
+        </h3>
+        <button mat-button color="primary" (click)="clearFilters()" *ngIf="filterText || filterType !== 'all' || filterAction !== 'all' || dateFrom || dateTo">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+      
+      <div class="filters-grid">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search transactions</mat-label>
+          <input matInput [(ngModel)]="filterText" (input)="onFilterChange()" placeholder="Search by type, notes, or transaction ID">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Transaction Type</mat-label>
+          <mat-select [(ngModel)]="filterType" (selectionChange)="onFilterChange()">
+            <mat-option value="all">All Types</mat-option>
+            <mat-option value="income">Income</mat-option>
+            <mat-option value="expense">Expense</mat-option>
+            <mat-option value="lending">Lending</mat-option>
+            <mat-option value="loan">Loan</mat-option>
+            <mat-option value="return">Return</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Action</mat-label>
+          <mat-select [(ngModel)]="filterAction" (selectionChange)="onFilterChange()">
+            <mat-option value="all">All Actions</mat-option>
+            <mat-option value="IN">Income</mat-option>
+            <mat-option value="OUT">Expense</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>From Date</mat-label>
+          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="dateFrom" (dateChange)="onFilterChange()">
+          <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>To Date</mat-label>
+          <input matInput [matDatepicker]="toPicker" [(ngModel)]="dateTo" (dateChange)="onFilterChange()">
+          <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="transactions-section">
+    <div class="transactions-card">
+      <div class="transactions-header">
+        <h3>
+          <mat-icon>receipt</mat-icon>
+          Transactions ({{ totalTransactions }})
+        </h3>
+        <div class="export-actions" *ngIf="filteredTransactions.length > 0">
+          <button mat-stroked-button class="export-btn pdf-btn" (click)="exportToPDF()">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Export PDF</span>
+          </button>
+          <button mat-stroked-button class="export-btn excel-btn" (click)="exportToExcel()">
+            <mat-icon>table_chart</mat-icon>
+            <span>Export Excel</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="transactions-content" *ngIf="!isLoading; else loadingTemplate">
+        <div *ngIf="filteredTransactions.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">receipt_long</mat-icon>
+          <h3>No transactions found</h3>
+          <p>Try adjusting your filters or create a new transaction to get started.</p>
+          <button mat-raised-button color="primary" disabled>
+            <mat-icon>add</mat-icon>
+            Use Navigation Above
+          </button>
+        </div>
+        
+        <div *ngIf="filteredTransactions.length > 0" class="transactions-list">
+          <div *ngFor="let transaction of getPaginatedTransactions()" class="transaction-item">
+            <div class="transaction-icon" [ngClass]="getTransactionColor(transaction)">
+              <mat-icon>{{ getTransactionIcon(transaction) }}</mat-icon>
+            </div>
+            
+            <div class="transaction-details">
+              <div class="transaction-primary">
+                <div class="transaction-type">{{ transaction.type || 'Transaction' }}</div>
+                <div class="transaction-id" *ngIf="transaction.tid">{{ transaction.tid }}</div>
+              </div>
+              
+              <div class="transaction-secondary">
+                <div class="transaction-category" *ngIf="transaction.expenceof || transaction.incomeof">
+                  {{ transaction.expenceof || transaction.incomeof }}
+                </div>
+                <div class="transaction-loan" *ngIf="transaction.loanTo || transaction.loanFrom">
+                  {{ transaction.loanTo ? 'To: ' + transaction.loanTo : 'From: ' + transaction.loanFrom }}
+                </div>
+              </div>
+              
+              <div class="transaction-notes" *ngIf="transaction.notes">
+                <mat-icon class="notes-icon">note</mat-icon>
+                <span>{{ transaction.notes }}</span>
+              </div>
+            </div>
+            
+                         <div class="transaction-meta">
+               <div class="transaction-date">
+                 {{ getTransactionDate(transaction) | date:'MMM d, y' }}
+               </div>
+               <div class="transaction-time">
+                 {{ getTransactionDate(transaction) | date:'h:mm a' }}
+               </div>
+             </div>
+            
+            <div class="transaction-amount" [ngClass]="transaction.action.toLowerCase()">
+              <div class="amount-value">
+                <span class="amount-sign">{{ transaction.action === 'IN' ? '+' : '-' }}</span>
+                {{ formatCurrency(transaction.amount) }}
+              </div>
+              <div class="amount-action">{{ transaction.action === 'IN' ? 'Income' : 'Expense' }}</div>
+            </div>
+            
+            <div class="transaction-actions">
+              <button mat-icon-button [matMenuTriggerFor]="actionMenu" class="action-menu-btn">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionMenu="matMenu">
+                <button mat-menu-item (click)="deleteTransaction(transaction)">
+                  <mat-icon color="warn">delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-section" *ngIf="totalTransactions > pageSize">
+          <mat-paginator 
+            [length]="totalTransactions"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 25, 50, 100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
+
+      <ng-template #loadingTemplate>
+        <div class="loading-state">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading transactions...</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

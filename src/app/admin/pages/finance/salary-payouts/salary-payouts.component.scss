@@ -1,0 +1,52 @@
+.salary-payouts-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+  
+  h2 {
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+.content-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.placeholder-card {
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  border: 2px dashed #e2e8f0;
+  
+  mat-icon {
+    font-size: 4rem;
+    color: #f59e0b;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    color: #1a202c;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #64748b;
+    margin: 0;
+  }
+} 

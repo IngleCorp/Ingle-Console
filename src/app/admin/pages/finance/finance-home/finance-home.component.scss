@@ -1,0 +1,249 @@
+/* Finance Home Component Styles */
+.finance-home-container {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+// Page Header
+.page-header {
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-info {
+    flex: 1;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .title-icon {
+    font-size: 3rem;
+    color: #667eea;
+  }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 1.125rem;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .quick-action-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+    mat-icon {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Finance Navigation Section
+.finance-nav-section {
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.finance-nav-container {
+  padding: 0;
+}
+
+.finance-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  position: relative;
+
+  &:hover {
+    background: rgba(100, 116, 139, 0.05);
+    color: #334155;
+  }
+
+  &.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  mat-icon {
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  // Individual tab styling
+  &.dashboard-tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+  }
+
+  &.create-tab:hover, &.create-tab.active {
+    color: #10b981;
+    border-bottom-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  &.transactions-tab:hover, &.transactions-tab.active {
+    color: #f59e0b;
+    border-bottom-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  &.lending-tab:hover, &.lending-tab.active {
+    color: #06b6d4;
+    border-bottom-color: #06b6d4;
+    background: rgba(6, 182, 212, 0.05);
+  }
+
+  &.reports-tab:hover, &.reports-tab.active {
+    color: #8b5cf6;
+    border-bottom-color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.05);
+  }
+
+  &.salary-tab:hover, &.salary-tab.active {
+    color: #e11d48;
+    border-bottom-color: #e11d48;
+    background: rgba(225, 29, 72, 0.05);
+  }
+}
+
+// Finance Content Section
+.finance-content-section {
+  background: transparent;
+  border-radius: 0;
+  min-height: 400px;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .nav-tab {
+    padding: 0.875rem 1.25rem;
+    
+    span {
+      display: none;
+    }
+    
+    mat-icon {
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .finance-home-container {
+    padding: 0.5rem;
+  }
+
+  .finance-nav-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .nav-tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    
+    span {
+      display: none;
+    }
+    
+    mat-icon {
+      font-size: 1.125rem;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+  }
+
+  .page-header {
+    padding: 1.5rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.875rem;
+    }
+
+    .header-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tab {
+    padding: 0.625rem 0.75rem;
+    min-width: 60px;
+    justify-content: center;
+  }
+
+  .page-header {
+    padding: 1rem;
+  }
+}

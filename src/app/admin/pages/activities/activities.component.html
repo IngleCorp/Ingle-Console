@@ -9,43 +9,74 @@
         <p class="page-subtitle">All recent activities across clients, projects, tasks, and transactions</p>
       </div>
       <div class="actions-section">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Type</mat-label>
-          <mat-select [(ngModel)]="filterType">
-            <mat-option value="">All</mat-option>
-            <mat-option value="client">Client</mat-option>
-            <mat-option value="project">Project</mat-option>
-            <mat-option value="task">Task</mat-option>
-            <mat-option value="transaction">Transaction</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search</mat-label>
-          <input matInput [(ngModel)]="searchTerm" placeholder="Search activities...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+        <div class="filters-section">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="filterType">
+              <mat-option *ngFor="let type of activityTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search</mat-label>
+            <input matInput [(ngModel)]="searchTerm" placeholder="Search activities...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="sort-field">
+            <mat-label>Sort By</mat-label>
+            <mat-select [value]="sortBy" (selectionChange)="setSortBy($event.value)">
+              <mat-option value="createdAt">Date</mat-option>
+              <mat-option value="type">Type</mat-option>
+              <mat-option value="action">Action</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-icon-button (click)="clearFilters()" matTooltip="Clear Filters" class="clear-filters-btn">
+            <mat-icon>clear_all</mat-icon>
+          </button>
+        </div>
+
+        <div class="view-controls">
+          <mat-button-toggle-group [(ngModel)]="viewMode" (change)="switchViewMode($event.value)">
+            <mat-button-toggle value="grid" matTooltip="Grid View">
+              <mat-icon>view_module</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="list" matTooltip="List View">
+              <mat-icon>view_list</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="main-content">
-    <div class="activities-list" *ngIf="!isLoading">
-      <div *ngIf="filteredActivities.length === 0" class="empty-state">
-        <div class="empty-content">
-          <mat-icon class="empty-icon">inbox</mat-icon>
-          <h3 class="empty-title">No activities found</h3>
-          <p class="empty-description">No activities match your filters or search.</p>
-        </div>
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredActivities.length === 0" class="empty-state">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">inbox</mat-icon>
+        <h3 class="empty-title">No activities found</h3>
+        <p class="empty-description" *ngIf="activities.length === 0">No activities have been recorded yet.</p>
+        <p class="empty-description" *ngIf="activities.length > 0">No activities match your current filters or search.</p>
       </div>
+    </div>
+
+    <!-- Grid View -->
+    <div class="activities-grid" *ngIf="!isLoading && viewMode === 'grid' && filteredActivities.length > 0">
       <div *ngFor="let activity of filteredActivities" class="activity-card" [ngClass]="activity.type">
         <div class="activity-header">
           <div class="activity-info">
-            <span class="activity-type" [ngClass]="activity.type">{{ activity.type | titlecase }}</span>
+            <span class="activity-type" [ngClass]="activity.type" [style.background-color]="getActivityColor(activity.type)">
+              {{ activity.type | titlecase }}
+            </span>
             <div class="activity-action">{{ activity.action }}</div>
             <div class="activity-entity">{{ activity.entityName }}</div>
           </div>
-          <div class="activity-icon" [ngClass]="activity.type">
-            <mat-icon>{{ activity.icon || 'info' }}</mat-icon>
+          <div class="activity-icon" [style.color]="getActivityColor(activity.type)">
+            <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
           </div>
         </div>
         
@@ -58,11 +89,77 @@
             <mat-icon>person</mat-icon>
             <span>{{ activity.createdByName || 'Unknown' }}</span>
           </div>
-          <div class="activity-time">{{ activity.createdAt?.toDate() ? (activity.createdAt.toDate() | date:'short') : (activity.createdAt | date:'short') }}</div>
+          <div class="activity-time">{{ formatDate(activity.createdAt) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="activities-list-view" *ngIf="!isLoading && viewMode === 'list' && filteredActivities.length > 0">
+      <div class="list-header">
+        <div class="list-column type-column">
+          <button mat-button (click)="setSortBy('type')" class="sort-button">
+            Type
+            <mat-icon *ngIf="sortBy === 'type'">
+              {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+            </mat-icon>
+          </button>
+        </div>
+        <div class="list-column action-column">
+          <button mat-button (click)="setSortBy('action')" class="sort-button">
+            Action & Details
+            <mat-icon *ngIf="sortBy === 'action'">
+              {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+            </mat-icon>
+          </button>
+        </div>
+        <div class="list-column entity-column">Entity</div>
+        <div class="list-column user-column">User</div>
+        <div class="list-column date-column">
+          <button mat-button (click)="setSortBy('createdAt')" class="sort-button">
+            Date
+            <mat-icon *ngIf="sortBy === 'createdAt'">
+              {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+            </mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="activity-list-item" *ngFor="let activity of filteredActivities">
+        <div class="list-column type-column">
+          <div class="activity-type-info">
+            <mat-icon [style.color]="getActivityColor(activity.type)">{{ getActivityIcon(activity.type) }}</mat-icon>
+            <span class="type-badge" [style.background-color]="getActivityColor(activity.type)">
+              {{ activity.type | titlecase }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="list-column action-column">
+          <div class="activity-action-info">
+            <div class="action-text">{{ activity.action }}</div>
+            <div class="details-text">{{ activity.details | slice:0:80 }}{{ activity.details?.length > 80 ? '...' : '' }}</div>
+          </div>
+        </div>
+        
+        <div class="list-column entity-column">
+          <span class="entity-name">{{ activity.entityName }}</span>
+        </div>
+        
+        <div class="list-column user-column">
+          <div class="user-info">
+            <mat-icon>person</mat-icon>
+            <span>{{ activity.createdByName || 'Unknown' }}</span>
+          </div>
+        </div>
+        
+        <div class="list-column date-column">
+          <span class="date-text">{{ formatDate(activity.createdAt) }}</span>
         </div>
       </div>
     </div>
     
+    <!-- Loading State -->
     <div class="loading-state" *ngIf="isLoading">
       <mat-spinner diameter="40"></mat-spinner>
       <p>Loading activities...</p>

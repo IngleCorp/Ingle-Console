@@ -5,7 +5,6 @@ import { RoleGuard } from '../core/guard/role-guard.guard';
 import { UsersComponent } from './pages/users/users.component';
 import { CredVaultComponent } from './pages/cred-vault/cred-vault.component';
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
-import { CreateTrasactionComponent } from './pages/finance/create-trasaction/create-trasaction.component';
 import { TypesComponent } from './pages/types/types.component';
 import { TypesformComponent } from './pages/types/typesform/typesform.component';
 import { TodoComponent } from './pages/todo/todo.component';
@@ -16,6 +15,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ActivitiesComponent } from './pages/activities/activities.component';
+import { BugReportComponent } from './pages/bug-report/bug-report.component';
 
 const routes: Routes = [
   {
@@ -29,7 +29,10 @@ const routes: Routes = [
       { path: 'users', component: UsersComponent },
       { path: 'cred-vault', component: CredVaultComponent },
       { path: 'quill', component: QuillEditorComponent },
-      { path: 'finance/create', component: CreateTrasactionComponent },
+      {
+        path: 'finance',
+        loadChildren: () => import('./pages/finance/finance.module').then(m => m.FinanceModule)
+      },
       { path: 'types', component: TypesComponent },
       { path: 'types/form', component: TypesformComponent },  // Assuming this is the form for types
       { path: 'todo', component: TodoComponent },
@@ -47,6 +50,10 @@ const routes: Routes = [
       {
         path: 'activities',
         component: ActivitiesComponent
+      },
+      {
+        path: 'bug-report',
+        component: BugReportComponent
       },
     ],
     component: AdminDashboardComponent,  // http://localhost:4200/admin

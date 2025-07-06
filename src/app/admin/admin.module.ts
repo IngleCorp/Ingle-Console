@@ -36,7 +36,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+
+// Firebase Modules
+import { AngularFireFunctionsModule } from '@angular/fire/compat/functions';
 
 // Third-party modules
 import { AgGridModule } from 'ag-grid-angular';
@@ -46,8 +50,6 @@ import { SignaturePadModule } from 'angular2-signaturepad';
 
 // Component imports
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
-import { TranasctionsComponent } from './pages/finance/tranasctions/tranasctions.component';
-import { CreateTrasactionComponent } from './pages/finance/create-trasaction/create-trasaction.component';
 import { TypesComponent } from './pages/types/types.component';
 import { TypesformComponent } from './pages/types/typesform/typesform.component';
 import { TodoComponent } from './pages/todo/todo.component';
@@ -56,6 +58,7 @@ import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { InvoiceFormComponent } from './pages/invoice/invoice-form/invoice-form.component';
 import { InvoicePdfDialogComponent } from './pages/invoice/invoice-pdf-dialog/invoice-pdf-dialog.component';
 import { ConfirmDeleteDialogComponent } from './pages/invoice/confirm-delete-dialog/confirm-delete-dialog.component';
+import { CategorySelectionDialogComponent } from './pages/invoice/category-selection-dialog/category-selection-dialog.component';
 import { TaskFormComponent } from './pages/tasks/task-form/task-form.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
 import { EventFormComponent } from './pages/calendar/event-form/event-form.component';
@@ -64,6 +67,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ActivitiesComponent } from './pages/activities/activities.component';
+import { BugReportComponent } from './pages/bug-report/bug-report.component';
 
 @NgModule({
   declarations: [
@@ -74,8 +78,6 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
     TasksComponent,
     UserFormComponent,
     QuillEditorComponent,
-    TranasctionsComponent,
-    CreateTrasactionComponent,
     TypesComponent,
     TypesformComponent,
     TodoComponent,
@@ -84,6 +86,7 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
     InvoiceFormComponent,
     InvoicePdfDialogComponent,
     ConfirmDeleteDialogComponent,
+    CategorySelectionDialogComponent,
     TaskFormComponent,
     CalendarComponent,
     EventFormComponent,
@@ -92,6 +95,7 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
     ProfileComponent,
     SettingsComponent,
     ActivitiesComponent,
+    BugReportComponent,
   ],
   imports: [
     CommonModule,
@@ -131,8 +135,12 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
     MatSelectModule,
     MatSlideToggleModule,
     MatButtonToggleModule,
+    MatRadioModule,
     MatTooltipModule,
     ClipboardModule,
+
+    // Firebase Modules
+    AngularFireFunctionsModule,
   ],
 })
 export class AdminModule {}

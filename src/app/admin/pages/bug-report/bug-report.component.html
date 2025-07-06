@@ -1,0 +1,413 @@
+<div class="bug-report-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Bug Report System</h2>
+      <p>Report bugs and track issues to improve system functionality</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="toggleReportsList()">
+        <mat-icon>{{ showReportsList ? 'add' : 'list' }}</mat-icon>
+        {{ showReportsList ? 'New Bug Report' : 'View All Reports' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Bug Report Form Section -->
+  <div class="form-section" *ngIf="!showReportsList">
+    <div class="form-card">
+      <div class="form-header">
+        <mat-icon>bug_report</mat-icon>
+        <h3>Submit New Bug Report</h3>
+      </div>
+      
+      <form [formGroup]="bugReportForm" (ngSubmit)="onSubmit()">
+        <!-- Basic Information -->
+        <div class="form-section-title">
+          <mat-icon>info</mat-icon>
+          <h4>Basic Information</h4>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Page Name</mat-label>
+            <mat-select formControlName="pageName" required>
+              <mat-option *ngFor="let page of pageOptions" [value]="page.value">
+                {{ page.label }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="getFieldError('pageName')">{{ getFieldError('pageName') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Feature/Component</mat-label>
+            <input matInput formControlName="feature" placeholder="e.g., Login Button, Data Export, Navigation Menu">
+            <mat-error *ngIf="getFieldError('feature')">{{ getFieldError('feature') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Priority Level</mat-label>
+            <mat-select formControlName="priority" required>
+              <mat-option *ngFor="let priority of priorityOptions" [value]="priority.value">
+                <div class="priority-option">
+                  <div class="priority-indicator" [style.background-color]="priority.color"></div>
+                  <div class="priority-content">
+                    <span class="priority-label">{{ priority.label }}</span>
+                    <span class="priority-description">{{ priority.description }}</span>
+                  </div>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Bug Description -->
+        <div class="form-section-title">
+          <mat-icon>description</mat-icon>
+          <h4>Bug Description</h4>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Bug Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" 
+                      placeholder="Provide a clear and detailed description of the bug"></textarea>
+            <mat-error *ngIf="getFieldError('description')">{{ getFieldError('description') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Steps to Reproduce</mat-label>
+            <textarea matInput formControlName="reproductionSteps" rows="3" 
+                      placeholder="1. Go to... 2. Click on... 3. Enter..."></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Expected Behavior</mat-label>
+            <textarea matInput formControlName="expectedBehavior" rows="3" 
+                      placeholder="What should happen"></textarea>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Actual Behavior</mat-label>
+            <textarea matInput formControlName="actualBehavior" rows="3" 
+                      placeholder="What actually happens"></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Technical Information -->
+        <div class="form-section-title">
+          <mat-icon>computer</mat-icon>
+          <h4>Technical Information</h4>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Browser Information</mat-label>
+            <textarea matInput formControlName="browserInfo" rows="2" readonly></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Device Information</mat-label>
+            <textarea matInput formControlName="deviceInfo" rows="2" readonly></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button mat-raised-button type="button" (click)="resetForm()" [disabled]="isSubmitting">
+            <mat-icon>refresh</mat-icon>
+            Reset Form
+          </button>
+          
+          <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting">
+            <mat-icon>send</mat-icon>
+            <span *ngIf="!isSubmitting">Submit Bug Report</span>
+            <span *ngIf="isSubmitting">Submitting...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bug Reports Dashboard -->
+  <div class="reports-section" *ngIf="showReportsList">
+    
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <mat-spinner></mat-spinner>
+      <p>Loading bug reports...</p>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content" *ngIf="!isLoading">
+      
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card open-bugs">
+          <div class="stat-icon">
+            <mat-icon>bug_report</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Open Bugs</h4>
+            <p class="stat-number">{{ getBugReportsByStatus('Open').length }}</p>
+            <span class="stat-label">Active Issues</span>
+          </div>
+        </div>
+
+        <div class="stat-card in-progress">
+          <div class="stat-icon">
+            <mat-icon>engineering</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>In Progress</h4>
+            <p class="stat-number">{{ getBugReportsByStatus('In Progress').length }}</p>
+            <span class="stat-label">Being Fixed</span>
+          </div>
+        </div>
+
+        <div class="stat-card resolved">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Resolved</h4>
+            <p class="stat-number">{{ getBugReportsByStatus('Resolved').length }}</p>
+            <span class="stat-label">Fixed Issues</span>
+          </div>
+        </div>
+
+        <div class="stat-card critical">
+          <div class="stat-icon">
+            <mat-icon>priority_high</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h4>Critical</h4>
+            <p class="stat-number">{{ getBugCountByPriority('Critical') }}</p>
+            <span class="stat-label">High Priority</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bug Reports List -->
+      <div class="reports-list">
+        <div class="reports-header">
+          <h3>All Bug Reports</h3>
+          
+          <!-- Filters and View Controls -->
+          <div class="reports-controls">
+            <div class="filters-section">
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Status</mat-label>
+                <mat-select [(ngModel)]="filterStatus">
+                  <mat-option value="">All Status</mat-option>
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Priority</mat-label>
+                <mat-select [(ngModel)]="filterPriority">
+                  <mat-option value="">All Priorities</mat-option>
+                  <mat-option *ngFor="let priority of priorityOptions" [value]="priority.value">
+                    {{ priority.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Sort By</mat-label>
+                <mat-select [value]="sortBy" (selectionChange)="setSortBy($event.value)">
+                  <mat-option value="reportedAt">Date Reported</mat-option>
+                  <mat-option value="priority">Priority</mat-option>
+                  <mat-option value="status">Status</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <button mat-icon-button (click)="clearFilters()" matTooltip="Clear Filters">
+                <mat-icon>clear_all</mat-icon>
+              </button>
+            </div>
+
+            <div class="view-controls">
+              <mat-button-toggle-group [(ngModel)]="viewMode" (change)="switchViewMode($event.value)">
+                <mat-button-toggle value="grid" matTooltip="Grid View">
+                  <mat-icon>view_module</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="list" matTooltip="List View">
+                  <mat-icon>view_list</mat-icon>
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Reports State -->
+        <div class="no-reports" *ngIf="getFilteredAndSortedBugReports().length === 0">
+          <mat-icon>bug_report</mat-icon>
+          <h4>No Bug Reports Found</h4>
+          <p *ngIf="bugReports.length === 0">No bug reports have been submitted yet.</p>
+          <p *ngIf="bugReports.length > 0">No bug reports match your current filters.</p>
+        </div>
+
+        <!-- Grid View -->
+        <div class="bug-reports-grid" *ngIf="viewMode === 'grid' && getFilteredAndSortedBugReports().length > 0">
+          <div class="bug-report-card" *ngFor="let bug of getFilteredAndSortedBugReports()">
+            <div class="bug-header">
+              <div class="bug-title">
+                <h4>{{ bug.feature }}</h4>
+                <span class="bug-page">{{ bug.pageName }}</span>
+              </div>
+              <div class="bug-priority">
+                <span class="priority-badge" [style.background-color]="getPriorityColor(bug.priority)">
+                  {{ bug.priority }}
+                </span>
+              </div>
+            </div>
+
+            <div class="bug-content">
+              <p class="bug-description">{{ bug.description }}</p>
+              
+              <div class="bug-details" *ngIf="bug.reproductionSteps">
+                <h5>Steps to Reproduce:</h5>
+                <p>{{ bug.reproductionSteps }}</p>
+              </div>
+
+              <div class="bug-behaviors" *ngIf="bug.expectedBehavior || bug.actualBehavior">
+                <div class="behavior-item" *ngIf="bug.expectedBehavior">
+                  <strong>Expected:</strong> {{ bug.expectedBehavior }}
+                </div>
+                <div class="behavior-item" *ngIf="bug.actualBehavior">
+                  <strong>Actual:</strong> {{ bug.actualBehavior }}
+                </div>
+              </div>
+            </div>
+
+            <div class="bug-footer">
+              <div class="bug-meta">
+                <div class="reporter-info">
+                  <mat-icon>person</mat-icon>
+                  <span>{{ bug.reportedBy }}</span>
+                </div>
+                <div class="report-date">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatDate(bug.reportedAt) }}</span>
+                </div>
+              </div>
+              
+              <div class="bug-actions">
+                <mat-form-field appearance="outline" class="status-select">
+                  <mat-label>Status</mat-label>
+                  <mat-select [value]="bug.status" (selectionChange)="updateBugStatus(bug.id!, $event.value)">
+                    <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                      <div class="status-option">
+                        <div class="status-indicator" [style.background-color]="status.color"></div>
+                        {{ status.label }}
+                      </div>
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+                <button mat-icon-button color="warn" (click)="deleteBugReport(bug.id!)" 
+                        matTooltip="Delete Bug Report">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="bug-status-bar">
+              <div class="status-indicator" [style.background-color]="getStatusColor(bug.status)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List View -->
+        <div class="bug-reports-list-view" *ngIf="viewMode === 'list' && getFilteredAndSortedBugReports().length > 0">
+          <div class="list-header">
+            <div class="list-column title-column">
+              <button mat-button (click)="setSortBy('reportedAt')" class="sort-button">
+                Bug Details
+                <mat-icon *ngIf="sortBy === 'reportedAt'">
+                  {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+                </mat-icon>
+              </button>
+            </div>
+            <div class="list-column priority-column">
+              <button mat-button (click)="setSortBy('priority')" class="sort-button">
+                Priority
+                <mat-icon *ngIf="sortBy === 'priority'">
+                  {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+                </mat-icon>
+              </button>
+            </div>
+            <div class="list-column status-column">
+              <button mat-button (click)="setSortBy('status')" class="sort-button">
+                Status
+                <mat-icon *ngIf="sortBy === 'status'">
+                  {{ sortOrder === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+                </mat-icon>
+              </button>
+            </div>
+            <div class="list-column date-column">Reporter</div>
+            <div class="list-column actions-column">Actions</div>
+          </div>
+
+          <div class="bug-list-item" *ngFor="let bug of getFilteredAndSortedBugReports()">
+            <div class="list-column title-column">
+              <div class="bug-title-info">
+                <h4 class="bug-feature-name">{{ bug.feature }}</h4>
+                <span class="bug-page-name">{{ bug.pageName }}</span>
+                <p class="bug-description-preview">{{ bug.description | slice:0:100 }}{{ bug.description.length > 100 ? '...' : '' }}</p>
+              </div>
+            </div>
+            
+            <div class="list-column priority-column">
+              <span [class]="getPriorityBadgeClass(bug.priority)" [style.background-color]="getPriorityColor(bug.priority)">
+                {{ bug.priority }}
+              </span>
+            </div>
+            
+            <div class="list-column status-column">
+              <span [class]="getStatusBadgeClass(bug.status)" [style.background-color]="getStatusColor(bug.status)">
+                {{ bug.status }}
+              </span>
+            </div>
+            
+            <div class="list-column date-column">
+              <div class="reporter-info">
+                <span class="reporter-name">{{ bug.reportedBy }}</span>
+                <span class="report-date">{{ formatDate(bug.reportedAt) }}</span>
+              </div>
+            </div>
+            
+            <div class="list-column actions-column">
+              <mat-form-field appearance="outline" class="status-select-list">
+                <mat-select [value]="bug.status" (selectionChange)="updateBugStatus(bug.id!, $event.value)">
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <button mat-icon-button color="warn" (click)="deleteBugReport(bug.id!)" 
+                      matTooltip="Delete Bug Report">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

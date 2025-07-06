@@ -1,0 +1,74 @@
+<div class="finance-home-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">account_balance_wallet</mat-icon>
+          Finance Management
+        </h1>
+        <p class="page-subtitle">Monitor your financial health and manage transactions</p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" class="quick-action-btn" (click)="navigateToCreateTransaction()">
+          <mat-icon>add</mat-icon>
+          New Transaction
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finance Navigation Tabs -->
+  <div class="finance-nav-section">
+    <div class="finance-nav-container">
+      <div class="finance-nav-bar">
+        <button class="nav-tab dashboard-tab" 
+                [class.active]="activeTab === 'dashboard'"
+                (click)="navigateToTab('dashboard')">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </button>
+        
+        <button class="nav-tab create-tab" 
+                [class.active]="activeTab === 'create'"
+                (click)="navigateToTab('create')">
+          <mat-icon>add_circle</mat-icon>
+          <span>Create Transaction</span>
+        </button>
+        
+        <button class="nav-tab transactions-tab" 
+                [class.active]="activeTab === 'transactions'"
+                (click)="navigateToTab('transactions')">
+          <mat-icon>list</mat-icon>
+          <span>All Transactions</span>
+        </button>
+        
+        <button class="nav-tab lending-tab" 
+                [class.active]="activeTab === 'lending'"
+                (click)="navigateToTab('lending')">
+          <mat-icon>handshake</mat-icon>
+          <span>Employee Lending</span>
+        </button>
+        
+        <button class="nav-tab reports-tab" 
+                [class.active]="activeTab === 'reports'"
+                (click)="navigateToTab('reports')">
+          <mat-icon>analytics</mat-icon>
+          <span>Income vs Expense</span>
+        </button>
+
+        <button class="nav-tab salary-tab" 
+                [class.active]="activeTab === 'salary'"
+                (click)="navigateToTab('salary')">
+          <mat-icon>payments</mat-icon>
+          <span>Salary Payouts</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Router Outlet for Finance Components -->
+  <div class="finance-content-section">
+    <router-outlet></router-outlet>
+  </div>
+</div>

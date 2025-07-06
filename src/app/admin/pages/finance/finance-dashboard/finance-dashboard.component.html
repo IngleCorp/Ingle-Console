@@ -1,0 +1,325 @@
+<div class="finance-dashboard-container">
+
+
+  <!-- Financial Stats Overview -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card income">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="stat-trend positive">
+            <mat-icon>arrow_upward</mat-icon>
+            <span>+12%</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.totalIncome)">{{ formatCurrency(stats.totalIncome) }}</div>
+          <div class="stat-label">Total Income</div>
+        </div>
+      </div>
+
+      <div class="stat-card expense">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <div class="stat-trend negative">
+            <mat-icon>arrow_downward</mat-icon>
+            <span>-8%</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.totalExpenses)">{{ formatCurrency(stats.totalExpenses) }}</div>
+          <div class="stat-label">Total Expenses</div>
+        </div>
+      </div>
+
+      <div class="stat-card net" [ngClass]="stats.netIncome >= 0 ? 'positive' : 'negative'">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="stat-trend" [ngClass]="stats.netIncome >= 0 ? 'positive' : 'negative'">
+            <mat-icon>{{ stats.netIncome >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            <span>{{ stats.netIncome >= 0 ? 'Profit' : 'Loss' }}</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.netIncome)">{{ formatCurrency(stats.netIncome) }}</div>
+          <div class="stat-label">Net Income</div>
+        </div>
+      </div>
+
+      <div class="stat-card lending">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>person_add</mat-icon>
+          </div>
+          <div class="stat-trend pending">
+            <mat-icon>pending</mat-icon>
+            <span>Pending</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.pendingLendings)">{{ formatCurrency(stats.pendingLendings) }}</div>
+          <div class="stat-label">Outstanding Loans</div>
+        </div>
+      </div>
+
+      <div class="stat-card total-lending">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>handshake</mat-icon>
+          </div>
+          <div class="stat-trend info">
+            <mat-icon>info</mat-icon>
+            <span>Total</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.totalLendingAmount)">{{ formatCurrency(stats.totalLendingAmount) }}</div>
+          <div class="stat-label">Total Lent Amount</div>
+        </div>
+      </div>
+
+      <div class="stat-card returns-received">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>assignment_return</mat-icon>
+          </div>
+          <div class="stat-trend returns">
+            <mat-icon>keyboard_return</mat-icon>
+            <span>Returned</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.totalReturnsReceived)">{{ formatCurrency(stats.totalReturnsReceived) }}</div>
+          <div class="stat-label">Total Returns Received</div>
+        </div>
+      </div>
+
+      <div class="stat-card available-balance" [ngClass]="stats.availableBalance >= 0 ? 'positive' : 'negative'">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="stat-trend" [ngClass]="stats.availableBalance >= 0 ? 'available' : 'deficit'">
+            <mat-icon>{{ stats.availableBalance >= 0 ? 'check_circle' : 'warning' }}</mat-icon>
+            <span>{{ stats.availableBalance >= 0 ? 'Available' : 'Deficit' }}</span>
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number" [ngClass]="getAmountSizeClass(stats.availableBalance)">{{ formatCurrency(stats.availableBalance) }}</div>
+          <div class="stat-label">Available Balance</div>
+          <div class="stat-sublabel">After Outstanding Loans</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="quick-actions-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <mat-icon>flash_on</mat-icon>
+        Quick Actions
+      </h2>
+    </div>
+    
+    <div class="quick-actions-grid">
+      <div class="action-card income">
+        <div class="action-icon">
+          <mat-icon>add_circle</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>Record Income</h3>
+          <p>Add new income transaction</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+
+      <div class="action-card expense">
+        <div class="action-icon">
+          <mat-icon>remove_circle</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>Record Expense</h3>
+          <p>Add new expense transaction</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+
+      <div class="action-card transactions">
+        <div class="action-icon">
+          <mat-icon>list</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>View All Transactions</h3>
+          <p>Browse transaction history</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+
+      <div class="action-card reports">
+        <div class="action-icon">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>Income vs Expense</h3>
+          <p>View detailed reports</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+
+      <div class="action-card salary">
+        <div class="action-icon">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>Salary Payouts</h3>
+          <p>Manage employee salaries</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+
+      <div class="action-card lending">
+        <div class="action-icon">
+          <mat-icon>handshake</mat-icon>
+        </div>
+        <div class="action-content">
+          <h3>Employee Lending</h3>
+          <p>Track loans and advances</p>
+        </div>
+        <mat-icon class="action-arrow">arrow_forward</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Overview & Recent Transactions -->
+  <div class="overview-section">
+    <div class="overview-grid">
+      <!-- Monthly Performance -->
+      <div class="overview-card monthly-performance">
+        <div class="card-header">
+          <h3 class="card-title">
+            <mat-icon>calendar_month</mat-icon>
+            This Month
+          </h3>
+          <button mat-icon-button class="more-btn" [matMenuTriggerFor]="monthlyMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #monthlyMenu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>analytics</mat-icon>
+              <span>View Details</span>
+            </button>
+          </mat-menu>
+        </div>
+        
+        <div class="monthly-stats">
+          <div class="monthly-stat income">
+            <div class="monthly-stat-icon">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="monthly-stat-content">
+              <div class="monthly-stat-amount" [ngClass]="getAmountSizeClass(stats.monthlyIncome)">{{ formatCurrency(stats.monthlyIncome) }}</div>
+              <div class="monthly-stat-label">Income</div>
+            </div>
+          </div>
+          
+          <div class="monthly-stat expense">
+            <div class="monthly-stat-icon">
+              <mat-icon>trending_down</mat-icon>
+            </div>
+            <div class="monthly-stat-content">
+              <div class="monthly-stat-amount" [ngClass]="getAmountSizeClass(stats.monthlyExpenses)">{{ formatCurrency(stats.monthlyExpenses) }}</div>
+              <div class="monthly-stat-label">Expenses</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monthly-net" [ngClass]="(stats.monthlyIncome - stats.monthlyExpenses) >= 0 ? 'positive' : 'negative'">
+          <div class="net-label">Net This Month</div>
+          <div class="net-amount" [ngClass]="getAmountSizeClass(stats.monthlyIncome - stats.monthlyExpenses)">{{ formatCurrency(stats.monthlyIncome - stats.monthlyExpenses) }}</div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="overview-card recent-transactions">
+        <div class="card-header">
+          <h3 class="card-title">
+            <mat-icon>history</mat-icon>
+            Recent Transactions
+          </h3>
+          <button mat-button class="view-all-btn">
+            View All
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+        
+        <div class="transactions-list" *ngIf="!isLoading; else loadingTemplate">
+          <div *ngIf="recentTransactions.length === 0" class="empty-state">
+            <mat-icon class="empty-icon">receipt_long</mat-icon>
+            <p class="empty-message">No transactions yet</p>
+            <button mat-raised-button color="primary">
+              Create First Transaction
+            </button>
+          </div>
+          
+          <div *ngFor="let transaction of recentTransactions" class="transaction-item">
+            <div class="transaction-icon" [ngClass]="getRecentTransactionColor(transaction)">
+              <mat-icon>{{ getRecentTransactionIcon(transaction) }}</mat-icon>
+            </div>
+            <div class="transaction-details">
+                             <div class="transaction-description">
+                 <span class="transaction-type">{{ transaction.type || 'Transaction' }}</span>
+                 <span class="transaction-category" *ngIf="getTransactionCategory(transaction)">
+                   • {{ getTransactionCategory(transaction) }}
+                 </span>
+               </div>
+               <div class="transaction-date">
+                 {{ getTransactionDate(transaction) | date:'MMM d, y' }}
+               </div>
+            </div>
+            <div class="transaction-amount" [ngClass]="transaction.action.toLowerCase()">
+              <span class="amount-sign">{{ transaction.action === 'IN' ? '+' : '-' }}</span>
+              <span class="amount-value">{{ formatCurrency(transaction.amount) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #loadingTemplate>
+          <div class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading transactions...</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Expense Categories -->
+  <div class="categories-section" *ngIf="expenseCategories.length > 0">
+    <div class="section-header">
+      <h2 class="section-title">
+        <mat-icon>pie_chart</mat-icon>
+        Top Expense Categories
+      </h2>
+    </div>
+    
+    <div class="categories-grid">
+      <div *ngFor="let category of expenseCategories; let i = index" class="category-card">
+        <div class="category-rank">{{ i + 1 }}</div>
+        <div class="category-content">
+          <div class="category-name">{{ category.category }}</div>
+          <div class="category-amount">{{ formatCurrency(category.amount) }}</div>
+        </div>
+        <div class="category-percentage">
+          {{ ((category.amount / stats.totalExpenses) * 100).toFixed(1) }}%
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

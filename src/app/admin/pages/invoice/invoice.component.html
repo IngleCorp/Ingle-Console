@@ -28,8 +28,8 @@
             <mat-icon>receipt</mat-icon>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ invoices.length }}</div>
-            <div class="stat-label">Total Invoices</div>
+            <div class="stat-number">{{ getFilteredInvoicesCount() }}</div>
+            <div class="stat-label">{{ searchTerm || statusFilter !== 'all' || dateRangeFilter !== 'all' || paymentStatusFilter !== 'all' ? 'Filtered' : 'Total' }} Invoices</div>
           </div>
         </div>
 
@@ -38,7 +38,7 @@
             <mat-icon>schedule</mat-icon>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ getPendingInvoices() }}</div>
+            <div class="stat-number">{{ getFilteredPendingInvoices() }}</div>
             <div class="stat-label">Pending</div>
           </div>
         </div>
@@ -48,7 +48,7 @@
             <mat-icon>check_circle</mat-icon>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ getPaidInvoices() }}</div>
+            <div class="stat-number">{{ getFilteredPaidInvoices() }}</div>
             <div class="stat-label">Paid</div>
           </div>
         </div>
@@ -58,9 +58,75 @@
             <mat-icon>account_balance_wallet</mat-icon>
           </div>
           <div class="stat-content">
-            <div class="stat-number">₹{{ getTotalRevenue() | number:'1.0-0' }}</div>
+            <div class="stat-number">₹{{ getFilteredTotalRevenue() | number:'1.0-0' }}</div>
             <div class="stat-label">Total Revenue</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section" [class.expanded]="showFilters">
+      <div class="filter-header">
+        <div class="filter-title">
+          <mat-icon>filter_list</mat-icon>
+          <span>Filter Invoices</span>
+        </div>
+        <div class="filter-actions">
+          <button class="clear-filters-btn" (click)="clearFilters()" 
+                  [disabled]="!searchTerm && statusFilter === 'all' && dateRangeFilter === 'all' && paymentStatusFilter === 'all'">
+            <mat-icon>clear</mat-icon>
+            <span>Clear All</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="filter-controls" *ngIf="showFilters">
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" 
+                   placeholder="Search by invoice number, client, project, or subject...">
+            <mat-icon matPrefix>search</mat-icon>
+            <button mat-button matSuffix mat-icon-button *ngIf="searchTerm" (click)="searchTerm = ''; onSearchChange()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+              <mat-option value="all">All Status</mat-option>
+              <mat-option value="pending">Pending</mat-option>
+              <mat-option value="paid">Paid</mat-option>
+              <mat-option value="overdue">Overdue</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Payment Status</mat-label>
+            <mat-select [(ngModel)]="paymentStatusFilter" (selectionChange)="onPaymentStatusFilterChange()">
+              <mat-option value="all">All Payments</mat-option>
+              <mat-option value="paid">Paid</mat-option>
+              <mat-option value="unpaid">Unpaid</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>payment</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Date Range</mat-label>
+            <mat-select [(ngModel)]="dateRangeFilter" (selectionChange)="onDateRangeFilterChange()">
+              <mat-option value="all">All Time</mat-option>
+              <mat-option value="today">Today</mat-option>
+              <mat-option value="this-week">This Week</mat-option>
+              <mat-option value="this-month">This Month</mat-option>
+              <mat-option value="this-year">This Year</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>date_range</mat-icon>
+          </mat-form-field>
         </div>
       </div>
     </div>
@@ -70,18 +136,21 @@
       <div class="section-header">
         <h2 class="section-title">
           <mat-icon>list</mat-icon>
-          All Invoices
+          {{ getFilteredInvoicesCount() }} Invoice{{ getFilteredInvoicesCount() !== 1 ? 's' : '' }}
+          <span *ngIf="getFilteredInvoicesCount() !== invoices.length" class="filtered-indicator">
+            ({{ getFilteredInvoicesCount() }} of {{ invoices.length }})
+          </span>
         </h2>
         <div class="section-actions">
-          <button class="filter-btn">
+          <button class="filter-btn" (click)="toggleFilters()" [class.active]="showFilters">
             <mat-icon>filter_list</mat-icon>
-            <span>Filter</span>
+            <span>{{ showFilters ? 'Hide' : 'Show' }} Filters</span>
           </button>
         </div>
       </div>
 
       <div class="invoices-list">
-        <div *ngIf="invoices.length === 0" class="empty-state">
+        <div *ngIf="filteredInvoices.length === 0 && invoices.length === 0" class="empty-state">
           <div class="empty-content">
             <mat-icon class="empty-icon">receipt</mat-icon>
             <h3 class="empty-title">No invoices yet</h3>
@@ -93,7 +162,19 @@
           </div>
         </div>
 
-        <div *ngFor="let invoice of invoices; let i = index" class="invoice-card">
+        <div *ngIf="filteredInvoices.length === 0 && invoices.length > 0" class="empty-state">
+          <div class="empty-content">
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h3 class="empty-title">No matching invoices</h3>
+            <p class="empty-description">Try adjusting your filters or search criteria</p>
+            <button class="empty-action-btn" (click)="clearFilters()">
+              <mat-icon>clear</mat-icon>
+              <span>Clear Filters</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngFor="let invoice of filteredInvoices; let i = index" class="invoice-card">
           <div class="invoice-header">
             <div class="invoice-info">
               <div class="invoice-number">
@@ -124,9 +205,43 @@
               <mat-icon>business</mat-icon>
               <span>GSTIN: {{ invoice.billTo.gstin }}</span>
             </div>
+            <div class="detail-item">
+              <mat-icon>payment</mat-icon>
+              <span>Payment Status: 
+                <span class="payment-status" [ngClass]="(invoice.paymentStatus || 'unpaid')">
+                  {{ (invoice.paymentStatus || 'unpaid') | titlecase }}
+                </span>
+              </span>
+            </div>
           </div>
 
-      <div class="invoice-actions">
+          <!-- Payment Status Management -->
+          <div class="payment-management" *ngIf="invoice.id">
+            <div class="payment-controls">
+              <button *ngIf="invoice.paymentStatus !== 'paid'" 
+                      class="action-btn payment-btn mark-paid" 
+                      (click)="markAsPaid(invoice)"
+                      matTooltip="Mark invoice as paid and create transaction">
+                <mat-icon>payment</mat-icon>
+                <span>Mark as Paid</span>
+              </button>
+              
+              <button *ngIf="invoice.paymentStatus === 'paid'" 
+                      class="action-btn payment-btn mark-unpaid" 
+                      (click)="updatePaymentStatus(invoice, 'unpaid')"
+                      matTooltip="Mark invoice as unpaid and remove transaction">
+                <mat-icon>money_off</mat-icon>
+                <span>Mark as Unpaid</span>
+              </button>
+              
+              <div *ngIf="invoice.transactionId" class="transaction-info">
+                <mat-icon>link</mat-icon>
+                <span>Transaction ID: {{ invoice.transactionId | slice:0:8 }}...</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="invoice-actions">
             <button class="action-btn edit-btn" (click)="openForm(invoice, i)">
               <mat-icon>edit</mat-icon>
               <span>Edit</span>

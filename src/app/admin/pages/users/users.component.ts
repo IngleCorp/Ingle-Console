@@ -5,6 +5,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { UserFormComponent, User } from './user-form/user-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -30,6 +32,8 @@ const CAR_DATA: Car[] = [
 export class UsersComponent implements AfterViewInit {
   constructor(
     private firestore: AngularFirestore,
+    private auth: AngularFireAuth,
+    private functions: AngularFireFunctions,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {
@@ -77,17 +81,126 @@ export class UsersComponent implements AfterViewInit {
     this.openUserForm(user);
   }
 
-  deleteUser(user: User): void {
-    if (confirm(`Are you sure you want to delete ${user.name}?`)) {
-      this.firestore.collection('users').doc(user.id).delete()
-        .then(() => {
-          this.getUsers(); // Refresh the user list
-          this.showNotification('User deleted successfully!', 'success');
-        })
-        .catch((error) => {
-          console.error('Error deleting user:', error);
-          this.showNotification('Error deleting user. Please try again.', 'error');
+  async deleteUser(user: User): Promise<void> {
+    if (!user.id) {
+      this.showNotification('User ID not found', 'error');
+      return;
+    }
+
+    const confirmMessage = user.firebaseUid 
+      ? `Are you sure you want to delete ${user.name}?\n\nThis will permanently delete the user from both the database and Firebase Authentication.`
+      : `Are you sure you want to delete ${user.name}?\n\nThis user hasn't activated their account yet.`;
+
+    if (confirm(confirmMessage)) {
+      try {
+        const currentUser = await this.auth.currentUser;
+        
+        if (!currentUser) {
+          this.showNotification('Admin authentication required', 'error');
+          return;
+        }
+
+        // Step 1: Delete from Firestore first
+        await this.firestore.collection('users').doc(user.id).delete();
+
+        // Step 2: Handle Firebase Auth deletion if user has firebaseUid
+        if (user.firebaseUid) {
+          try {
+            // Call the Cloud Function to delete from Firebase Auth
+            await this.callDeleteUserCloudFunction(user.firebaseUid);
+            
+            this.showNotification(
+              `User ${user.name} deleted successfully from both database and Firebase Authentication!`,
+              'success'
+            );
+          } catch (authError: any) {
+            console.error('Firebase Auth deletion error:', authError);
+            this.showNotification(
+              `User ${user.name} deleted from database, but Firebase Auth deletion failed: ${authError.message || 'Unknown error'}`,
+              'error'
+            );
+          }
+        } else {
+          // User only existed in Firestore (pending activation)
+          this.showNotification(`User ${user.name} deleted successfully!`, 'success');
+        }
+
+        // Step 3: Create activity record for user deletion
+        await this.firestore.collection('activities').add({
+          type: 'user',
+          action: 'Deleted',
+          entityId: user.id,
+          entityName: user.name || 'Unknown User',
+          details: `User ${user.name || 'Unknown'} (${user.email || 'Unknown'}) with role ${user.role || 'unknown'} was deleted from the system`,
+          createdAt: new Date(),
+          createdBy: currentUser.uid,
+          createdByName: currentUser.displayName || currentUser.email || 'Admin',
+          icon: 'delete',
+          metadata: this.createSafeUserMetadata(user)
         });
+
+        // Step 4: Refresh the user list
+        this.getUsers();
+
+      } catch (error: any) {
+        console.error('Error deleting user:', error);
+        let errorMessage = 'Error deleting user. Please try again.';
+        
+        if (error.code === 'permission-denied') {
+          errorMessage = 'Permission denied. You do not have rights to delete this user.';
+        } else if (error.code === 'not-found') {
+          errorMessage = 'User not found. It may have already been deleted.';
+        }
+        
+        this.showNotification(errorMessage, 'error');
+      }
+    }
+  }
+
+  // Helper method to create safe metadata object without undefined values
+  private createSafeUserMetadata(user: User): any {
+    return {
+      hadFirebaseAuth: !!user.firebaseUid,
+      userRole: user.role || 'unknown',
+      userDepartment: user.department || 'unknown',
+      accountStatus: user.accountStatus || 'unknown',
+      isActive: user.isActive !== undefined ? user.isActive : false,
+      activationRequired: user.activationRequired !== undefined ? user.activationRequired : false,
+      createdAt: user.createdAt || null,
+      updatedAt: user.updatedAt || null
+    };
+  }
+
+  // Method to call Cloud Function for Firebase Auth deletion
+  private async callDeleteUserCloudFunction(firebaseUid: string): Promise<void> {
+    try {
+      // Call the Cloud Function
+      const deleteUserFunction = this.functions.httpsCallable('deleteUserFromAuth');
+      const result$ = deleteUserFunction({ uid: firebaseUid });
+      const result = await result$.toPromise();
+      
+      console.log('Cloud Function result:', result);
+      
+      if (result?.success) {
+        console.log('User successfully deleted from Firebase Auth');
+      } else {
+        throw new Error(result?.message || 'Failed to delete user from Firebase Auth');
+      }
+    } catch (error: any) {
+      console.error('Cloud Function error:', error);
+      
+      // Handle specific Cloud Function errors
+      if (error.code === 'unauthenticated') {
+        throw new Error('Authentication required to delete user');
+      } else if (error.code === 'permission-denied') {
+        throw new Error('Permission denied. Only admins can delete users');
+      } else if (error.code === 'not-found') {
+        throw new Error('User not found in Firebase Auth');
+      } else if (error.code === 'invalid-argument') {
+        throw new Error('Invalid user ID provided');
+      }
+      
+      throw new Error(error.message || 'Failed to delete user from Firebase Auth');
     }
   }
 
@@ -101,9 +214,10 @@ export class UsersComponent implements AfterViewInit {
   getRoleColor(role: string): string {
     const roleColors: { [key: string]: string } = {
       'admin': '#ef4444',
-      'manager': '#f59e0b',
-      'user': '#3b82f6',
-      'viewer': '#10b981'
+      'staff': '#3b82f6',
+      'developer': '#10b981',
+      'designer': '#f59e0b',
+      'client': '#8b5cf6'
     };
     return roleColors[role] || '#6b7280';
   }
@@ -111,9 +225,10 @@ export class UsersComponent implements AfterViewInit {
   getRoleIcon(role: string): string {
     const roleIcons: { [key: string]: string } = {
       'admin': 'admin_panel_settings',
-      'manager': 'manage_accounts',
-      'user': 'person',
-      'viewer': 'visibility'
+      'staff': 'badge',
+      'developer': 'code',
+      'designer': 'palette',
+      'client': 'person_outline'
     };
     return roleIcons[role] || 'person';
   }

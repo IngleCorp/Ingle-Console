@@ -90,6 +90,14 @@
           <label class="field-label">Place of Supply</label>
           <input class="form-input" formControlName="placeOfSupply" placeholder="Place of supply" />
         </div>
+        
+        <div class="form-field" *ngIf="isEditing">
+          <label class="field-label">Payment Status</label>
+          <select class="form-select" formControlName="paymentStatus">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
       </div>
       </div>
 

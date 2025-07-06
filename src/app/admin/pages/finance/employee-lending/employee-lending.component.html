@@ -1,0 +1,206 @@
+<div class="employee-lending-container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Loading lending data...</p>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">handshake</mat-icon>
+        Employee Lending
+      </h1>
+      <p class="page-subtitle">Track and manage employee loans and advance payments</p>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-section">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <mat-icon>account_balance_wallet</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Lent</div>
+        <div class="stat-value">{{ formatCurrency(totalLent) }}</div>
+      </div>
+    </div>
+    
+    <div class="stat-card outstanding">
+      <div class="stat-icon">
+        <mat-icon>schedule</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Outstanding</div>
+        <div class="stat-value">{{ formatCurrency(totalOutstanding) }}</div>
+        <div class="stat-sub">{{ activeCount }} active</div>
+      </div>
+    </div>
+    
+    <div class="stat-card returned">
+      <div class="stat-icon">
+        <mat-icon>assignment_return</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Returned</div>
+        <div class="stat-value">{{ formatCurrency(totalReturned) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="controls-section">
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search lending records</mat-label>
+        <input matInput 
+               [(ngModel)]="searchTerm" 
+               (input)="onSearchChange()"
+               placeholder="Search by name, notes, or transaction ID">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+    
+    <div class="filter-tabs">
+      <button mat-button 
+              [class.active]="selectedTab === 'active'"
+              (click)="onTabChange('active')">
+        <mat-icon>schedule</mat-icon>
+        Active ({{ activeTransactions.length }})
+      </button>
+      
+      <button mat-button 
+              [class.active]="selectedTab === 'completed'"
+              (click)="onTabChange('completed')">
+        <mat-icon>check_circle</mat-icon>
+        Completed ({{ completedTransactions.length }})
+      </button>
+      
+      <button mat-button 
+              [class.active]="selectedTab === 'all'"
+              (click)="onTabChange('all')">
+        <mat-icon>list</mat-icon>
+        All ({{ lendingTransactions.length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Lending List -->
+  <div class="lending-list">
+    <div *ngIf="filteredTransactions.length === 0 && !loading" class="no-data">
+      <mat-icon>inbox</mat-icon>
+      <h3>No lending records found</h3>
+      <p>{{ searchTerm ? 'Try adjusting your search criteria' : 'No lending transactions available' }}</p>
+    </div>
+
+    <div *ngFor="let lending of filteredTransactions" class="lending-card">
+      <div class="lending-header">
+        <div class="lending-info">
+          <h3 class="employee-name">{{ lending.lendedBy }}</h3>
+          <p class="transaction-id">{{ lending.tid }}</p>
+        </div>
+        
+        <div class="lending-status">
+          <span class="status-badge" [ngClass]="lending.loanClear ? 'completed' : 'active'">
+            <mat-icon>{{ lending.loanClear ? 'check_circle' : 'schedule' }}</mat-icon>
+            {{ lending.loanClear ? 'Completed' : 'Active' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="lending-body">
+        <div class="lending-details">
+          <div class="detail-item">
+            <mat-icon class="detail-icon">calendar_today</mat-icon>
+            <div class="detail-content">
+              <div class="detail-label">Lending Date</div>
+              <div class="detail-value">{{ getFormattedDate(lending.date) }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <mat-icon class="detail-icon">currency_rupee</mat-icon>
+            <div class="detail-content">
+              <div class="detail-label">Amount</div>
+              <div class="detail-value amount">{{ formatCurrency(lending.amount) }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-item" *ngIf="lending.AmountReturned && lending.AmountReturned > 0">
+            <mat-icon class="detail-icon">assignment_return</mat-icon>
+            <div class="detail-content">
+              <div class="detail-label">Returned</div>
+              <div class="detail-value returned">{{ formatCurrency(lending.AmountReturned) }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-item" *ngIf="!lending.loanClear">
+            <mat-icon class="detail-icon">timer</mat-icon>
+            <div class="detail-content">
+              <div class="detail-label">Days Outstanding</div>
+              <div class="detail-value" [ngClass]="getUrgencyLevel(getDaysSince(lending.date))">
+                {{ getDaysSince(lending.date) }} days
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="lending-notes" *ngIf="lending.notes">
+          <mat-icon class="note-icon">note</mat-icon>
+          <p class="note-text">{{ lending.notes }}</p>
+        </div>
+      </div>
+
+      <div class="lending-actions" *ngIf="!lending.loanClear">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="openReturnDialog(lending)"
+                class="action-btn">
+          <mat-icon>assignment_return</mat-icon>
+          Process Return
+        </button>
+        
+        <button mat-button 
+                color="accent" 
+                (click)="markAsFullyPaid(lending)"
+                class="action-btn">
+          <mat-icon>check_circle</mat-icon>
+          Mark as Paid
+        </button>
+        
+        <button mat-button 
+                color="warn" 
+                (click)="deleteLendingTransaction(lending)"
+                class="action-btn delete-btn">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
+      
+      <div class="lending-completed" *ngIf="lending.loanClear">
+        <div class="completed-info">
+          <mat-icon class="completed-icon">check_circle</mat-icon>
+          <span class="completed-text">Lending Completed</span>
+        </div>
+        
+        <button mat-icon-button 
+                color="warn" 
+                (click)="deleteLendingTransaction(lending)"
+                class="delete-completed-btn"
+                matTooltip="Delete this completed lending">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State for No Data -->
+  <div *ngIf="lendingTransactions.length === 0 && !loading" class="empty-state">
+    <mat-icon class="empty-icon">handshake</mat-icon>
+    <h3>No Lending Records</h3>
+    <p>There are no employee lending records to display.</p>
+    <p class="empty-hint">Lending records will appear here once employees receive advances or loans.</p>
+  </div>
+</div> 
