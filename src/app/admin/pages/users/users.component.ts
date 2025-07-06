@@ -6,7 +6,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { UserFormComponent, User } from './user-form/user-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -33,7 +32,6 @@ export class UsersComponent implements AfterViewInit {
   constructor(
     private firestore: AngularFirestore,
     private auth: AngularFireAuth,
-    private functions: AngularFireFunctions,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {
@@ -88,8 +86,8 @@ export class UsersComponent implements AfterViewInit {
     }
 
     const confirmMessage = user.firebaseUid 
-      ? `Are you sure you want to delete ${user.name}?\n\nThis will permanently delete the user from both the database and Firebase Authentication.`
-      : `Are you sure you want to delete ${user.name}?\n\nThis user hasn't activated their account yet.`;
+      ? `Are you sure you want to delete ${user.name}?\n\nThis will delete the user from the database. Note: Firebase Auth account will remain and needs to be deleted manually from Firebase Console.`
+      : `Are you sure you want to delete ${user.name}?\n\nThis user hasn't created a Firebase Auth account yet.`;
 
     if (confirm(confirmMessage)) {
       try {
@@ -100,32 +98,10 @@ export class UsersComponent implements AfterViewInit {
           return;
         }
 
-        // Step 1: Delete from Firestore first
+        // Delete from Firestore
         await this.firestore.collection('users').doc(user.id).delete();
 
-        // Step 2: Handle Firebase Auth deletion if user has firebaseUid
-        if (user.firebaseUid) {
-          try {
-            // Call the Cloud Function to delete from Firebase Auth
-            await this.callDeleteUserCloudFunction(user.firebaseUid);
-            
-            this.showNotification(
-              `User ${user.name} deleted successfully from both database and Firebase Authentication!`,
-              'success'
-            );
-          } catch (authError: any) {
-            console.error('Firebase Auth deletion error:', authError);
-            this.showNotification(
-              `User ${user.name} deleted from database, but Firebase Auth deletion failed: ${authError.message || 'Unknown error'}`,
-              'error'
-            );
-          }
-        } else {
-          // User only existed in Firestore (pending activation)
-          this.showNotification(`User ${user.name} deleted successfully!`, 'success');
-        }
-
-        // Step 3: Create activity record for user deletion
+        // Create activity record for user deletion
         await this.firestore.collection('activities').add({
           type: 'user',
           action: 'Deleted',
@@ -139,7 +115,17 @@ export class UsersComponent implements AfterViewInit {
           metadata: this.createSafeUserMetadata(user)
         });
 
-        // Step 4: Refresh the user list
+        // Show success message
+        if (user.firebaseUid) {
+          this.showNotification(
+            `User ${user.name} deleted from database. Note: Firebase Auth account remains and should be deleted manually from Firebase Console if needed.`,
+            'success'
+          );
+        } else {
+          this.showNotification(`User ${user.name} deleted successfully!`, 'success');
+        }
+
+        // Refresh the user list
         this.getUsers();
 
       } catch (error: any) {
@@ -169,39 +155,6 @@ export class UsersComponent implements AfterViewInit {
       createdAt: user.createdAt || null,
       updatedAt: user.updatedAt || null
     };
-  }
-
-  // Method to call Cloud Function for Firebase Auth deletion
-  private async callDeleteUserCloudFunction(firebaseUid: string): Promise<void> {
-    try {
-      // Call the Cloud Function
-      const deleteUserFunction = this.functions.httpsCallable('deleteUserFromAuth');
-      const result$ = deleteUserFunction({ uid: firebaseUid });
-      const result = await result$.toPromise();
-      
-      console.log('Cloud Function result:', result);
-      
-      if (result?.success) {
-        console.log('User successfully deleted from Firebase Auth');
-      } else {
-        throw new Error(result?.message || 'Failed to delete user from Firebase Auth');
-      }
-    } catch (error: any) {
-      console.error('Cloud Function error:', error);
-      
-      // Handle specific Cloud Function errors
-      if (error.code === 'unauthenticated') {
-        throw new Error('Authentication required to delete user');
-      } else if (error.code === 'permission-denied') {
-        throw new Error('Permission denied. Only admins can delete users');
-      } else if (error.code === 'not-found') {
-        throw new Error('User not found in Firebase Auth');
-      } else if (error.code === 'invalid-argument') {
-        throw new Error('Invalid user ID provided');
-      }
-      
-      throw new Error(error.message || 'Failed to delete user from Firebase Auth');
-    }
   }
 
   getUsers() {

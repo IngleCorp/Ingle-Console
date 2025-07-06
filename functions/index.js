@@ -1,5 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const {onRequest} = require("firebase-functions/v2/https");
+const {logger} = require("firebase-functions");
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -178,5 +180,144 @@ exports.bulkDeleteUsersFromAuth = functions.https.onCall(async (data, context) =
     
     // Generic error
     throw new functions.https.HttpsError('internal', 'Failed to bulk delete users from Firebase Auth');
+  }
+});
+
+// Create Firebase Auth user (for admin user creation)
+exports.createUser = onRequest({cors: true}, async (req, res) => {
+  try {
+    // Check if the request is from an authenticated admin
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    
+    try {
+      // Verify the ID token and get user info
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      
+      // Check if user has admin privileges (you can customize this check)
+      const userDoc = await admin.firestore().collection('users').where('firebaseUid', '==', decodedToken.uid).get();
+      
+      if (userDoc.empty) {
+        return res.status(403).json({ error: 'User not found in database' });
+      }
+      
+      const userData = userDoc.docs[0].data();
+      if (userData.role !== 'admin') {
+        return res.status(403).json({ error: 'Insufficient permissions. Admin role required.' });
+      }
+      
+    } catch (error) {
+      logger.error('Token verification failed:', error);
+      return res.status(401).json({ error: 'Invalid authentication token' });
+    }
+
+    // Extract user creation data from request
+    const { email, password, displayName } = req.body;
+    
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: email, password, displayName' 
+      });
+    }
+
+    // Create the user in Firebase Auth
+    const userRecord = await admin.auth().createUser({
+      email: email,
+      password: password,
+      displayName: displayName,
+      emailVerified: false
+    });
+
+    logger.info(`Successfully created user: ${userRecord.uid}`);
+    
+    // Return the user UID
+    res.status(200).json({
+      success: true,
+      uid: userRecord.uid,
+      email: userRecord.email,
+      displayName: userRecord.displayName
+    });
+
+  } catch (error) {
+    logger.error('Error creating user:', error);
+    
+    // Handle specific Firebase Auth errors
+    let errorMessage = 'Failed to create user';
+    if (error.code === 'auth/email-already-exists') {
+      errorMessage = 'Email already exists';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'Password is too weak';
+    }
+    
+    res.status(400).json({
+      error: errorMessage,
+      code: error.code
+    });
+  }
+});
+
+// Delete Firebase Auth user (for admin user deletion)
+exports.deleteUser = onRequest({cors: true}, async (req, res) => {
+  try {
+    // Check authentication
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const userDoc = await admin.firestore().collection('users').where('firebaseUid', '==', decodedToken.uid).get();
+      
+      if (userDoc.empty) {
+        return res.status(403).json({ error: 'User not found in database' });
+      }
+      
+      const userData = userDoc.docs[0].data();
+      if (userData.role !== 'admin') {
+        return res.status(403).json({ error: 'Insufficient permissions. Admin role required.' });
+      }
+      
+    } catch (error) {
+      logger.error('Token verification failed:', error);
+      return res.status(401).json({ error: 'Invalid authentication token' });
+    }
+
+    const { uid } = req.body;
+    
+    if (!uid) {
+      return res.status(400).json({ error: 'Missing required field: uid' });
+    }
+
+    // Delete the user from Firebase Auth
+    await admin.auth().deleteUser(uid);
+    
+    logger.info(`Successfully deleted user: ${uid}`);
+    
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+
+  } catch (error) {
+    logger.error('Error deleting user:', error);
+    
+    let errorMessage = 'Failed to delete user';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'User not found';
+    }
+    
+    res.status(400).json({
+      error: errorMessage,
+      code: error.code
+    });
   }
 }); 

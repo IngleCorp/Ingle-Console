@@ -76,12 +76,13 @@ export class UserFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Set edit mode first
     if (this.data?.user) {
       this.isEditMode = true;
       this.loadUserData(this.data.user);
     }
     
-    // Update form validators based on edit mode
+    // Update form validators based on edit mode AFTER determining the mode
     this.updateFormValidators();
   }
 
@@ -94,8 +95,8 @@ export class UserFormComponent implements OnInit {
       phone: ['', [Validators.required, Validators.pattern(/^[\+]?[1-9][\d]{0,15}$/)]],
       avatar: [''],
       isActive: [true],
-      password: [''],
-      confirmPassword: ['']
+      password: [''], // No initial validators - will be set in updateFormValidators
+      confirmPassword: [''] // No initial validators - will be set in updateFormValidators
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -115,24 +116,35 @@ export class UserFormComponent implements OnInit {
     
     passwordControl?.updateValueAndValidity();
     confirmPasswordControl?.updateValueAndValidity();
+    
+    // Update the entire form validation to reflect the new password validators
+    this.userForm.updateValueAndValidity();
   }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
 
-    // If both passwords are empty (edit mode), validation passes
-    if (!password?.value && !confirmPassword?.value) {
+    // Skip validation if we don't have the controls yet
+    if (!password || !confirmPassword) {
+      return null;
+    }
+
+    const passwordValue = password.value;
+    const confirmPasswordValue = confirmPassword.value;
+
+    // If both passwords are empty, validation passes (for optional password scenarios)
+    if (!passwordValue && !confirmPasswordValue) {
       return null;
     }
 
     // If only one password is filled, validation fails
-    if ((password?.value && !confirmPassword?.value) || (!password?.value && confirmPassword?.value)) {
+    if ((passwordValue && !confirmPasswordValue) || (!passwordValue && confirmPasswordValue)) {
       return { passwordMismatch: true };
     }
 
     // If both passwords are filled, they must match
-    if (password?.value && confirmPassword?.value && password.value !== confirmPassword.value) {
+    if (passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue) {
       return { passwordMismatch: true };
     }
 
@@ -227,38 +239,75 @@ export class UserFormComponent implements OnInit {
           updatedAt: new Date(),
           updatedBy: currentUser.uid,
           updatedByName: currentUser.displayName || currentUser.email || 'Admin',
-          accountStatus: 'pending',
-          activationRequired: true
+          accountStatus: 'active',
+          activationRequired: false
         };
 
         if (!this.isEditMode) {
-          // Create user in Firestore without Firebase Auth account
-          // The user will need to activate their account later
-          const userId = this.firestore.createId(); // Generate unique ID
-          
-          userData.id = userId;
-          userData.createdAt = new Date();
-          userData.createdBy = currentUser.uid;
-          userData.createdByName = currentUser.displayName || currentUser.email || 'Admin';
-          userData.temporaryPassword = formData.password; // Store temporarily (in production, you'd hash this)
-          
-          // Save user data to Firestore
-          await this.firestore.collection('users').doc(userId).set(userData);
-          
-          // Create activity record for user creation
-          await this.firestore.collection('activities').add({
-            type: 'user',
-            action: 'Created',
-            entityId: userId,
-            entityName: formData.name,
-            details: `New user ${formData.name} (${formData.email}) created with role ${formData.role}. Account activation required.`,
-            createdAt: new Date(),
-            createdBy: currentUser.uid,
-            createdByName: currentUser.displayName || currentUser.email || 'Admin',
-            icon: 'person_add'
-          });
-          
-          this.showNotification(`User ${formData.name} created successfully! They will need to activate their account on first login.`, 'success');
+          // Create Firebase Auth user first, then use its UID for Firestore document
+          try {
+            // Create Firebase Auth user using REST API
+            const createUserResult = await this.createFirebaseUser(formData.email, formData.password, formData.name);
+            
+            if (createUserResult.success) {
+              // Use Firebase Auth UID as both firebaseUid and document ID
+              const firebaseUid = createUserResult.uid;
+              
+              userData.id = firebaseUid; // Document ID matches Firebase Auth UID
+              userData.firebaseUid = firebaseUid;
+              userData.createdAt = new Date();
+              userData.createdBy = currentUser.uid;
+              userData.createdByName = currentUser.displayName || currentUser.email || 'Admin';
+              
+              // Save user data to Firestore using Firebase Auth UID as document ID
+              await this.firestore.collection('users').doc(firebaseUid).set(userData);
+              
+              // Create activity record for user creation
+              await this.firestore.collection('activities').add({
+                type: 'user',
+                action: 'Created',
+                entityId: firebaseUid, // Use Firebase Auth UID as entity ID
+                entityName: formData.name,
+                details: `New user ${formData.name} (${formData.email}) created with role ${formData.role}. Firebase Auth account created successfully.`,
+                createdAt: new Date(),
+                createdBy: currentUser.uid,
+                createdByName: currentUser.displayName || currentUser.email || 'Admin',
+                icon: 'person_add'
+              });
+              
+              this.showNotification(`User ${formData.name} created successfully with Firebase Auth account!`, 'success');
+            } else {
+              throw new Error(createUserResult.error || 'Failed to create Firebase Auth user');
+            }
+          } catch (authError: any) {
+            console.error('Firebase Auth creation error:', authError);
+            
+            // Fallback: Create user in Firestore only with pending status
+            const fallbackUserId = this.firestore.createId(); // Generate fallback ID only if Firebase Auth fails
+            userData.id = fallbackUserId;
+            userData.accountStatus = 'pending';
+            userData.activationRequired = true;
+            userData.temporaryPassword = formData.password;
+            userData.createdAt = new Date();
+            userData.createdBy = currentUser.uid;
+            userData.createdByName = currentUser.displayName || currentUser.email || 'Admin';
+            
+            await this.firestore.collection('users').doc(fallbackUserId).set(userData);
+            
+            await this.firestore.collection('activities').add({
+              type: 'user',
+              action: 'Created',
+              entityId: fallbackUserId,
+              entityName: formData.name,
+              details: `User ${formData.name} (${formData.email}) created in database. Firebase Auth creation failed: ${authError.message}. Manual activation required.`,
+              createdAt: new Date(),
+              createdBy: currentUser.uid,
+              createdByName: currentUser.displayName || currentUser.email || 'Admin',
+              icon: 'person_add'
+            });
+            
+            this.showNotification(`User ${formData.name} created in database, but Firebase Auth creation failed. They will need manual activation.`, 'error');
+          }
           
         } else {
           // Update existing user
@@ -348,58 +397,37 @@ export class UserFormComponent implements OnInit {
   get password() { return this.userForm.get('password'); }
   get confirmPassword() { return this.userForm.get('confirmPassword'); }
 
-  // Helper method to activate user account (call this when user first tries to login)
-  async activateUserAccount(email: string, password: string): Promise<any> {
+  // Method to create Firebase Auth user via REST API (preserves admin session)
+  async createFirebaseUser(email: string, password: string, displayName: string): Promise<any> {
     try {
-      // This would be called from your login component when a user with pending status tries to log in
-      const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+      // Use Firebase Auth REST API to create user without affecting current session
+      const apiKey = 'AIzaSyD90HQhWSoAELRZ5A5H1Z7j_Grn5QFxCrw'; // Firebase API key
       
-      if (user) {
-        // Update the user document with Firebase UID and activate status
-        const userQuery = await this.firestore.collection('users', ref => 
-          ref.where('email', '==', email).where('accountStatus', '==', 'pending')
-        ).get().toPromise();
-        
-        if (userQuery && !userQuery.empty) {
-          const userDoc = userQuery.docs[0];
-          const userData = userDoc.data() as User;
-          
-          await userDoc.ref.update({
-            firebaseUid: user.uid,
-            accountStatus: 'active',
-            activationRequired: false,
-            temporaryPassword: null, // Remove temporary password
-            activatedAt: new Date()
-          });
-          
-          // Update Firebase Auth profile
-          await user.updateProfile({
-            displayName: userData.name
-          });
-          
-          return { success: true, user: userData };
-        }
-      }
-      
-      return { success: false, error: 'User not found in pending state' };
-    } catch (error) {
-      console.error('Error activating user account:', error);
-      return { success: false, error: error };
-    }
-  }
+      const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          displayName: displayName,
+          returnSecureToken: true
+        })
+      });
 
-  // Debug method to check form validation status
-  debugFormValidation(): void {
-    console.log('Form valid:', this.userForm.valid);
-    console.log('Form errors:', this.userForm.errors);
-    console.log('Form values:', this.userForm.value);
-    
-    Object.keys(this.userForm.controls).forEach(key => {
-      const control = this.userForm.get(key);
-      if (control && control.invalid) {
-        console.log(`${key} errors:`, control.errors);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Firebase Auth user created successfully:', result);
+        return { success: true, uid: result.localId };
+      } else {
+        const errorData = await response.json();
+        console.error('Firebase Auth REST API error:', errorData);
+        throw new Error(errorData.error?.message || 'Failed to create Firebase Auth user');
       }
-    });
+    } catch (error: any) {
+      console.error('Error creating Firebase Auth user:', error);
+      return { success: false, error: error.message };
+    }
   }
 }

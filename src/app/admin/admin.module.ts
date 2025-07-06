@@ -39,9 +39,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
-// Firebase Modules
-import { AngularFireFunctionsModule } from '@angular/fire/compat/functions';
-
 // Third-party modules
 import { AgGridModule } from 'ag-grid-angular';
 import { QuillModule } from 'ngx-quill';
@@ -137,9 +134,6 @@ import { BugReportComponent } from './pages/bug-report/bug-report.component';
     MatTooltipModule,
     MatRadioModule,
     ClipboardModule,
-
-    // Firebase Modules
-    AngularFireFunctionsModule,
   ],
 })
 export class AdminModule {}
