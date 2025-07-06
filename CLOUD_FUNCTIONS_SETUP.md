@@ -8,7 +8,7 @@ This guide explains how to set up and deploy Firebase Cloud Functions that enabl
 2. Firebase project initialized
 3. Firebase Admin SDK enabled in your project
 
-## Setup Instructions
+## Setup Instructionsss
 
 ### 1. Initialize Firebase Functions (if not already done)
 
