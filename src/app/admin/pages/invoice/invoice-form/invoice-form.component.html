@@ -322,19 +322,23 @@
       
       <div class="signature-container">
         <div class="signature-pad-container">
-          <signature-pad
-            #signaturePad
-            [options]="signaturePadOptions"
-            (beginEvent)="onSignatureBegin()"
-            (endEvent)="saveSignature()"
+          <canvas
+            #signaturePadCanvas
             class="signature-pad"
-          ></signature-pad>
+            width="400"
+            height="200"
+          ></canvas>
         </div>
         
         <div class="signature-actions">
           <button type="button" class="clear-btn" (click)="clearSignature()">
             <mat-icon>clear</mat-icon>
             <span>Clear</span>
+          </button>
+          
+          <button type="button" class="save-btn" (click)="saveSignature()">
+            <mat-icon>save</mat-icon>
+            <span>Save</span>
           </button>
           
           <div *ngIf="signatureImage" class="signature-preview">

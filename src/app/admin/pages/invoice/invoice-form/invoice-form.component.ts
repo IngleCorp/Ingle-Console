@@ -1,16 +1,16 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { SignaturePad } from 'angular2-signaturepad';
+import SignaturePad from 'signature_pad';
 
 @Component({
   selector: 'app-invoice-form',
   templateUrl: './invoice-form.component.html',
   styleUrl: './invoice-form.component.scss'
 })
-export class InvoiceFormComponent implements OnInit {
+export class InvoiceFormComponent implements OnInit, AfterViewInit {
   form!: FormGroup;
   isEditing: boolean = false;
   clients: any[] = [];
@@ -28,19 +28,10 @@ export class InvoiceFormComponent implements OnInit {
     { SAC: '998423', Description: 'Licensing of software (other than custom software) – includes right to use standard software products' }
   ];
 
-  @ViewChild('signaturePad') signaturePad!: SignaturePad;
+  @ViewChild('signaturePadCanvas', { static: false }) signaturePadCanvas!: ElementRef<HTMLCanvasElement>;
+  signaturePad!: SignaturePad;
   signatureImage: string | null = null;
   hasSignature: boolean = false;
-  signaturePadOptions: Object = {
-    minWidth: 1,
-    maxWidth: 2,
-    penColor: 'rgb(0, 0, 0)',
-    backgroundColor: 'rgb(255,255,255)',
-    throttle: 16,
-    velocityFilterWeight: 0.7,
-    dotSize: 1,
-    minDistance: 1
-  };
 
   constructor(
     private fb: FormBuilder,
@@ -125,9 +116,23 @@ export class InvoiceFormComponent implements OnInit {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      if (this.signaturePad) {
-        this.signaturePad.clear();
-        this.signaturePad.resizeCanvas();
+      if (this.signaturePadCanvas) {
+        this.signaturePad = new SignaturePad(this.signaturePadCanvas.nativeElement, {
+          minWidth: 1,
+          maxWidth: 2,
+          penColor: 'rgb(0, 0, 0)',
+          backgroundColor: 'rgb(255,255,255)',
+          throttle: 16,
+          velocityFilterWeight: 0.7,
+          dotSize: 1,
+          minDistance: 1
+        });
+        
+        this.signaturePad.addEventListener('beginStroke', () => {
+          this.onSignatureBegin();
+        });
+        
+        this.resizeCanvas();
         
         // Check for existing signature data from the invoice being edited
         const existingSignature = this.data.invoice?.signature || this.form.get('signature')?.value;
@@ -145,6 +150,17 @@ export class InvoiceFormComponent implements OnInit {
         }
       }
     }, 100);
+  }
+
+  resizeCanvas() {
+    if (this.signaturePadCanvas && this.signaturePad) {
+      const canvas = this.signaturePadCanvas.nativeElement;
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext('2d')!.scale(ratio, ratio);
+      this.signaturePad.clear();
+    }
   }
 
   onSignatureBegin() {

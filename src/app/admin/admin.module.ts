@@ -46,7 +46,7 @@ import { AngularFireFunctionsModule } from '@angular/fire/compat/functions';
 import { AgGridModule } from 'ag-grid-angular';
 import { QuillModule } from 'ngx-quill';
 import { Angular2SmartTableModule } from 'angular2-smart-table';
-import { SignaturePadModule } from 'angular2-signaturepad';
+// SignaturePadModule removed - using direct signature_pad implementation
 
 // Component imports
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
@@ -104,7 +104,6 @@ import { BugReportComponent } from './pages/bug-report/bug-report.component';
     // Third-party modules
     QuillModule.forRoot(),
     Angular2SmartTableModule,
-    SignaturePadModule,
     AgGridModule,
 
     // Angular Material Modules
@@ -135,8 +134,8 @@ import { BugReportComponent } from './pages/bug-report/bug-report.component';
     MatSelectModule,
     MatSlideToggleModule,
     MatButtonToggleModule,
-    MatRadioModule,
     MatTooltipModule,
+    MatRadioModule,
     ClipboardModule,
 
     // Firebase Modules

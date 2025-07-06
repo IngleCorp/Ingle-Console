@@ -850,6 +850,35 @@ mat-icon {
       }
     }
     
+    .save-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+      border: 1px solid rgba($primary-color, 0.3);
+      border-radius: $border-radius;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      
+      &:hover {
+        background: $primary-color;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: $shadow-light;
+      }
+      
+      mat-icon {
+        font-size: 1rem !important;
+        width: 1rem !important;
+        height: 1rem !important;
+        color: inherit !important;
+      }
+    }
+    
     .signature-preview {
       display: flex;
       align-items: center;
