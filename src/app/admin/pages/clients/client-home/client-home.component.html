@@ -31,10 +31,10 @@
         <h1 class="client-name">{{ clientInfo?.name || 'Client Name' }}</h1>
       </div>
       <div class="header-actions-compact">
-        <button class="action-btn edit-btn" (click)="editClient()" matTooltip="Edit Client">
+        <div class="action-btn edit-btn" routerLink="info" matTooltip="Edit Client Info">
           <mat-icon>edit</mat-icon>
-        </button>
-        <div class="back-btn" routerLink="../.." matTooltip="Back to Clients">
+        </div>
+        <div class="back-btn" routerLink="/admin/clients" matTooltip="Back to Clients">
           <mat-icon>arrow_back</mat-icon>
         </div>
         <div class="expand-btn" (click)="toggleHeader()" matTooltip="Expand">
@@ -68,11 +68,11 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="action-btn edit-btn" (click)="editClient()" matTooltip="Edit Client">
+        <div class="action-btn edit-btn" routerLink="info" matTooltip="Edit Client Info">
           <mat-icon>edit</mat-icon>
           Edit
-        </button>
-        <div class="back-btn" routerLink="../..">
+        </div>
+        <div class="back-btn" routerLink="/admin/clients">
           <mat-icon>arrow_back</mat-icon>
           Back
         </div>

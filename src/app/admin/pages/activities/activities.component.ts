@@ -25,7 +25,8 @@ export class ActivitiesComponent implements OnInit, OnDestroy {
     { value: 'task', label: 'Task' },
     { value: 'transaction', label: 'Transaction' },
     { value: 'invoice', label: 'Invoice' },
-    { value: 'user', label: 'User' }
+    { value: 'user', label: 'User' },
+    { value: 'bug-report', label: 'Bug Report' }
   ];
 
   constructor(private afs: AngularFirestore) {}
@@ -123,6 +124,7 @@ export class ActivitiesComponent implements OnInit, OnDestroy {
       case 'transaction': return 'monetization_on';
       case 'invoice': return 'receipt';
       case 'user': return 'account_circle';
+      case 'bug-report': return 'bug_report';
       default: return 'info';
     }
   }
@@ -135,6 +137,7 @@ export class ActivitiesComponent implements OnInit, OnDestroy {
       case 'transaction': return '#ef4444';
       case 'invoice': return '#8b5cf6';
       case 'user': return '#06b6d4';
+      case 'bug-report': return '#dc2626';
       default: return '#64748b';
     }
   }

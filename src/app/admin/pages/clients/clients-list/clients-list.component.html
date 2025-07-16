@@ -14,17 +14,87 @@
           <mat-icon>add</mat-icon>
           Add Client
         </button>
-        <div class="back-btn" routerLink="../..">
-          <mat-icon>arrow_back</mat-icon>
-          Back
+        <div class="back-btn" routerLink="/admin">
+          <mat-icon>home</mat-icon>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Clients Grid -->
-  <div class="clients-grid" *ngIf="clientList && clientList.length > 0">
-    <div class="client-card" *ngFor="let client of clientList" (click)="gotoClientHome(client.id)">
+  <!-- Filters and Controls Section -->
+  <div class="controls-section" *ngIf="clientList.length > 0">
+    <div class="controls-content">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search clients by name, email, phone..." 
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange(searchTerm)"
+          >
+          <button 
+            *ngIf="searchTerm" 
+            class="clear-search-btn" 
+            (click)="clearSearch()"
+            matTooltip="Clear search"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sort and View Controls -->
+      <div class="controls-group">
+        <!-- Sort Dropdown -->
+        <div class="sort-container">
+          <mat-form-field appearance="outline" class="sort-field">
+            <mat-label>Sort by</mat-label>
+            <mat-select [value]="sortBy + '-' + sortOrder" (selectionChange)="onSortChange($event.value)">
+              <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+                {{ option.label }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>sort</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- View Mode Toggle -->
+        <div class="view-toggle">
+          <button 
+            class="view-toggle-btn" 
+            [class.active]="viewMode === 'grid'"
+            (click)="switchViewMode('grid')"
+            matTooltip="Grid View"
+          >
+            <mat-icon>grid_view</mat-icon>
+          </button>
+          <button 
+            class="view-toggle-btn" 
+            [class.active]="viewMode === 'list'"
+            (click)="switchViewMode('list')"
+            matTooltip="List View"
+          >
+            <mat-icon>view_list</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary" *ngIf="searchTerm || filteredClients.length !== clientList.length">
+      <span class="results-text">
+        Showing {{ filteredClients.length }} of {{ clientList.length }} clients
+        <span *ngIf="searchTerm"> for "{{ searchTerm }}"</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Clients Grid View -->
+  <div class="clients-grid" *ngIf="filteredClients && filteredClients.length > 0 && viewMode === 'grid'">
+    <div class="client-card" *ngFor="let client of filteredClients" (click)="gotoClientHome(client.id)">
       <div class="card-header">
         <div class="client-avatar">
           <img *ngIf="client?.image" [src]="client?.image" [alt]="client.name" class="avatar-image">
@@ -34,7 +104,7 @@
         </div>
         <div class="client-status" [class.active]="client?.status === 'active'">
           <span class="status-dot"></span>
-          {{ client?.status || 'Active' }}
+          {{ formatStatus(client?.status || 'active') }}
         </div>
       </div>
       
@@ -52,6 +122,10 @@
           <mat-icon class="phone-icon">phone</mat-icon>
           {{ client.phone }}
         </p>
+        <p class="client-date" *ngIf="client?.createdAt">
+          <mat-icon class="date-icon">event</mat-icon>
+          Added {{ formatDate(client.createdAt) }}
+        </p>
       </div>
       
       <div class="card-footer">
@@ -66,8 +140,10 @@
           </div>
         </div>
         <div class="card-actions">
-          <button class="action-btn delete-btn" (click)="deleteClient(client.id); $event.stopPropagation()" 
-                  matTooltip="Delete Client">
+          <button class="action-btn delete-btn" 
+                  (click)="deleteClient(client); $event.stopPropagation()" 
+                  matTooltip="Delete Client"
+                  [disabled]="isLoading">
             <mat-icon>delete_outline</mat-icon>
           </button>
           <button class="action-btn view-btn" matTooltip="View Details">
@@ -75,6 +151,91 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Clients List View -->
+  <div class="clients-list-view" *ngIf="filteredClients && filteredClients.length > 0 && viewMode === 'list'">
+    <div class="list-header">
+      <div class="list-column avatar-column">Avatar</div>
+      <div class="list-column name-column">Name</div>
+      <div class="list-column contact-column">Contact</div>
+      <div class="list-column date-column">Created</div>
+      <div class="list-column status-column">Status</div>
+      <div class="list-column actions-column">Actions</div>
+    </div>
+    
+    <div class="client-list-item" *ngFor="let client of filteredClients">
+      <div class="list-column avatar-column">
+        <div class="client-avatar-small">
+          <img *ngIf="client?.image" [src]="client?.image" [alt]="client.name" class="avatar-image-small">
+          <div *ngIf="!client?.image" class="avatar-placeholder-small">
+            <mat-icon>person</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <div class="list-column name-column">
+        <div class="client-name-info">
+          <h4 class="client-name">{{ client.name }}</h4>
+          <p class="client-manager" *ngIf="client?.manageby">Managed by {{ client.manageby }}</p>
+        </div>
+      </div>
+      
+      <div class="list-column contact-column">
+        <div class="contact-info">
+          <p *ngIf="client?.email" class="contact-item">
+            <mat-icon>email</mat-icon>
+            {{ client.email }}
+          </p>
+          <p *ngIf="client?.phone" class="contact-item">
+            <mat-icon>phone</mat-icon>
+            {{ client.phone }}
+          </p>
+        </div>
+      </div>
+      
+      <div class="list-column date-column">
+        <span class="date-text">{{ formatDate(client.createdAt) }}</span>
+      </div>
+      
+      <div class="list-column status-column">
+        <span class="status-badge" [class.active]="client?.status === 'active'">
+          {{ formatStatus(client?.status || 'active') }}
+        </span>
+      </div>
+      
+      <div class="list-column actions-column">
+        <div class="list-actions">
+          <button class="action-btn view-btn" 
+                  (click)="gotoClientHome(client.id)" 
+                  matTooltip="View Client">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button class="action-btn delete-btn" 
+                  (click)="deleteClient(client)" 
+                  matTooltip="Delete Client"
+                  [disabled]="isLoading">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results State -->
+  <div class="no-results-state" *ngIf="searchTerm && filteredClients.length === 0 && clientList.length > 0">
+    <div class="no-results-content">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <h3 class="no-results-title">No clients found</h3>
+      <p class="no-results-description">
+        No clients match your search for "<strong>{{ searchTerm }}</strong>".
+        Try adjusting your search terms.
+      </p>
+      <button class="clear-search-action-btn" (click)="clearSearch()">
+        <mat-icon>clear</mat-icon>
+        Clear Search
+      </button>
     </div>
   </div>
 
@@ -92,7 +253,7 @@
   </div>
 
   <!-- Loading State -->
-  <div class="loading-state" *ngIf="!clientList">
+  <div class="loading-state" *ngIf="isLoading">
     <mat-spinner diameter="40"></mat-spinner>
     <p>Loading clients...</p>
   </div>

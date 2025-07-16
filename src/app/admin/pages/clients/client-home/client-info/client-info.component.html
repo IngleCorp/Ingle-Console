@@ -304,6 +304,22 @@
               </div>
             </div>
           </div>
+
+          <div class="field-group status-toggle-group">
+            <label class="field-label">Account Status</label>
+            <div class="status-toggle-container">
+              <div class="status-indicator" [class.active]="clientInfo?.status === 'active'">
+                <mat-icon class="status-icon">{{ clientInfo?.status === 'active' ? 'check_circle' : 'cancel' }}</mat-icon>
+                <span class="status-text">{{ clientInfo?.status === 'active' ? 'Active' : 'Inactive' }}</span>
+              </div>
+              <div class="toggle-switch" (click)="toggleClientStatus()" [class.active]="clientInfo?.status === 'active'">
+                <div class="toggle-slider">
+                  <div class="toggle-handle"></div>
+                </div>
+                <span class="toggle-label">{{ clientInfo?.status === 'active' ? 'Deactivate' : 'Activate' }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

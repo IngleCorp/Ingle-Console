@@ -291,11 +291,13 @@ export class BugReportComponent implements OnInit, OnDestroy {
   private logActivity(action: string, description: string): void {
     if (this.currentUser) {
       const activity = {
+        type: 'bug-report',
         action,
-        description,
-        performedBy: this.currentUser.displayName || this.currentUser.email,
-        performedAt: new Date(),
-        type: 'Bug Report'
+        details: description,
+        createdAt: new Date(),
+        createdBy: this.currentUser.uid || '',
+        createdByName: this.currentUser.displayName || this.currentUser.email || 'Unknown User',
+        icon: 'bug_report'
       };
       
       this.firestore.collection('activities').add(activity).catch(error => {

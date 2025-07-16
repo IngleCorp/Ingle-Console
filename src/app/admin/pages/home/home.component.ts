@@ -66,6 +66,10 @@ export class HomeComponent implements OnInit {
               typeClass = 'calendar';
               icon = 'event';
               break;
+            case 'bug-report':
+              typeClass = 'bug-report';
+              icon = 'bug_report';
+              break;
             default:
               typeClass = activity.type || 'other';
               icon = activity.icon || 'info';

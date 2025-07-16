@@ -73,7 +73,7 @@ mat-sidenav-content{
   }
   
   .active-link .mat-icon {
-    color: #00796b; /* Accent color for the icon */
+    color: #ffffff!important; /* Accent color for the icon */
   }
 .active-link-sub {
     background-color: #e0f7fac4;
@@ -719,8 +719,8 @@ mat-sidenav-content{
               }
 
               .nav-label {
-                color: white;
-                font-weight: 600;
+                color: white!important;
+                font-weight: 600!important;
               }
             }
 

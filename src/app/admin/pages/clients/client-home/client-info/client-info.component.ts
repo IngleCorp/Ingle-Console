@@ -65,6 +65,17 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         this.clientInfo = res;
+        // Set default status if none exists
+        if (this.clientInfo && !this.clientInfo.status) {
+          this.clientInfo.status = 'active';
+          // Update the document with default status
+          this.afs.collection('clients').doc(this.clientId!).update({
+            status: 'active',
+            statusUpdatedAt: new Date(),
+            statusUpdatedBy: localStorage.getItem('userid') || '',
+            statusUpdatedByName: localStorage.getItem('username') || 'System'
+          });
+        }
       });
   }
 
@@ -106,6 +117,47 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
     }).catch(err => {
       console.error('Error updating client info:', err);
       this.showNotification('Error updating client information', 'error');
+    });
+  }
+
+  toggleClientStatus(): void {
+    if (!this.clientId || !this.clientInfo) return;
+    
+    // Toggle between active and inactive
+    const newStatus = this.clientInfo.status === 'active' ? 'inactive' : 'active';
+    const statusText = newStatus === 'active' ? 'activated' : 'deactivated';
+    
+    // Update client status
+    this.afs.collection('clients').doc(this.clientId).update({
+      status: newStatus,
+      statusUpdatedAt: new Date(),
+      statusUpdatedBy: localStorage.getItem('userid') || '',
+      statusUpdatedByName: localStorage.getItem('username') || 'Unknown User'
+    }).then(() => {
+      // Update local object
+      this.clientInfo.status = newStatus;
+      
+      // Record activity
+      this.afs.collection('activities').add({
+        type: 'client',
+        action: 'Status Changed',
+        entityId: this.clientId,
+        entityName: this.clientInfo.name,
+        details: `Client ${statusText}: ${this.clientInfo.name}`,
+        createdAt: new Date(),
+        createdBy: localStorage.getItem('userid') || '',
+        createdByName: localStorage.getItem('username') || 'Unknown User',
+        icon: newStatus === 'active' ? 'check_circle' : 'cancel',
+        metadata: {
+          previousStatus: newStatus === 'active' ? 'inactive' : 'active',
+          newStatus: newStatus
+        }
+      });
+      
+      this.showNotification(`Client ${statusText} successfully`, 'success');
+    }).catch(err => {
+      console.error('Error updating client status:', err);
+      this.showNotification('Error updating client status', 'error');
     });
   }
 

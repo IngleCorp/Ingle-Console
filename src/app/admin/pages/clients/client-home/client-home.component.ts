@@ -160,10 +160,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  editClient(): void {
-    // TODO: Implement edit client functionality
-    console.log('Edit client clicked');
-  }
+
 
   // Helper methods for template
   getProjectsCount(): number {
@@ -186,12 +183,6 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
     return this.clientBills.reduce((total, bill) => total + (bill.amount || 0), 0);
   }
 
-  gohome(): void {
-    this.router.navigate(['../'], { relativeTo: this.route });
-  }
 
-  backToClients(): void {
-    this.router.navigate(['../'], { relativeTo: this.route });
-  }
 
 }
