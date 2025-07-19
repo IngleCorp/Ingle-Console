@@ -14,6 +14,7 @@ export interface User {
   phone: string;
   avatar?: string;
   isActive: boolean;
+  clientId?: string; // Optional client ID for linking users to clients
   createdAt?: Date;
   updatedAt?: Date;
   createdBy?: string;
@@ -64,6 +65,8 @@ export class UserFormComponent implements OnInit {
     'Client Services'
   ];
 
+  clients: any[] = []; // Will be populated from Firestore
+
   constructor(
     private fb: FormBuilder,
     private firestore: AngularFirestore,
@@ -84,6 +87,14 @@ export class UserFormComponent implements OnInit {
     
     // Update form validators based on edit mode AFTER determining the mode
     this.updateFormValidators();
+    
+    // Load clients for dropdown
+    this.loadClients();
+    
+    // Listen for role changes to update clientId validation
+    this.userForm.get('role')?.valueChanges.subscribe(role => {
+      this.updateClientIdValidation(role);
+    });
   }
 
   createForm(): FormGroup {
@@ -95,6 +106,7 @@ export class UserFormComponent implements OnInit {
       phone: ['', [Validators.required, Validators.pattern(/^[\+]?[1-9][\d]{0,15}$/)]],
       avatar: [''],
       isActive: [true],
+      clientId: [''], // Optional client ID
       password: [''], // No initial validators - will be set in updateFormValidators
       confirmPassword: [''] // No initial validators - will be set in updateFormValidators
     }, { validators: this.passwordMatchValidator });
@@ -159,12 +171,40 @@ export class UserFormComponent implements OnInit {
       department: user.department || '',
       phone: user.phone || '',
       avatar: user.avatar || '',
-      isActive: user.isActive !== undefined ? user.isActive : true
+      isActive: user.isActive !== undefined ? user.isActive : true,
+      clientId: user.clientId || ''
     });
 
     if (user.avatar) {
       this.previewUrl = user.avatar;
     }
+  }
+
+  async loadClients(): Promise<void> {
+    try {
+      const clientsSnapshot = await this.firestore.collection('clients').get().toPromise();
+      this.clients = clientsSnapshot?.docs.map(doc => ({
+        id: doc.id,
+        ...(doc.data() as any)
+      })) || [];
+    } catch (error) {
+      console.error('Error loading clients:', error);
+      this.showNotification('Error loading clients', 'error');
+    }
+  }
+
+  updateClientIdValidation(role: string): void {
+    const clientIdControl = this.userForm.get('clientId');
+    
+    if (role === 'client') {
+      // Make clientId mandatory for client role
+      clientIdControl?.setValidators([Validators.required]);
+    } else {
+      // Make clientId optional for other roles
+      clientIdControl?.setValidators([]);
+    }
+    
+    clientIdControl?.updateValueAndValidity();
   }
 
   onFileSelected(event: any): void {
@@ -236,6 +276,7 @@ export class UserFormComponent implements OnInit {
           phone: formData.phone,
           avatar: this.previewUrl || formData.avatar,
           isActive: formData.isActive,
+          clientId: formData.clientId || undefined,
           updatedAt: new Date(),
           updatedBy: currentUser.uid,
           updatedByName: currentUser.displayName || currentUser.email || 'Admin',
@@ -394,6 +435,7 @@ export class UserFormComponent implements OnInit {
   get role() { return this.userForm.get('role'); }
   get department() { return this.userForm.get('department'); }
   get phone() { return this.userForm.get('phone'); }
+  get clientId() { return this.userForm.get('clientId'); }
   get password() { return this.userForm.get('password'); }
   get confirmPassword() { return this.userForm.get('confirmPassword'); }
 

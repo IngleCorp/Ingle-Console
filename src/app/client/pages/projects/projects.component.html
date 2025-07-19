@@ -1,0 +1,145 @@
+<div class="projects-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your projects...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <mat-icon class="error-icon">error</mat-icon>
+    <h2>Error Loading Projects</h2>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadUserAndProjects()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-info">
+          <h1 class="page-title">My Projects</h1>
+          <p class="page-subtitle">Track and manage your project portfolio</p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-number">{{ totalProjects }}</span>
+            <span class="stat-label">Total Projects</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search Projects</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Search by name or description">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+            <mat-option value="">All Status</mat-option>
+            <mat-option value="planning">Planning</mat-option>
+            <mat-option value="in-progress">In Progress</mat-option>
+            <mat-option value="completed">Completed</mat-option>
+            <mat-option value="on-hold">On Hold</mat-option>
+            <mat-option value="cancelled">Cancelled</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Priority</mat-label>
+          <mat-select [(ngModel)]="priorityFilter" (selectionChange)="onPriorityFilterChange()">
+            <mat-option value="">All Priorities</mat-option>
+            <mat-option value="low">Low</mat-option>
+            <mat-option value="medium">Medium</mat-option>
+            <mat-option value="high">High</mat-option>
+            <mat-option value="urgent">Urgent</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="projects-grid" *ngIf="projects.length > 0">
+      <div class="project-card" *ngFor="let project of projects" [routerLink]="['/client/projects', project.id]">
+        <div class="project-header">
+          <div class="project-title">
+            <h3>{{ project.name }}</h3>
+            <p class="project-description">{{ project.description || 'No description available' }}</p>
+          </div>
+          <div class="project-status">
+            <div class="status-badge" [style.background-color]="getStatusColor(project.status)">
+              {{ project.status | titlecase }}
+            </div>
+          </div>
+        </div>
+
+        <div class="project-details">
+          <div class="detail-row">
+            <div class="detail-item">
+              <mat-icon>schedule</mat-icon>
+              <span>Start: {{ formatDate(project.startDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <mat-icon>event</mat-icon>
+              <span>End: {{ formatDate(project.endDate) }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <mat-icon [style.color]="getPriorityColor(project.priority)">{{ getPriorityIcon(project.priority) }}</mat-icon>
+              <span [style.color]="getPriorityColor(project.priority)">{{ project.priority | titlecase }} Priority</span>
+            </div>
+            <div class="detail-item" *ngIf="project.budget">
+              <mat-icon>attach_money</mat-icon>
+              <span>Budget: ${{ project.budget | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-progress">
+          <div class="progress-header">
+            <span>Progress</span>
+            <span>{{ project.progress }}%</span>
+          </div>
+          <mat-progress-bar 
+            [value]="project.progress" 
+            [color]="project.progress >= 100 ? 'accent' : 'primary'"
+            class="progress-bar">
+          </mat-progress-bar>
+        </div>
+
+        <div class="project-footer">
+          <div class="project-meta">
+            <span class="created-date">Created: {{ formatDate(project.createdAt) }}</span>
+          </div>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Projects Message -->
+    <div class="no-projects" *ngIf="projects.length === 0 && !isLoading">
+      <div class="no-projects-content">
+        <mat-icon class="no-projects-icon">assignment</mat-icon>
+        <h3>No Projects Found</h3>
+        <p>You don't have any projects assigned yet. Projects will appear here once they are created and assigned to your client account.</p>
+      </div>
+    </div>
+  </div>
+</div> 

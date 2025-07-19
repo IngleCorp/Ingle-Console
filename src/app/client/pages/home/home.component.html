@@ -1,0 +1,148 @@
+<div class="client-dashboard-home">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your dashboard...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <mat-icon class="error-icon">error</mat-icon>
+    <h2>Error Loading Dashboard</h2>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadUserAndClientData()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading && !error && clientData">
+    <!-- Client Information Section -->
+    <div class="client-info-section">
+      <div class="client-info-card">
+        <div class="client-avatar">
+          <mat-icon>business</mat-icon>
+        </div>
+        <div class="client-details">
+          <h1 class="client-name">{{ clientData.name || clientData.companyName || 'Client Portal' }}</h1>
+          <p class="client-subtitle">{{ currentUser?.name }} - {{ currentUser?.email }}</p>
+          <div class="client-meta" *ngIf="clientData.industry || clientData.website">
+            <span class="client-industry" *ngIf="clientData.industry">
+              <mat-icon>business</mat-icon>
+              {{ clientData.industry }}
+            </span>
+            <span class="client-website" *ngIf="clientData.website">
+              <mat-icon>language</mat-icon>
+              <a [href]="clientData.website" target="_blank">{{ clientData.website }}</a>
+            </span>
+          </div>
+        </div>
+        <div class="client-status" *ngIf="clientData.status">
+          <div class="status-badge" [class]="clientData.status">
+            {{ clientData.status | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h2 class="welcome-title">Welcome to Your Client Portal</h2>
+        <p class="welcome-subtitle">Manage your projects, tickets, and communications in one place</p>
+      </div>
+      <div class="welcome-illustration">
+        <mat-icon class="welcome-icon">dashboard</mat-icon>
+      </div>
+    </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card tickets">
+        <div class="stat-icon">
+          <mat-icon>confirmation_number</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.activeTickets }}</div>
+          <div class="stat-label">Active Tickets</div>
+        </div>
+      </div>
+
+      <div class="stat-card projects">
+        <div class="stat-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.totalProjects }}</div>
+          <div class="stat-label">Total Projects</div>
+        </div>
+      </div>
+
+      <div class="stat-card documents">
+        <div class="stat-icon">
+          <mat-icon>folder</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.pendingDocuments }}</div>
+          <div class="stat-label">Pending Documents</div>
+        </div>
+      </div>
+
+      <div class="stat-card messages">
+        <div class="stat-icon">
+          <mat-icon>message</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.unreadMessages }}</div>
+          <div class="stat-label">Unread Messages</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-content">
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="quick-actions-grid">
+        <div 
+          class="quick-action-card" 
+          *ngFor="let action of quickActions"
+          [routerLink]="action.route"
+          [style.--action-color]="action.color">
+          <div class="action-icon" [style.background-color]="action.color">
+            <mat-icon>{{ action.icon }}</mat-icon>
+          </div>
+          <div class="action-content">
+            <h3 class="action-title">{{ action.title }}</h3>
+            <p class="action-description">{{ action.description }}</p>
+          </div>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="recent-activities-section">
+      <h2 class="section-title">Recent Activities</h2>
+      <div class="activities-list">
+        <div 
+          class="activity-item" 
+          *ngFor="let activity of recentActivities"
+          [ngClass]="activity.type">
+          <div class="activity-icon">
+            <mat-icon>{{ activity.icon }}</mat-icon>
+          </div>
+          <div class="activity-content">
+            <h4 class="activity-title">{{ activity.title }}</h4>
+            <p class="activity-description">{{ activity.description }}</p>
+            <span class="activity-time">{{ activity.time }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

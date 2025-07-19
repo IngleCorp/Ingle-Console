@@ -1,0 +1,314 @@
+<!-- Modern Client Navigation Component -->
+<div class="modern-nav-container">
+  <!-- Modern Toolbar -->
+  <mat-toolbar class="modern-toolbar">
+    <div class="toolbar-content">
+      <div class="toolbar-left">
+        <button mat-icon-button class="menu-toggle-btn" (click)="toggleMenu()" aria-label="Toggle menu">
+          <mat-icon class="menu-icon">menu</mat-icon>
+        </button>
+        
+        <div class="brand-section">
+          <div class="brand-logo" (click)="navigateToHome()">
+            <img src="/ingle_logo.png" alt="Ingle Logo" class="logo-image">
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <div class="toolbar-actions">
+          <!-- Enhanced Search Bar -->
+          <div class="search-container">
+            <div class="search-wrapper">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input 
+                type="text" 
+                placeholder="Search tickets, projects, documents..." 
+                class="search-input"
+                [(ngModel)]="searchQuery"
+                (input)="onSearchInput()"
+                (focus)="onSearchFocus()"
+                (blur)="onSearchBlur()">
+              <button 
+                mat-icon-button 
+                class="search-clear-btn" 
+                *ngIf="searchQuery"
+                (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <!-- Search Results Dropdown -->
+            <div class="search-results" *ngIf="showSearchResults && searchResults.length > 0">
+              <div class="search-results-header">
+                <span class="results-title">Search Results</span>
+                <span class="results-count">{{searchResults.length}} found</span>
+              </div>
+              <div class="search-results-list">
+                <div 
+                  class="search-result-item" 
+                  *ngFor="let result of searchResults; trackBy: trackSearchResult"
+                  (click)="selectSearchResult(result)">
+                  <div class="result-icon-wrapper" [ngClass]="result.type">
+                    <mat-icon class="result-icon">{{result.icon}}</mat-icon>
+                  </div>
+                  <div class="result-content">
+                    <div class="result-title">{{result.title}}</div>
+                    <div class="result-subtitle">{{result.subtitle}}</div>
+                  </div>
+                  <div class="result-type-badge">{{result.type}}</div>
+                </div>
+              </div>
+              <div class="search-results-footer">
+                <button mat-button class="view-all-results-btn" (click)="viewAllSearchResults()">
+                  View all results
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification trigger -->
+          <button mat-icon-button class="notification-btn" [matMenuTriggerFor]="notificationMenu" aria-label="Notifications">
+            <div class="notification-btn-content">
+              <mat-icon class="notification-icon">notifications</mat-icon>
+              <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+              <div class="notification-ripple" *ngIf="hasNewNotifications"></div>
+            </div>
+          </button>
+
+          <!-- Notification menu -->
+          <mat-menu
+            #notificationMenu="matMenu"
+            class="modern-notification-menu notification-panel"
+            [overlapTrigger]="false"
+            [hasBackdrop]="true">
+            
+            <!-- Header -->
+            <div class="panel-header">
+              <h3><mat-icon>notifications</mat-icon> Notifications</h3>
+              <button mat-icon-button (click)="markAllAsRead()" matTooltip="Mark all read">
+                <mat-icon>done_all</mat-icon>
+              </button>
+            </div>
+            <mat-divider></mat-divider>
+
+            <!-- Content -->
+            <div class="panel-content">
+              <div class="notification-list">
+                <div
+                  class="notification-item"
+                  *ngFor="let notification of notifications; trackBy: trackNotification"
+                  [class.unread]="!notification.read">
+                  
+                  <div class="notification-icon-wrapper" [ngClass]="notification.type">
+                    <mat-icon class="notification-item-icon">{{ notification.icon }}</mat-icon>
+                  </div>
+                  <div class="notification-content">
+                    <p class="notification-text">{{ notification.message }}</p>
+                    <span class="notification-time">{{ notification.time }}</span>
+                  </div>
+                  <div class="notification-actions">
+                    <button
+                      mat-icon-button
+                      (click)="markAsRead(notification.id)"
+                      [class.read]="notification.read"
+                      matTooltip="Mark as read">
+                      <mat-icon>{{ notification.read ? 'done' : 'radio_button_unchecked' }}</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      (click)="dismissNotification(notification.id)"
+                      matTooltip="Dismiss">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" *ngIf="notifications.length === 0">
+                  <div class="empty-icon"><mat-icon>notifications_off</mat-icon></div>
+                  <p class="empty-text">No notifications</p>
+                  <span class="empty-subtext">You're all caught up!</span>
+                </div>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+
+            <!-- Footer -->
+            <div class="panel-footer" *ngIf="notifications.length > 0">
+              <span class="footer-text">{{ unreadCount }} unread</span>
+              <button mat-button class="view-all-btn" (click)="viewAllNotifications()">View all</button>
+            </div>
+          </mat-menu>
+
+          <!-- Profile trigger -->
+          <button mat-icon-button class="profile-btn" [matMenuTriggerFor]="profileMenu" aria-label="User profile">
+            <div class="profile-avatar">
+              <img *ngIf="userProfile?.avatar; else defaultAvatar" [src]="userProfile.avatar" class="profile-image">
+              <ng-template #defaultAvatar>
+                <mat-icon class="profile-icon">account_circle</mat-icon>
+              </ng-template>
+              <div class="online-indicator" *ngIf="userProfile?.isOnline"></div>
+            </div>
+          </button>
+
+          <!-- Profile menu -->
+          <mat-menu
+            #profileMenu="matMenu"
+            class="modern-profile-menu profile-panel"
+            [overlapTrigger]="false"
+            [hasBackdrop]="true">
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+              <div class="profile-avatar-large">
+                <img *ngIf="userProfile?.avatar; else defaultAvatarLarge" [src]="userProfile.avatar" class="profile-image-large" />
+                <ng-template #defaultAvatarLarge>
+                  <mat-icon class="profile-icon-large">account_circle</mat-icon>
+                </ng-template>
+                <div class="online-indicator-large" *ngIf="userProfile?.isOnline"></div>
+              </div>
+              <div class="profile-details">
+                <h4 class="profile-name">{{ userProfile.name || 'Client User' }}</h4>
+                <span class="profile-role">{{ userProfile.role || 'Client' }}</span>
+                <br>
+                <span class="profile-email">{{ userProfile.email || 'client@example.com' }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Profile Menu Actions -->
+            <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
+              <mat-icon>person</mat-icon>
+              <span>My Profile</span>
+            </button>
+
+            <button mat-menu-item class="profile-menu-item" (click)="openSettings()">
+              <mat-icon>settings</mat-icon>
+              <span>Settings</span>
+            </button>
+
+            <mat-divider></mat-divider>
+
+            <button mat-menu-item class="profile-menu-item logout-item" (click)="handleSignOut()">
+              <mat-icon class="logout-icon">logout</mat-icon>
+              <span>Sign Out</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Modern Sidenav Container -->
+  <mat-sidenav-container class="modern-sidenav-container" autosize="true">
+    <!-- Modern Sidenav -->
+    <mat-sidenav #sidenav
+               [mode]="isMobile ? 'over' : 'side'"
+               [opened]="isMobile ? false : true"
+               class="modern-sidenav"
+               [style.width.px]="isCollapsed ? collapsedWidth : expandedWidth">
+        
+      <!-- Navigation Menu -->
+      <div class="navigation-menu">
+        <mat-nav-list class="nav-list">
+          
+          <!-- Dashboard -->
+          <a mat-list-item routerLink="/client/home" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">dashboard</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Dashboard</span>
+            </div>
+          </a>
+
+          <!-- Tickets -->
+          <a mat-list-item routerLink="tickets" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">confirmation_number</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Support Tickets</span>
+            </div>
+          </a>
+
+          <!-- Projects -->
+          <a mat-list-item routerLink="projects" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">assignment</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">My Projects</span>
+            </div>
+          </a>
+
+          <!-- Documents -->
+          <a mat-list-item routerLink="documents" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">folder</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Documents</span>
+            </div>
+          </a>
+
+          <!-- Messages -->
+          <a mat-list-item routerLink="messages" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">message</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Messages</span>
+            </div>
+          </a>
+
+          <!-- Profile -->
+          <a mat-list-item routerLink="profile" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">person</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Profile</span>
+            </div>
+          </a>
+
+          <!-- Settings -->
+          <a mat-list-item routerLink="settings" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">settings</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Settings</span>
+            </div>
+          </a>
+        </mat-nav-list>
+      </div>
+
+      <!-- Sidenav Footer -->
+      <div class="sidenav-footer" *ngIf="!isCollapsed">
+        <div class="footer-content">
+          <div class="system-status">
+            <div class="status-indicator online"></div>
+            <span class="status-text">Client Portal</span>
+          </div>
+          <div class="version-info">
+            <span class="version-text">v2.1.0</span>
+          </div>
+        </div>
+      </div>
+    </mat-sidenav>
+
+    <!-- Main Content Area -->
+    <mat-sidenav-content
+      class="modern-sidenav-content"
+      [style.margin-left.px]="
+        isMobile ? 0 : (isCollapsed ? collapsedWidth : expandedWidth)
+      ">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div> 

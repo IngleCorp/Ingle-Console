@@ -87,6 +87,23 @@
             <mat-error *ngIf="department?.hasError('required')">Department is required</mat-error>
           </mat-form-field>
         </div>
+
+        <!-- Client Assignment (shown for all roles, required for client role) -->
+        <div class="form-row" *ngIf="clients.length > 0">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Assign to Client</mat-label>
+            <mat-select formControlName="clientId" placeholder="Select client (optional)">
+              <mat-option value="">No client assignment</mat-option>
+              <mat-option *ngFor="let client of clients" [value]="client.id">
+                {{ client.name || client.companyName || client.id }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>business</mat-icon>
+            <mat-error *ngIf="clientId?.hasError('required')">Client assignment is required for client role</mat-error>
+            <mat-hint *ngIf="role?.value === 'client'">Client assignment is required for client users</mat-hint>
+            <mat-hint *ngIf="role?.value !== 'client'">Optional: Link this user to a specific client</mat-hint>
+          </mat-form-field>
+        </div>
       </div>
 
       <!-- Role & Permissions Section -->

@@ -1,0 +1,139 @@
+<div class="tickets-container">
+  <!-- Header Section -->
+  <div class="tickets-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Support Tickets</h1>
+        <p class="page-subtitle">Manage and track your support requests</p>
+      </div>
+      <div class="header-right">
+        <button mat-raised-button color="primary" class="create-ticket-btn" (click)="createNewTicket()">
+          <mat-icon>add</mat-icon>
+          Create New Ticket
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-content">
+      <div class="search-filter">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search tickets</mat-label>
+          <input matInput [(ngModel)]="searchQuery" placeholder="Search by title, description, or ID" (input)="applyFilters()">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-controls">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Priority</mat-label>
+          <mat-select [(ngModel)]="priorityFilter" (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let option of priorityOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button class="clear-filters-btn" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets Table -->
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" matSort class="tickets-table">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Ticket ID </th>
+        <td mat-cell *matCellDef="let ticket"> {{ ticket.id }} </td>
+      </ng-container>
+
+      <!-- Title Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
+        <td mat-cell *matCellDef="let ticket">
+          <div class="ticket-title">
+            <div class="title-text">{{ ticket.title }}</div>
+            <div class="title-description">{{ ticket.description }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+        <td mat-cell *matCellDef="let ticket">
+          <span class="status-badge" [style.background-color]="getStatusColor(ticket.status)">
+            {{ getStatusLabel(ticket.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Priority Column -->
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Priority </th>
+        <td mat-cell *matCellDef="let ticket">
+          <span class="priority-badge" [style.background-color]="getPriorityColor(ticket.priority)">
+            {{ getPriorityLabel(ticket.priority) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Created Date Column -->
+      <ng-container matColumnDef="created">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Created </th>
+        <td mat-cell *matCellDef="let ticket"> {{ ticket.created | date:'shortDate' }} </td>
+      </ng-container>
+
+      <!-- Updated Date Column -->
+      <ng-container matColumnDef="updated">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Updated </th>
+        <td mat-cell *matCellDef="let ticket"> {{ ticket.updated | date:'shortDate' }} </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let ticket">
+          <div class="action-buttons">
+            <button mat-icon-button class="view-btn" (click)="viewTicket(ticket)" matTooltip="View Ticket">
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="ticket-row"></tr>
+    </table>
+
+    <!-- Pagination -->
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="dataSource.data.length === 0">
+      <div class="empty-icon">
+        <mat-icon>confirmation_number</mat-icon>
+      </div>
+      <h3 class="empty-title">No tickets found</h3>
+      <p class="empty-description">Try adjusting your filters or create a new ticket</p>
+      <button mat-raised-button color="primary" (click)="createNewTicket()">
+        Create New Ticket
+      </button>
+    </div>
+  </div>
+</div> 

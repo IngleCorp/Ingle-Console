@@ -51,6 +51,8 @@ export class LoginRedirectGuard implements CanActivate {
     
     if (role === 'admin') {
       this.router.navigate(['/admin']);
+    } else if (role === 'client') {
+      this.router.navigate(['/client']);
     } else if (role === 'staff') {
       this.router.navigate(['/user']);
     } else {

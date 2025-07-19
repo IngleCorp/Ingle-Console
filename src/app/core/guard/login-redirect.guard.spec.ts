@@ -52,6 +52,17 @@ describe('LoginRedirectGuard', () => {
     });
   });
 
+  it('should redirect client user to client route', (done) => {
+    const mockUser = { role: 'client', name: 'Client User' };
+    (mockAuthService as any).user$ = of(mockUser);
+    
+    guard.canActivate().subscribe(result => {
+      expect(result).toBe(false);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/client']);
+      done();
+    });
+  });
+
   it('should redirect staff user to user route', (done) => {
     const mockUser = { role: 'staff', name: 'Staff User' };
     (mockAuthService as any).user$ = of(mockUser);

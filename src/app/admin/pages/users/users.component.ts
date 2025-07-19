@@ -36,10 +36,12 @@ export class UsersComponent implements AfterViewInit {
     private snackBar: MatSnackBar
   ) {
     this.getUsers();
+    this.loadClients();
   }
 
-  displayedColumns: string[] = ['name', 'email', 'role', 'department', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'role', 'department', 'client', 'status', 'actions'];
   dataSource = new MatTableDataSource<User>([]);
+  clientsMap: { [key: string]: any } = {}; // Map to store client information
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -155,6 +157,26 @@ export class UsersComponent implements AfterViewInit {
       createdAt: user.createdAt || null,
       updatedAt: user.updatedAt || null
     };
+  }
+
+  async loadClients(): Promise<void> {
+    try {
+      const clientsSnapshot = await this.firestore.collection('clients').get().toPromise();
+      this.clientsMap = {};
+      clientsSnapshot?.docs.forEach(doc => {
+        const clientData = doc.data() as any;
+        this.clientsMap[doc.id] = {
+          id: doc.id,
+          name: clientData.name || clientData.companyName || doc.id
+        };
+      });
+    } catch (error) {
+      console.error('Error loading clients:', error);
+    }
+  }
+
+  getClientName(clientId: string): string {
+    return this.clientsMap[clientId]?.name || 'Unknown Client';
   }
 
   getUsers() {
