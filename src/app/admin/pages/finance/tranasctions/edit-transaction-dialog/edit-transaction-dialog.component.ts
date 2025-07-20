@@ -7,6 +7,8 @@ import { map, startWith } from 'rxjs/operators';
 import { GeneralService } from '../../../../../core/services/general.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Transaction } from '../tranasctions.component';
+import { MatDialog } from '@angular/material/dialog';
+import { TypesformDialogComponent } from '../../../types/typesform/typesform-dialog.component';
 
 export interface User {
   name: string;
@@ -68,7 +70,8 @@ export class EditTransactionDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<EditTransactionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Transaction,
     private afs: AngularFirestore,
-    private service: GeneralService
+    private service: GeneralService,
+    private dialog: MatDialog
   ) {
     this.editForm = this.fb.group({
       amount: ['', [Validators.required, Validators.min(0)]],
@@ -369,5 +372,51 @@ export class EditTransactionDialogComponent implements OnInit {
         this.amount = selectedLoan.amount;
       }
     }
+  }
+
+  // Method to open dialog for creating new expense type
+  openNewExpenseTypeDialog(): void {
+    const dialogRef = this.dialog.open(TypesformDialogComponent, {
+      width: '600px',
+      maxHeight: '90vh',
+      data: { category: 'EXPENSE' },
+      disableClose: true,
+      panelClass: 'types-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        this.service.openSnackBar('New expense type created successfully!', 'Close');
+        // Refresh the expense types list
+        this.getTypes();
+        // Update form with new type if it matches the current selection
+        if (result.type && result.type.name) {
+          this.expenseof = result.type.name;
+        }
+      }
+    });
+  }
+
+  // Method to open dialog for creating new income type
+  openNewIncomeTypeDialog(): void {
+    const dialogRef = this.dialog.open(TypesformDialogComponent, {
+      width: '600px',
+      maxHeight: '90vh',
+      data: { category: 'INCOME' },
+      disableClose: true,
+      panelClass: 'types-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        this.service.openSnackBar('New income type created successfully!', 'Close');
+        // Refresh the income types list
+        this.getTypes();
+        // Update form with new type if it matches the current selection
+        if (result.type && result.type.name) {
+          this.incomeof = result.type.name;
+        }
+      }
+    });
   }
 } 
