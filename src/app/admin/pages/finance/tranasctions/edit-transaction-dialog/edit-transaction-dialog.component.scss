@@ -1,0 +1,1005 @@
+.edit-transaction-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 90vh;
+ 
+  max-width: 1200px;
+  min-width: 320px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+
+  // Loading Overlay
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: 8px;
+
+    .loading-text {
+      margin-top: 1rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+  }
+
+  // Dialog Header
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background: white;
+    border-radius: 8px 8px 0 0;
+    flex-shrink: 0;
+
+    h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+
+      .header-icon {
+        font-size: 1.5rem;
+        color: #007bff;
+      }
+    }
+
+    .close-btn {
+      color: #6c757d;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #dc3545;
+      }
+    }
+  }
+
+  // Dialog Content
+  .dialog-content {
+    flex: 1;
+    padding: 0;
+    overflow-y: auto;
+    background: #f8f9fa;
+    width: 100%;
+
+    // Date Section
+    .date-section {
+      padding: 1.5rem 2rem 1rem;
+      width: 100%;
+
+      .date-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+
+        .date-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+          width: 100%;
+
+          .date-title {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .date-toggle-btn {
+            color: #6c757d;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: #007bff;
+            }
+          }
+        }
+
+        .current-date {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+          color: #495057;
+          font-weight: 500;
+          width: 100%;
+
+          &:hover {
+            background: #e9ecef;
+          }
+
+          mat-icon {
+            color: #007bff;
+          }
+        }
+
+        .date-picker-section {
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid #e9ecef;
+          width: 100%;
+
+          .date-field {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    // Form Section
+    .form-section {
+      padding: 0 2rem 1rem;
+      width: 100%;
+
+      .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+
+        .form-step {
+          margin-bottom: 2rem;
+          width: 100%;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+
+            .step-number {
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: #007bff;
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+              font-size: 0.9rem;
+              flex-shrink: 0;
+            }
+
+            .step-title {
+              font-size: 1.1rem;
+              font-weight: 600;
+              color: #2c3e50;
+            }
+
+            .optional-badge {
+              background: #6c757d;
+              color: white;
+              padding: 0.25rem 0.75rem;
+              border-radius: 12px;
+              font-size: 0.75rem;
+              font-weight: 500;
+            }
+          }
+
+          // Action Buttons
+          .action-buttons {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+
+            .action-btn {
+              flex: 1;
+              padding: 1rem;
+              border-radius: 12px;
+              font-weight: 500;
+              transition: all 0.2s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+
+              &.expense-btn {
+                background: #f8f9fa;
+                color: #6c757d;
+                border: 2px solid #e9ecef;
+
+                &.active {
+                  background: #dc3545;
+                  color: white;
+                  border-color: #dc3545;
+                }
+
+                &:hover:not(.active) {
+                  background: #e9ecef;
+                  border-color: #dc3545;
+                  color: #dc3545;
+                }
+              }
+
+              &.income-btn {
+                background: #f8f9fa;
+                color: #6c757d;
+                border: 2px solid #e9ecef;
+
+                &.active {
+                  background: #28a745;
+                  color: white;
+                  border-color: #28a745;
+                }
+
+                &:hover:not(.active) {
+                  background: #e9ecef;
+                  border-color: #28a745;
+                  color: #28a745;
+                }
+              }
+            }
+          }
+
+          // Category Grid
+          .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            width: 100%;
+
+            .category-btn {
+              padding: 1rem;
+              border-radius: 12px;
+              font-weight: 500;
+              transition: all 0.2s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+              background: #f8f9fa;
+              color: #6c757d;
+              border: 2px solid #e9ecef;
+
+              &.active {
+                background: #007bff;
+                color: white;
+                border-color: #007bff;
+              }
+
+              &:hover:not(.active) {
+                background: #e9ecef;
+                border-color: #007bff;
+                color: #007bff;
+              }
+
+              &.expense-category.active {
+                background: #dc3545;
+                border-color: #dc3545;
+              }
+
+              &.income-category.active {
+                background: #28a745;
+                border-color: #28a745;
+              }
+            }
+          }
+
+          // Subcategory Grid
+          .subcategory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            width: 100%;
+
+            .subcategory-btn {
+              padding: 0.75rem;
+              border-radius: 8px;
+              font-weight: 500;
+              transition: all 0.2s ease;
+              background: #f8f9fa;
+              color: #6c757d;
+              border: 2px solid #e9ecef;
+
+              &.active {
+                background: #007bff;
+                color: white;
+                border-color: #007bff;
+              }
+
+              &:hover:not(.active) {
+                background: #e9ecef;
+                border-color: #007bff;
+                color: #007bff;
+              }
+
+              &.income-sub.active {
+                background: #28a745;
+                border-color: #28a745;
+              }
+            }
+          }
+
+          // Lending Section
+          .lending-section {
+            width: 100%;
+
+            .return-info {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              padding: 1rem;
+              background: #e3f2fd;
+              border-radius: 8px;
+              margin-bottom: 1rem;
+              color: #1976d2;
+              font-size: 0.9rem;
+              width: 100%;
+
+              mat-icon {
+                font-size: 1.2rem;
+              }
+            }
+
+            .outstanding-summary {
+              background: #f8f9fa;
+              border-radius: 8px;
+              padding: 1rem;
+              margin-bottom: 1rem;
+              width: 100%;
+
+              .summary-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+                width: 100%;
+
+                &:last-child {
+                  margin-bottom: 0;
+                }
+
+                .summary-label {
+                  font-weight: 500;
+                  color: #6c757d;
+                }
+
+                .summary-value {
+                  font-weight: 600;
+
+                  &.outstanding {
+                    color: #dc3545;
+                  }
+                }
+              }
+            }
+
+            .no-loans-message {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              padding: 1rem;
+              background: #fff3cd;
+              border-radius: 8px;
+              color: #856404;
+              font-size: 0.9rem;
+              width: 100%;
+
+              mat-icon {
+                font-size: 1.2rem;
+              }
+            }
+
+            .full-width {
+              width: 100% !important;
+            }
+
+            .autocomplete-option {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              width: 100%;
+
+              mat-icon {
+                font-size: 1.2rem;
+                color: #6c757d;
+              }
+            }
+
+            .loan-option {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              width: 100%;
+
+              .loan-details {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+
+                .loan-date {
+                  font-size: 0.8rem;
+                  color: #6c757d;
+                }
+
+                .loan-person {
+                  font-weight: 500;
+                }
+              }
+
+              .loan-amount {
+                font-weight: 600;
+                color: #dc3545;
+              }
+            }
+          }
+
+          // Form Fields
+          ::ng-deep .mat-form-field {
+            width: 100% !important;
+            max-width: 100%;
+
+            .mat-form-field-wrapper {
+              margin-bottom: 0;
+              width: 100%;
+            }
+
+            .mat-form-field-outline {
+              border-radius: 8px;
+              width: 100%;
+            }
+
+            .mat-form-field-outline-thick {
+              color: #007bff;
+            }
+
+            .mat-form-field-label {
+              color: #6c757d;
+            }
+
+            .mat-form-field-label.mat-focused {
+              color: #007bff;
+            }
+
+            .mat-select-value {
+              color: #2c3e50;
+            }
+
+            .mat-select-arrow {
+              color: #6c757d;
+            }
+
+            input, textarea {
+              color: #2c3e50;
+              font-size: 1rem;
+              width: 100%;
+
+              &::placeholder {
+                color: #adb5bd;
+              }
+            }
+
+            textarea {
+              resize: vertical;
+              min-height: 80px;
+              width: 100%;
+            }
+
+            .mat-form-field-infix {
+              width: 100%;
+            }
+
+            .mat-form-field-outline-gap {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    // Amount Section
+    .amount-section {
+      padding: 0 2rem 1rem;
+      width: 100%;
+
+      .amount-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+
+        .amount-header {
+          margin-bottom: 1.5rem;
+          width: 100%;
+
+          .amount-title {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+
+        .amount-input-section {
+          margin-bottom: 1.5rem;
+          width: 100%;
+
+          .amount-field {
+            width: 100% !important;
+          }
+        }
+
+        // Transaction Preview
+        .transaction-preview {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 1.5rem;
+          width: 100%;
+
+          .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+
+            mat-icon {
+              color: #007bff;
+            }
+          }
+
+          .preview-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+
+            .preview-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0;
+              border-bottom: 1px solid #e9ecef;
+              width: 100%;
+
+              &:last-child {
+                border-bottom: none;
+              }
+
+              .preview-label {
+                font-weight: 500;
+                color: #6c757d;
+              }
+
+              .preview-value {
+                font-weight: 600;
+                color: #2c3e50;
+
+                &.amount {
+                  font-size: 1.1rem;
+
+                  &.in {
+                    color: #28a745;
+                  }
+
+                  &.out {
+                    color: #dc3545;
+                  }
+                }
+
+                &.in {
+                  color: #28a745;
+                }
+
+                &.out {
+                  color: #dc3545;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Dialog Actions
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #e9ecef;
+    background: white;
+    border-radius: 0 0 8px 8px;
+    flex-shrink: 0;
+    width: 100%;
+
+    button {
+      min-width: 120px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+
+      &.submit-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #007bff;
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+
+        &:hover:not(:disabled) {
+          background: #0056b3;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        &:disabled {
+          background: #6c757d;
+          cursor: not-allowed;
+        }
+
+        mat-spinner {
+          ::ng-deep circle {
+            stroke: white;
+          }
+        }
+      }
+
+      &[mat-button] {
+        color: #6c757d;
+        border: 1px solid #ced4da;
+
+        &:hover:not(:disabled) {
+          background: #e9ecef;
+          color: #495057;
+        }
+
+        &:disabled {
+          color: #adb5bd;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design - Large Screens (1200px and above)
+@media (min-width: 1200px) {
+  .edit-transaction-dialog {
+
+    max-width: 1400px;
+  }
+}
+
+// Responsive Design - Medium Screens (768px to 1199px)
+@media (max-width: 1199px) and (min-width: 768px) {
+  .edit-transaction-dialog {
+   
+    max-width: 1000px;
+  }
+}
+
+// Responsive Design - Small Screens (480px to 767px)
+@media (max-width: 767px) and (min-width: 480px) {
+  .edit-transaction-dialog {
+   
+    max-width: 600px;
+    height: 95vh;
+    max-height: 95vh;
+
+    .dialog-header {
+      padding: 1rem 1.5rem 0.75rem;
+
+      h2 {
+        font-size: 1.25rem;
+
+        .header-icon {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .dialog-content {
+      .date-section,
+      .form-section,
+      .amount-section {
+        padding: 1rem 1.5rem 0.75rem;
+
+        .date-card,
+        .form-card,
+        .amount-card {
+          padding: 1.25rem;
+        }
+      }
+
+      .form-section .form-card .form-step {
+        .step-header {
+          gap: 0.75rem;
+
+          .step-number {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+          }
+
+          .step-title {
+            font-size: 1rem;
+          }
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .action-btn {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        .category-grid {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 0.75rem;
+
+          .category-btn {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        .subcategory-grid {
+          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+          gap: 0.5rem;
+
+          .subcategory-btn {
+            padding: 0.625rem;
+            font-size: 0.85rem;
+          }
+        }
+      }
+    }
+
+    .dialog-actions {
+      padding: 1rem 1.5rem;
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+        min-width: auto;
+        padding: 0.875rem;
+      }
+    }
+  }
+}
+
+// Responsive Design - Extra Small Screens (below 480px)
+@media (max-width: 479px) {
+  .edit-transaction-dialog {
+   
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+
+    .dialog-header {
+      padding: 1rem;
+      border-radius: 0;
+
+      h2 {
+        font-size: 1.1rem;
+
+        .header-icon {
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    .dialog-content {
+      .date-section,
+      .form-section,
+      .amount-section {
+        padding: 0.75rem 1rem 0.5rem;
+
+        .date-card,
+        .form-card,
+        .amount-card {
+          padding: 1rem;
+          border-radius: 8px;
+        }
+      }
+
+      .form-section .form-card .form-step {
+        margin-bottom: 1.5rem;
+
+        .step-header {
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+
+          .step-number {
+            width: 24px;
+            height: 24px;
+            font-size: 0.75rem;
+          }
+
+          .step-title {
+            font-size: 0.9rem;
+          }
+
+          .optional-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+          }
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          gap: 0.5rem;
+
+          .action-btn {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+          }
+        }
+
+        .category-grid {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+
+          .category-btn {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+          }
+        }
+
+        .subcategory-grid {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+
+          .subcategory-btn {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+          }
+        }
+
+        .lending-section {
+          .return-info,
+          .outstanding-summary,
+          .no-loans-message {
+            padding: 0.75rem;
+            font-size: 0.8rem;
+          }
+
+          .loan-option {
+            .loan-details {
+              .loan-date {
+                font-size: 0.7rem;
+              }
+
+              .loan-person {
+                font-size: 0.85rem;
+              }
+            }
+
+            .loan-amount {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
+
+      .amount-section .amount-card {
+        .amount-header .amount-title {
+          font-size: 1rem;
+        }
+
+        .transaction-preview {
+          padding: 1rem;
+
+          .preview-header {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+          }
+
+          .preview-details {
+            gap: 0.5rem;
+
+            .preview-item {
+              padding: 0.375rem 0;
+              font-size: 0.85rem;
+
+              .preview-value.amount {
+                font-size: 1rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .dialog-actions {
+      padding: 1rem;
+      border-radius: 0;
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+        min-width: auto;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Landscape orientation adjustments for mobile
+@media (max-height: 600px) and (orientation: landscape) {
+  .edit-transaction-dialog {
+    height: 100vh;
+    max-height: 100vh;
+
+    .dialog-content {
+      .date-section {
+        padding: 0.75rem 2rem 0.5rem;
+
+        .date-card {
+          padding: 1rem;
+        }
+      }
+
+      .form-section {
+        padding: 0 2rem 0.5rem;
+
+        .form-card {
+          padding: 1.5rem;
+
+          .form-step {
+            margin-bottom: 1.5rem;
+
+            .step-header {
+              margin-bottom: 1rem;
+            }
+          }
+        }
+      }
+
+      .amount-section {
+        padding: 0 2rem 0.5rem;
+
+        .amount-card {
+          padding: 1.5rem;
+        }
+      }
+    }
+  }
+} 

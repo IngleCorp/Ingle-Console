@@ -35,6 +35,7 @@ import { IncomeExpenseComponent } from './income-expense/income-expense.componen
 import { SalaryPayoutsComponent } from './salary-payouts/salary-payouts.component';
 import { EmployeeLendingComponent, ReturnLendingDialogComponent } from './employee-lending/employee-lending.component';
 import { FinanceHomeComponent } from './finance-home/finance-home.component';
+import { EditTransactionDialogComponent } from './tranasctions/edit-transaction-dialog/edit-transaction-dialog.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { FinanceHomeComponent } from './finance-home/finance-home.component';
     SalaryPayoutsComponent,
     EmployeeLendingComponent,
     ReturnLendingDialogComponent,
-    FinanceHomeComponent
+    FinanceHomeComponent,
+    EditTransactionDialogComponent
   ],
   imports: [
     CommonModule,

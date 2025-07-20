@@ -9,6 +9,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { EditTransactionDialogComponent } from './edit-transaction-dialog/edit-transaction-dialog.component';
 
 export interface Transaction {
   id?: string;
@@ -17,7 +18,7 @@ export interface Transaction {
   type: string;
   date: Date;
   notes?: string;
-  expenceof?: string;
+  expenseof?: string;
   incomeof?: string;
   loanTo?: string;
   loanFrom?: string;
@@ -25,6 +26,9 @@ export interface Transaction {
   createdAt: Date;
   createdBy?: string;
   createdByName?: string;
+  updatedAt?: Date;
+  updatedBy?: string;
+  updatedByName?: string;
   tid?: string;
   loanClear?: boolean;
   originalLendingId?: string;
@@ -69,6 +73,7 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+   
     this.loadTransactions();
   }
 
@@ -101,7 +106,7 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(transaction => 
         transaction.type?.toLowerCase().includes(searchTerm) ||
         transaction.notes?.toLowerCase().includes(searchTerm) ||
-        transaction.expenceof?.toLowerCase().includes(searchTerm) ||
+        transaction.expenseof?.toLowerCase().includes(searchTerm) ||
         transaction.incomeof?.toLowerCase().includes(searchTerm) ||
         transaction.loanTo?.toLowerCase().includes(searchTerm) ||
         transaction.loanFrom?.toLowerCase().includes(searchTerm) ||
@@ -201,6 +206,69 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
   getTransactionDate(transaction: Transaction): Date {
     return transaction.date && (transaction.date as any).toDate ? 
       (transaction.date as any).toDate() : new Date(transaction.date);
+  }
+
+  editTransaction(transaction: Transaction): void {
+    // Open edit dialog
+    const dialogRef = this.dialog.open(EditTransactionDialogComponent, {
+      width: '600px',
+      data: { ...transaction } // Pass a copy of the transaction
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.updateTransaction(transaction.id!, result);
+      }
+    });
+  }
+
+  private async updateTransaction(transactionId: string, updatedData: any): Promise<void> {
+    try {
+      this.isLoading = true;
+
+      // Get current user info
+      const currentUser = await this.auth.currentUser;
+      const currentUserId = currentUser?.uid || localStorage.getItem('userid') || '';
+      const currentUserName = localStorage.getItem('username') || 'Unknown User';
+
+      // Prepare update data
+      const updateData = {
+        ...updatedData,
+        updatedAt: new Date(),
+        updatedBy: currentUserId,
+        updatedByName: currentUserName
+      };
+
+      // Update the transaction
+      await this.firestore.collection('moneytransactions').doc(transactionId).update(updateData);
+
+      // Log activity
+      await this.firestore.collection('activities').add({
+        type: 'transaction',
+        action: 'Updated',
+        entityId: transactionId,
+        entityName: updatedData.tid || `${updatedData.type} Transaction`,
+        details: `Updated ${updatedData.type} transaction of ${this.formatCurrency(updatedData.amount)}`,
+        createdAt: new Date(),
+        createdBy: currentUserId,
+        createdByName: currentUserName,
+        icon: 'edit'
+      });
+
+      this.snackBar.open('Transaction updated successfully!', 'Close', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      this.snackBar.open('Error updating transaction. Please try again.', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   deleteTransaction(transaction: Transaction): void {
@@ -399,7 +467,7 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
     const data = this.filteredTransactions.map(transaction => [
       this.getTransactionDate(transaction).toLocaleDateString(),
       transaction.type || 'Transaction',
-      transaction.expenceof || transaction.incomeof || transaction.loanTo || transaction.loanFrom || '-',
+      transaction.expenseof || transaction.incomeof || transaction.loanTo || transaction.loanFrom || '-',
       this.formatCurrency(transaction.amount),
       transaction.action === 'IN' ? 'Income' : 'Expense',
       transaction.notes || '-'
@@ -443,13 +511,15 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
       'Time': this.getTransactionDate(transaction).toLocaleTimeString(),
       'Transaction ID': transaction.tid || 'N/A',
       'Type': transaction.type || 'Transaction',
-      'Category': transaction.expenceof || transaction.incomeof || '-',
+      'Category': transaction.expenseof || transaction.incomeof || '-',
       'Loan To': transaction.loanTo || '-',
       'Loan From': transaction.loanFrom || '-',
       'Amount': transaction.amount,
       'Action': transaction.action === 'IN' ? 'Income' : 'Expense',
       'Notes': transaction.notes || '-',
       'Created By': transaction.createdByName || '-',
+      'Updated By': transaction.updatedByName || '-',
+      'Last Updated': transaction.updatedAt ? new Date(transaction.updatedAt).toLocaleDateString() : '-',
       'Loan Cleared': transaction.loanClear ? 'Yes' : 'No'
     }));
     
@@ -495,6 +565,8 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
       { wch: 10 }, // Action
       { wch: maxWidth }, // Notes
       { wch: 15 }, // Created By
+      { wch: 15 }, // Updated By
+      { wch: 15 }, // Last Updated
       { wch: 12 }  // Loan Cleared
     ];
     ws1['!cols'] = wscols;

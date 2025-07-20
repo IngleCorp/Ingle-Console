@@ -11,7 +11,7 @@ export interface Transaction {
   type: string;
   date: Date | any;
   notes?: string;
-  expenceof?: string;
+  expenseof?: string;
   incomeof?: string;
   loanTo?: string;
   loanFrom?: string;
@@ -239,7 +239,7 @@ export class FinanceDashboardComponent implements OnInit, OnDestroy {
   }
 
   getTransactionCategory(transaction: Transaction): string {
-    return transaction.expenceof || transaction.incomeof || '';
+    return transaction.expenseof || transaction.incomeof || '';
   }
 
   // Method to determine responsive font size class based on amount

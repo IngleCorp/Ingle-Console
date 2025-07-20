@@ -163,8 +163,8 @@
               </div>
               
               <div class="transaction-secondary">
-                <div class="transaction-category" *ngIf="transaction.expenceof || transaction.incomeof">
-                  {{ transaction.expenceof || transaction.incomeof }}
+                <div class="transaction-category" *ngIf="transaction.expenseof || transaction.incomeof">
+                  {{ transaction.expenseof || transaction.incomeof }}
                 </div>
                 <div class="transaction-loan" *ngIf="transaction.loanTo || transaction.loanFrom">
                   {{ transaction.loanTo ? 'To: ' + transaction.loanTo : 'From: ' + transaction.loanFrom }}
@@ -199,6 +199,10 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #actionMenu="matMenu">
+                <button mat-menu-item (click)="editTransaction(transaction)">
+                  <mat-icon color="primary">edit</mat-icon>
+                  <span>Edit</span>
+                </button>
                 <button mat-menu-item (click)="deleteTransaction(transaction)">
                   <mat-icon color="warn">delete</mat-icon>
                   <span>Delete</span>

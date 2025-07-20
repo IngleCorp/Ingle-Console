@@ -149,7 +149,7 @@
             </div>
             <div class="meta-item" *ngIf="type.createdAt">
               <mat-icon>schedule</mat-icon>
-              <span>Created: {{ type.createdAt | date:'shortDate' }}</span>
+              <span>Created: {{ getDateFromTimestamp(type.createdAt) | date:'shortDate' }}</span>
             </div>
           </div>
         </div>

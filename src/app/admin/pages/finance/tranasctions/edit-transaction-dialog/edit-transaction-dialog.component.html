@@ -1,0 +1,380 @@
+<div class="edit-transaction-dialog">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Updating transaction...</p>
+  </div>
+
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="header-icon">edit</mat-icon>
+      Edit Transaction
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <!-- Date Section -->
+    <div class="date-section">
+      <div class="date-card">
+        <div class="date-header">
+          <h3 class="date-title">
+            <mat-icon>event</mat-icon>
+            Transaction Date
+          </h3>
+          <button mat-icon-button (click)="editDate = !editDate" class="date-toggle-btn" 
+                  matTooltip="Change date">
+            <mat-icon>{{ editDate ? 'expand_less' : 'calendar_today' }}</mat-icon>
+          </button>
+        </div>
+        
+        <div class="current-date" (click)="editDate = !editDate">
+          <mat-icon>event</mat-icon>
+          <span>{{ date | date:'fullDate' }}</span>
+        </div>
+
+        <!-- Date Picker Section -->
+        <div class="date-picker-section" *ngIf="editDate" [@slideDown]>
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Transaction Date</mat-label>
+            <input matInput [(ngModel)]="date" [matDatepicker]="picker1">
+            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+            <mat-datepicker #picker1></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Form -->
+    <div class="form-section">
+      <div class="form-card">
+        <!-- Step 1: Transaction Direction -->
+        <div class="form-step">
+          <div class="step-header">
+            <div class="step-number">1</div>
+            <div class="step-title">Transaction Type</div>
+          </div>
+          
+          <div class="action-buttons">
+            <button mat-raised-button 
+                    [class.active]="action === 'OUT'" 
+                    (click)="action='OUT'; type='EXPENSE'"
+                    class="action-btn expense-btn">
+              <mat-icon>remove_circle</mat-icon>
+              <span>Expense</span>
+            </button>
+            
+            <button mat-raised-button 
+                    [class.active]="action === 'IN'" 
+                    (click)="action='IN'; type='INCOME'"
+                    class="action-btn income-btn">
+              <mat-icon>add_circle</mat-icon>
+              <span>Income</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Category Selection -->
+        <div class="form-step" *ngIf="action">
+          <div class="step-header">
+            <div class="step-number">{{ getCategoryStepNumber() }}</div>
+            <div class="step-title">Category</div>
+          </div>
+          
+          <!-- Expense Categories -->
+          <div class="category-grid" *ngIf="action === 'OUT'">
+            <button mat-raised-button 
+                    *ngFor="let item of typeListOut" 
+                    [class.active]="type === item"
+                    (click)="type = item; expenseof = ''"
+                    class="category-btn expense-category">
+              <mat-icon>{{ getCategoryIcon(item) }}</mat-icon>
+              <span>{{ item }}</span>
+            </button>
+          </div>
+          
+          <!-- Income Categories -->
+          <div class="category-grid" *ngIf="action === 'IN'">
+            <button mat-raised-button 
+                    *ngFor="let item of typeListIn" 
+                    [class.active]="type === item"
+                    (click)="type = item"
+                    class="category-btn income-category">
+              <mat-icon>{{ getCategoryIcon(item) }}</mat-icon>
+              <span>{{ item }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Subcategory Selection -->
+        <div class="form-step" *ngIf="type === 'EXPENSE' && expensetypes?.length > 0">
+          <div class="step-header">
+            <div class="step-number">{{ getSubcategoryStepNumber() }}</div>
+            <div class="step-title">Expense Category</div>
+          </div>
+          
+          <div class="subcategory-grid">
+            <button mat-raised-button 
+                    *ngFor="let item of expensetypes" 
+                    [class.active]="expenseof === item?.name"
+                    (click)="expenseof = item?.name"
+                    class="subcategory-btn">
+              <span>{{ item?.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Income Subcategories -->
+        <div class="form-step" *ngIf="type === 'INCOME' && incometypes?.length > 0">
+          <div class="step-header">
+            <div class="step-number">{{ getSubcategoryStepNumber() }}</div>
+            <div class="step-title">Income Source</div>
+          </div>
+          
+          <div class="subcategory-grid">
+            <button mat-raised-button 
+                    *ngFor="let item of incometypes" 
+                    [class.active]="incomeof === item?.name"
+                    (click)="incomeof = item?.name"
+                    class="subcategory-btn income-sub">
+              <span>{{ item?.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lending/Loan Details -->
+        <div class="form-step" *ngIf="type === 'LENDING' || type === 'LOAN' || type === 'RETURN'">
+          <div class="step-header">
+            <div class="step-number">{{ getLendingStepNumber() }}</div>
+            <div class="step-title">{{ getLendingTitle() }}</div>
+          </div>
+          
+          <!-- Lending Person Selection -->
+          <div class="lending-section" *ngIf="type === 'LENDING'">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select lender</mat-label>
+              <input #autoInput 
+                     (input)="onChange()" 
+                     [(ngModel)]="lendedBy" 
+                     type="text" 
+                     placeholder="Enter or select a person" 
+                     matInput 
+                     [matAutocomplete]="auto">
+              <mat-icon matSuffix>person_add</mat-icon>
+              <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (selectedChange)="onSelectionChange($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                  <div class="autocomplete-option">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ option?.name }}</span>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <!-- Loan Person Selection -->
+          <div class="lending-section" *ngIf="type === 'LOAN'">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select person</mat-label>
+              <input #autoInput 
+                     (input)="onChange()" 
+                     [(ngModel)]="loanFrom" 
+                     type="text" 
+                     placeholder="Enter or select a person" 
+                     matInput 
+                     [matAutocomplete]="auto">
+              <mat-icon matSuffix>handshake</mat-icon>
+              <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (selectedChange)="onSelectionChange($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                  <div class="autocomplete-option">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ option?.name }}</span>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <!-- Return Loan Selection -->
+          <div class="lending-section" *ngIf="type === 'RETURN'">
+            <div class="return-info" *ngIf="type === 'RETURN'">
+              <mat-icon>info</mat-icon>
+              <span>Select the person who is returning money to you, then choose which loan to clear</span>
+            </div>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select person</mat-label>
+              <input #autoInput 
+                     (input)="onChange()" 
+                     [(ngModel)]="loanReturn" 
+                     type="text" 
+                     placeholder="Enter or select a person" 
+                     matInput 
+                     [matAutocomplete]="auto">
+              <mat-icon matSuffix>assignment_return</mat-icon>
+              <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onReturnPersonSelected($event)">
+                <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                  <div class="autocomplete-option">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ option?.name }}</span>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Outstanding Amount Display -->
+            <div class="outstanding-summary" *ngIf="lendedList && lendedList.length > 0">
+              <div class="summary-item">
+                <span class="summary-label">Total Outstanding:</span>
+                <span class="summary-value outstanding">{{ formatCurrency(getTotalOutstandingAmount()) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Number of Loans:</span>
+                <span class="summary-value">{{ lendedList.length }}</span>
+              </div>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width" *ngIf="lendedList && lendedList.length > 0">
+              <mat-label>Select loan to clear</mat-label>
+              <mat-select [(ngModel)]="loanToClear">
+                <mat-option *ngFor="let option of lendedList" [value]="option?.id">
+                  <div class="loan-option">
+                    <div class="loan-details">
+                      <span class="loan-date">{{ option?.createdAt.seconds*1000 | date:'shortDate' }}</span>
+                      <span class="loan-person">{{ option?.lendedBy }}</span>
+                    </div>
+                    <span class="loan-amount">{{ formatCurrency(option?.amount) }}</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>receipt</mat-icon>
+            </mat-form-field>
+
+            <!-- No loans message -->
+            <div class="no-loans-message" *ngIf="loanReturn && lendedList && lendedList.length === 0">
+              <mat-icon>info_outline</mat-icon>
+              <span>No outstanding loans found for {{ loanReturn?.name || loanReturn }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-step">
+          <div class="step-header">
+            <div class="step-number">{{ getNotesStepNumber() }}</div>
+            <div class="step-title">Additional Notes</div>
+            <span class="optional-badge">Optional</span>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Enter notes or description</mat-label>
+            <textarea matInput 
+                      [(ngModel)]="notes" 
+                      placeholder="Add any additional details about this transaction"
+                      rows="3"
+                      maxlength="500"></textarea>
+            <mat-icon matSuffix>note</mat-icon>
+            <mat-hint>{{ notes?.length || 0 }}/500 characters</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Amount and Submit Section -->
+    <div class="amount-section">
+      <div class="amount-card">
+        <div class="amount-header">
+          <h3 class="amount-title">
+            <mat-icon>payments</mat-icon>
+            Transaction Amount
+          </h3>
+        </div>
+        
+        <div class="amount-input-section">
+          <mat-form-field appearance="outline" class="amount-field">
+            <mat-label>Amount</mat-label>
+            <input matInput 
+                   [(ngModel)]="amount" 
+                   type="number" 
+                   placeholder="0.00"
+                   min="0"
+                   [max]="type === 'RETURN' && loanToClear ? getSelectedLoanAmount() : null"
+                   step="0.01"
+                   autocomplete="off">
+            
+            <mat-icon matSuffix>currency_rupee</mat-icon>
+            <mat-hint *ngIf="type === 'RETURN' && loanToClear">
+              Maximum returnable: {{ formatCurrency(getSelectedLoanAmount()) }}
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Transaction Preview -->
+        <div class="transaction-preview" *ngIf="amount && amount > 0">
+          <div class="preview-header">
+            <mat-icon>preview</mat-icon>
+            <span>Transaction Preview</span>
+          </div>
+          
+          <div class="preview-details">
+            <div class="preview-item">
+              <span class="preview-label">Type:</span>
+              <span class="preview-value" [ngClass]="action.toLowerCase()">
+                {{ action === 'IN' ? 'Income' : 'Expense' }}
+              </span>
+            </div>
+            
+            <div class="preview-item" *ngIf="type">
+              <span class="preview-label">Category:</span>
+              <span class="preview-value">{{ type }}</span>
+            </div>
+            
+            <div class="preview-item" *ngIf="expenseof || incomeof">
+              <span class="preview-label">Subcategory:</span>
+              <span class="preview-value">{{ expenseof || incomeof }}</span>
+            </div>
+            
+            <div class="preview-item" *ngIf="lendedBy || loanFrom || loanReturn">
+              <span class="preview-label">Person:</span>
+              <span class="preview-value">{{ lendedBy?.name || lendedBy || loanFrom?.name || loanFrom || loanReturn?.name || loanReturn }}</span>
+            </div>
+            
+            <div class="preview-item">
+              <span class="preview-label">Amount:</span>
+              <span class="preview-value amount" [ngClass]="action.toLowerCase()">
+                {{ action === 'IN' ? '+' : '-' }}{{ formatCurrency(amount) }}
+              </span>
+            </div>
+            
+            <div class="preview-item" *ngIf="notes">
+              <span class="preview-label">Notes:</span>
+              <span class="preview-value">{{ notes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="submit" 
+      (click)="onSubmit()" 
+      [disabled]="!amount || amount <= 0 || isLoading || (type === 'RETURN' && (!loanReturn || !loanToClear))"
+      class="submit-btn"
+    >
+      <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+      <span *ngIf="!isLoading">Update Transaction</span>
+    </button>
+  </mat-dialog-actions>
+</div> 
