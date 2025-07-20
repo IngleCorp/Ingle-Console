@@ -1,4 +1,146 @@
 <div class="ticket-form-container">
-  <h1>Create New Ticket</h1>
-  <p>Ticket form coming soon...</p>
+  <!-- Form Header -->
+  <div class="form-header">
+    <h2>
+      <mat-icon class="header-icon">add</mat-icon>
+      Create New Support Ticket
+    </h2>
+    <p class="form-subtitle">Please provide detailed information about your request or issue</p>
+  </div>
+
+  <!-- Form Content -->
+  <div class="form-content">
+    <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <!-- Ticket Type -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Ticket Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let type of ticketTypes" [value]="type.value">
+              <div class="option-content">
+                
+                <span>{{ type.title }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <div matSuffix class="selected-value-display" *ngIf="ticketForm.get('type')?.value">
+            <mat-icon>{{ getTypeIcon(ticketForm.get('type')?.value) }}</mat-icon>
+            <span>{{ getSelectedTypeDisplay() }}</span>
+          </div>
+          <mat-error *ngIf="ticketForm.get('type')?.hasError('required')">
+            Ticket type is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Priority -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option *ngFor="let priority of priorityLevels" [value]="priority.value">
+              <div class="option-content">
+              
+                <span>{{ priority.title }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <div matSuffix class="selected-value-display" *ngIf="ticketForm.get('priority')?.value">
+            <mat-icon [style.color]="getPriorityColor(ticketForm.get('priority')?.value)">{{ getPriorityIcon(ticketForm.get('priority')?.value) }}</mat-icon>
+            <span>{{ getSelectedPriorityDisplay() }}</span>
+          </div>
+          <mat-error *ngIf="ticketForm.get('priority')?.hasError('required')">
+            Priority is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Ticket Number -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Ticket Number</mat-label>
+          <input matInput formControlName="number" placeholder="e.g., CT-1234567890-123" readonly>
+          <mat-icon matSuffix>confirmation_number</mat-icon>
+          <mat-error *ngIf="ticketForm.get('number')?.hasError('required')">
+            Ticket number is required
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Category -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="general">General</mat-option>
+            <mat-option value="technical">Technical</mat-option>
+            <mat-option value="billing">Billing</mat-option>
+            <mat-option value="feature">Feature Request</mat-option>
+            <mat-option value="bug">Bug Report</mat-option>
+            <mat-option value="other">Other</mat-option>
+          </mat-select>
+          <mat-error *ngIf="ticketForm.get('category')?.hasError('required')">
+            Category is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Ticket Title -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Ticket Title</mat-label>
+          <input matInput formControlName="title" placeholder="Enter a descriptive title for your ticket">
+          <mat-icon matSuffix>title</mat-icon>
+          <mat-error *ngIf="ticketForm.get('title')?.hasError('required')">
+            Title is required
+          </mat-error>
+          <mat-error *ngIf="ticketForm.get('title')?.hasError('minlength')">
+            Title must be at least 3 characters long
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+
+      <div class="form-row">
+        <!-- Description -->
+        <div class="description-field full-width">
+          <label class="field-label">Description</label>
+          <div class="quill-container">
+            <quill-editor
+              formControlName="description"
+              [modules]="quillModules"
+              [styles]="quillStyles"
+              placeholder="Please provide detailed information about your request, issue, or question. Include any relevant details, steps to reproduce (if applicable), and what you've already tried..."
+            ></quill-editor>
+          </div>
+          <mat-error *ngIf="ticketForm.get('description')?.hasError('required') && ticketForm.get('description')?.touched">
+            Description is required
+          </mat-error>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Reported By -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Reported By (Optional)</mat-label>
+          <input matInput formControlName="reportedBy" placeholder="Enter your name or leave blank for anonymous">
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">
+          Cancel
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit" 
+          [disabled]="ticketForm.invalid || isLoading"
+          class="submit-btn"
+        >
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">Create Ticket</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div> 

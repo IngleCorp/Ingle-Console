@@ -1,73 +1,38 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AuthService } from '../../../core/services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tickets',
   templateUrl: './tickets.component.html',
   styleUrls: ['./tickets.component.scss']
 })
-export class TicketsComponent implements OnInit {
+export class TicketsComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  displayedColumns: string[] = ['id', 'title', 'status', 'priority', 'created', 'updated', 'actions'];
+    displayedColumns: string[] = ['title', 'status', 'priority', 'created', 'updated', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
 
   // Filter options
   statusFilter = '';
   priorityFilter = '';
   searchQuery = '';
+  isLoading = false;
+  currentUser: any;
+  selectedProjectId: string = '';
+  projects: any[] = [];
+  private userSubscription: Subscription = new Subscription();
+  private projectsSubscription: Subscription = new Subscription();
+  private ticketsSubscription: Subscription = new Subscription();
 
-  // Mock data
-  tickets = [
-    {
-      id: 'TKT-001',
-      title: 'Website login issue',
-      description: 'Unable to login to the client portal',
-      status: 'open',
-      priority: 'high',
-      category: 'technical',
-      created: new Date('2024-01-15'),
-      updated: new Date('2024-01-16'),
-      assignedTo: 'Support Team'
-    },
-    {
-      id: 'TKT-002',
-      title: 'Project timeline question',
-      description: 'Need clarification on project delivery timeline',
-      status: 'in_progress',
-      priority: 'medium',
-      category: 'project',
-      created: new Date('2024-01-10'),
-      updated: new Date('2024-01-14'),
-      assignedTo: 'Project Manager'
-    },
-    {
-      id: 'TKT-003',
-      title: 'Invoice payment issue',
-      description: 'Payment not reflecting in account',
-      status: 'resolved',
-      priority: 'high',
-      category: 'billing',
-      created: new Date('2024-01-05'),
-      updated: new Date('2024-01-12'),
-      assignedTo: 'Finance Team'
-    },
-    {
-      id: 'TKT-004',
-      title: 'Feature request',
-      description: 'Request for new dashboard features',
-      status: 'open',
-      priority: 'low',
-      category: 'feature',
-      created: new Date('2024-01-18'),
-      updated: new Date('2024-01-18'),
-      assignedTo: 'Product Team'
-    }
-  ];
+  // Real data from Firestore
+  tickets: any[] = [];
 
   statusOptions = [
     { value: '', label: 'All Status' },
@@ -85,10 +50,26 @@ export class TicketsComponent implements OnInit {
     { value: 'urgent', label: 'Urgent' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private afs: AngularFirestore,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    this.loadTickets();
+    this.getCurrentUser();
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+    if (this.projectsSubscription) {
+      this.projectsSubscription.unsubscribe();
+    }
+    if (this.ticketsSubscription) {
+      this.ticketsSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -96,8 +77,114 @@ export class TicketsComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
   }
 
+  getCurrentUser(): void {
+    this.userSubscription = this.authService.user$.subscribe({
+      next: (user) => {
+        console.log('User loaded:', user);
+        this.currentUser = user;
+        if (this.currentUser) {
+          this.loadProjects();
+        } else {
+          console.log('No user or user ID found');
+          this.isLoading = false;
+          this.projects = [];
+          this.tickets = [];
+          this.dataSource.data = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error loading user:', error);
+        this.isLoading = false;
+        this.projects = [];
+        this.tickets = [];
+        this.dataSource.data = [];
+      }
+    });
+  }
+
+  loadProjects() {
+    if (!this.currentUser || !this.currentUser.clientId) {
+      console.log('User not loaded yet, waiting...');
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Get projects where clientId matches current user
+    this.projectsSubscription = this.afs.collection('projects', ref => 
+      ref.where('clientid', '==', this.currentUser.clientId)
+    ).snapshotChanges().subscribe({
+      next: (projects) => {
+        this.projects = projects.map(project => {
+          const projectData = project.payload.doc.data() as any;
+          return {
+            id: project.payload.doc.id,
+            name: projectData.name || 'Unknown Project',
+            description: projectData.description || '',
+            status: projectData.status || 'active'
+          };
+        });
+        
+        // Set the first project as selected (index 0)
+        if (this.projects.length > 0) {
+          this.selectedProjectId = this.projects[0].id;
+          this.loadTickets();
+        } else {
+          this.isLoading = false;
+          this.tickets = [];
+          this.dataSource.data = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error loading projects:', error);
+        this.isLoading = false;
+        this.projects = [];
+        this.tickets = [];
+        this.dataSource.data = [];
+      }
+    });
+  }
+
   loadTickets() {
-    this.dataSource.data = this.tickets;
+    if (!this.selectedProjectId) {
+      this.tickets = [];
+      this.dataSource.data = [];
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLoading = true;
+    
+    // Get tickets from the selected project's tickets subcollection
+    this.ticketsSubscription = this.afs.collection('projects').doc(this.selectedProjectId)
+      .collection('tickets').snapshotChanges().subscribe({
+        next: (tickets) => {
+          this.tickets = tickets.map(ticket => {
+            const ticketData = ticket.payload.doc.data() as any;
+            return {
+              ...ticketData,
+              id: ticket.payload.doc.id,
+              projectId: this.selectedProjectId,
+              created: ticketData.createdAt ? new Date(ticketData.createdAt.toDate()) : new Date(),
+              updated: ticketData.updatedAt ? new Date(ticketData.updatedAt.toDate()) : new Date()
+            };
+          });
+          
+          this.dataSource.data = this.tickets;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading tickets:', error);
+          this.isLoading = false;
+          this.tickets = [];
+          this.dataSource.data = [];
+        }
+      });
+  }
+
+  onProjectChange(projectId: string) {
+    this.selectedProjectId = projectId;
+    this.loadTickets();
   }
 
   applyFilters() {
@@ -119,7 +206,7 @@ export class TicketsComponent implements OnInit {
       filteredData = filteredData.filter(ticket =>
         ticket.title.toLowerCase().includes(query) ||
         ticket.description.toLowerCase().includes(query) ||
-        ticket.id.toLowerCase().includes(query)
+        ticket.number.toLowerCase().includes(query)
       );
     }
 
@@ -134,11 +221,13 @@ export class TicketsComponent implements OnInit {
   }
 
   createNewTicket() {
+    // Navigate to create new ticket form
     this.router.navigate(['/client/tickets/new']);
   }
 
   viewTicket(ticket: any) {
-    this.router.navigate(['/client/tickets', ticket.id]);
+    // Navigate to the project tickets subcollection
+    this.router.navigate(['/client/projects', ticket.projectId, 'tickets', ticket.id]);
   }
 
   getStatusColor(status: string): string {

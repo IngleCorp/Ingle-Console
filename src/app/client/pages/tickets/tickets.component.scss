@@ -55,6 +55,76 @@
     }
   }
 
+  // Project Selector Section
+  .project-selector-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+
+    .project-selector-content {
+      .project-selector {
+        width: 100%;
+        max-width: 400px;
+
+        ::ng-deep .mat-form-field-wrapper {
+          margin-bottom: 0;
+        }
+
+        .project-option {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 0;
+
+          .project-icon {
+            color: #667eea;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .project-name {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
+          }
+
+          .project-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            &.active {
+              background-color: #d4edda;
+              color: #155724;
+            }
+
+            &.completed {
+              background-color: #d1ecf1;
+              color: #0c5460;
+            }
+
+            &.on-hold {
+              background-color: #fff3cd;
+              color: #856404;
+            }
+
+            &.cancelled {
+              background-color: #f8d7da;
+              color: #721c24;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Filters Section
   .filters-section {
     background: white;

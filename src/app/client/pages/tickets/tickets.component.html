@@ -15,6 +15,25 @@
     </div>
   </div>
 
+  <!-- Project Selector Section -->
+  <div class="project-selector-section" *ngIf="projects.length > 0">
+    <div class="project-selector-content">
+      <mat-form-field appearance="outline" class="project-selector">
+        <mat-label>Select Project</mat-label>
+        <mat-select [(ngModel)]="selectedProjectId" (selectionChange)="onProjectChange($event.value)">
+          <mat-option *ngFor="let project of projects" [value]="project.id">
+            <div class="project-option">
+              <mat-icon class="project-icon">folder</mat-icon>
+              <span class="project-name">{{ project.name }}</span>
+              <span class="project-status" [class]="project.status">{{ project.status }}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>folder</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
   <!-- Filters Section -->
   <div class="filters-section">
     <div class="filters-content">
