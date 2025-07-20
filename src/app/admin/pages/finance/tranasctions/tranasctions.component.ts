@@ -50,6 +50,7 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
   filterText = '';
   filterType = 'all';
   filterAction = 'all';
+  filterSubType = 'all'; // New filter for expenseof/incomeof
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
   
@@ -62,6 +63,10 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
   totalIncome = 0;
   totalExpenses = 0;
   netAmount = 0;
+  
+  // Available sub-types for filtering
+  availableExpenseTypes: string[] = [];
+  availableIncomeTypes: string[] = [];
   
   private destroy$ = new Subject<void>();
 
@@ -91,10 +96,29 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((transactions: any[]) => {
         this.transactions = transactions;
+        this.extractAvailableTypes();
         this.applyFilters();
         this.calculateSummary();
         this.isLoading = false;
       });
+  }
+
+  extractAvailableTypes(): void {
+    // Extract unique expense types
+    const expenseTypes = new Set<string>();
+    const incomeTypes = new Set<string>();
+    
+    this.transactions.forEach(transaction => {
+      if (transaction.expenseof && transaction.expenseof.trim()) {
+        expenseTypes.add(transaction.expenseof);
+      }
+      if (transaction.incomeof && transaction.incomeof.trim()) {
+        incomeTypes.add(transaction.incomeof);
+      }
+    });
+    
+    this.availableExpenseTypes = Array.from(expenseTypes).sort();
+    this.availableIncomeTypes = Array.from(incomeTypes).sort();
   }
 
   applyFilters(): void {
@@ -126,6 +150,18 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(transaction => 
         transaction.action === this.filterAction
       );
+    }
+
+    // Sub-type filter (expenseof/incomeof)
+    if (this.filterSubType !== 'all') {
+      filtered = filtered.filter(transaction => {
+        if (this.filterAction === 'OUT' && transaction.expenseof) {
+          return transaction.expenseof === this.filterSubType;
+        } else if (this.filterAction === 'IN' && transaction.incomeof) {
+          return transaction.incomeof === this.filterSubType;
+        }
+        return false;
+      });
     }
 
     // Date range filter
@@ -165,10 +201,17 @@ export class TranasctionsComponent implements OnInit, OnDestroy {
     this.calculateSummary();
   }
 
+  onActionChange(): void {
+    // Reset sub-type filter when action changes
+    this.filterSubType = 'all';
+    this.onFilterChange();
+  }
+
   clearFilters(): void {
     this.filterText = '';
     this.filterType = 'all';
     this.filterAction = 'all';
+    this.filterSubType = 'all';
     this.dateFrom = null;
     this.dateTo = null;
     this.onFilterChange();

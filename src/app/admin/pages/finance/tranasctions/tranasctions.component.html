@@ -68,7 +68,7 @@
           <mat-icon>filter_list</mat-icon>
           Filters
         </h3>
-        <button mat-button color="primary" (click)="clearFilters()" *ngIf="filterText || filterType !== 'all' || filterAction !== 'all' || dateFrom || dateTo">
+        <button mat-button color="primary" (click)="clearFilters()" *ngIf="filterText || filterType !== 'all' || filterAction !== 'all' || filterSubType !== 'all' || dateFrom || dateTo">
           <mat-icon>clear</mat-icon>
           Clear Filters
         </button>
@@ -95,10 +95,21 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Action</mat-label>
-          <mat-select [(ngModel)]="filterAction" (selectionChange)="onFilterChange()">
+          <mat-select [(ngModel)]="filterAction" (selectionChange)="onActionChange()">
             <mat-option value="all">All Actions</mat-option>
             <mat-option value="IN">Income</mat-option>
             <mat-option value="OUT">Expense</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" *ngIf="filterAction !== 'all'">
+          <mat-label>{{ filterAction === 'IN' ? 'Income Category' : 'Expense Category' }}</mat-label>
+          <mat-select [(ngModel)]="filterSubType" (selectionChange)="onFilterChange()">
+            <mat-option value="all">All {{ filterAction === 'IN' ? 'Income' : 'Expense' }} Categories</mat-option>
+            <mat-option *ngFor="let type of filterAction === 'IN' ? availableIncomeTypes : availableExpenseTypes" 
+                       [value]="type">
+              {{ type }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
 

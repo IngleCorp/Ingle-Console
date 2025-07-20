@@ -245,6 +245,23 @@
     mat-form-field {
       width: 100%;
     }
+
+    // Responsive adjustments for when subcategory filter is visible
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr 1fr 1fr;
+      
+      .search-field {
+        grid-column: span 3;
+      }
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      
+      .search-field {
+        grid-column: span 1;
+      }
+    }
   }
 }
 
