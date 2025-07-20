@@ -4,6 +4,8 @@ import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { GeneralService } from '../../../../core/services/general.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
+import { TypesformDialogComponent } from '../../types/typesform/typesform-dialog.component';
 export interface User {
   name: string;
 }
@@ -34,7 +36,11 @@ export class CreateTrasactionComponent {
   
   todayIn: number=0;
   todayOut: number=0;
-  constructor(private afs: AngularFirestore,private service:GeneralService) { }
+  constructor(
+    private afs: AngularFirestore,
+    private service: GeneralService,
+    private dialog: MatDialog
+  ) { }
   datePin:boolean=false;
   amount: any;
   action: any = 'OUT';
@@ -547,6 +553,44 @@ if(this.amount>0){
     
     const selectedLoan = this.lendedList.find((loan: any) => loan.id === this.loanToClear);
     return selectedLoan ? selectedLoan.amount : 0;
+  }
+
+  // Method to open dialog for creating new expense type
+  openNewExpenseTypeDialog(): void {
+    const dialogRef = this.dialog.open(TypesformDialogComponent, {
+      width: '600px',
+      maxHeight: '90vh',
+      data: { category: 'EXPENSE' },
+      disableClose: true,
+      panelClass: 'types-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        this.service.openSnackBar('New expense type created successfully!', 'Close');
+        // Refresh the expense types list
+        this.getTypes();
+      }
+    });
+  }
+
+  // Method to open dialog for creating new income type
+  openNewIncomeTypeDialog(): void {
+    const dialogRef = this.dialog.open(TypesformDialogComponent, {
+      width: '600px',
+      maxHeight: '90vh',
+      data: { category: 'INCOME' },
+      disableClose: true,
+      panelClass: 'types-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        this.service.openSnackBar('New income type created successfully!', 'Close');
+        // Refresh the income types list
+        this.getTypes();
+      }
+    });
   }
 
 }

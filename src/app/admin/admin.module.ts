@@ -49,6 +49,7 @@ import { Angular2SmartTableModule } from 'angular2-smart-table';
 import { QuillEditorComponent } from './pages/quill-editor/quill-editor.component';
 import { TypesComponent } from './pages/types/types.component';
 import { TypesformComponent } from './pages/types/typesform/typesform.component';
+import { TypesformDialogComponent } from './pages/types/typesform/typesform-dialog.component';
 import { TodoComponent } from './pages/todo/todo.component';
 import { TodoFormComponent } from './pages/todo/todo-form/todo-form.component';
 import { InvoiceComponent } from './pages/invoice/invoice.component';
@@ -77,6 +78,7 @@ import { BugReportComponent } from './pages/bug-report/bug-report.component';
     QuillEditorComponent,
     TypesComponent,
     TypesformComponent,
+    TypesformDialogComponent,
     TodoComponent,
     TodoFormComponent,
     InvoiceComponent,

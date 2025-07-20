@@ -139,6 +139,12 @@
         <div class="step-header">
           <div class="step-number">{{ getSubcategoryStepNumber() }}</div>
           <div class="step-title">Expense Category</div>
+          <button mat-icon-button 
+                  class="add-type-btn" 
+                  (click)="openNewExpenseTypeDialog()"
+                  matTooltip="Add new expense type">
+            <mat-icon>add_circle</mat-icon>
+          </button>
         </div>
         
         <div class="subcategory-grid">
@@ -157,6 +163,12 @@
         <div class="step-header">
           <div class="step-number">{{ getSubcategoryStepNumber() }}</div>
           <div class="step-title">Income Source</div>
+          <button mat-icon-button 
+                  class="add-type-btn" 
+                  (click)="openNewIncomeTypeDialog()"
+                  matTooltip="Add new income type">
+            <mat-icon>add_circle</mat-icon>
+          </button>
         </div>
         
         <div class="subcategory-grid">
