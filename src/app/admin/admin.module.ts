@@ -66,6 +66,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ActivitiesComponent } from './pages/activities/activities.component';
 import { BugReportComponent } from './pages/bug-report/bug-report.component';
+import { TaskViewComponent } from './pages/tasks/task-view/task-view.component';
 
 @NgModule({
   declarations: [
@@ -95,6 +96,7 @@ import { BugReportComponent } from './pages/bug-report/bug-report.component';
     SettingsComponent,
     ActivitiesComponent,
     BugReportComponent,
+    TaskViewComponent,
   ],
   imports: [
     CommonModule,

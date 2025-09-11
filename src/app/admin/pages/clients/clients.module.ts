@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -23,6 +23,12 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { QuillModule } from 'ngx-quill';
 // Import all client dashboard components
 import { ClientsListComponent } from './clients-list/clients-list.component';
@@ -52,6 +58,8 @@ import { OpenDocumentComponent } from './client-home/client-projects/project-boa
 import { ProjectMeetingsComponent } from './client-home/client-projects/project-board/project-meetings/project-meetings.component';
 import { ProjectMilestonesComponent } from './client-home/client-projects/project-board/project-milestones/project-milestones.component';
 import { ClientsRoutingModule } from './clients-routing.module';
+import { ProjectTaskFormComponent } from './client-home/client-projects/project-board/project-tasks/project-task-form/project-task-form.component';
+import { ProjectTaskViewComponent } from './client-home/client-projects/project-board/project-tasks/project-task-view/project-task-view.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +88,9 @@ import { ClientsRoutingModule } from './clients-routing.module';
     ViewDocumentComponent,
     OpenDocumentComponent,
     ProjectMeetingsComponent,
-    ProjectMilestonesComponent
+    ProjectMilestonesComponent,
+    ProjectTaskFormComponent,
+    ProjectTaskViewComponent
   ],
   imports: [
     CommonModule,
@@ -109,6 +119,12 @@ import { ClientsRoutingModule } from './clients-routing.module';
     MatMenuModule,
     MatBadgeModule,
     MatButtonToggleModule,
+    MatDividerModule,
+    MatAutocompleteModule,
+    MatSlideToggleModule,
+    MatRadioModule,
+    MatSliderModule,
+    MatExpansionModule,
     QuillModule.forRoot()
   ],
   exports: [
@@ -138,6 +154,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
     OpenDocumentComponent,
     ProjectMeetingsComponent,
     ProjectMilestonesComponent
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ClientsModule {}

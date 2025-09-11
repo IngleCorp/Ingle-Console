@@ -258,7 +258,8 @@ mat-icon {
   }
 }
 
-.add-task-btn {
+.add-task-btn,
+.add-detailed-task-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -290,6 +291,15 @@ mat-icon {
     width: 1.2rem !important;
     height: 1.2rem !important;
     color: white !important;
+  }
+}
+
+.add-detailed-task-btn {
+  background: $success-color;
+  margin-left: 8px;
+  
+  &:hover:not(:disabled) {
+    background: darken($success-color, 10%);
   }
 }
 
@@ -586,6 +596,26 @@ mat-icon {
         
         &:hover {
           background: $error-color;
+          color: white;
+        }
+      }
+
+      &.view-btn {
+        background: rgba($info-color, 0.1);
+        color: $info-color;
+        
+        &:hover {
+          background: $info-color;
+          color: white;
+        }
+      }
+
+      &.edit-btn {
+        background: rgba($text-secondary, 0.1);
+        color: $text-secondary;
+        
+        &:hover {
+          background: $text-secondary;
           color: white;
         }
       }

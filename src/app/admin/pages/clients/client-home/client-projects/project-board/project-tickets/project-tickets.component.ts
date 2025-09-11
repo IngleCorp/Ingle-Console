@@ -190,7 +190,8 @@ export class ProjectTicketsComponent implements OnInit {
       data: {
         type: 'add',
         projectId: this.projectId,
-        ticketType: ticketType
+        ticketType: ticketType,
+        clientId: this.clientId
       }
     });
 

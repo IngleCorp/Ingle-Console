@@ -451,6 +451,174 @@
               opacity: 1;
               transform: translateX(0);
               transition: all 0.3s ease;
+
+              .action-btn {
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 8px !important;
+                transition: all 0.3s ease;
+                border: 1px solid transparent !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                min-width: 32px !important;
+                line-height: 1 !important;
+
+                .mat-mdc-button-persistent-ripple,
+                .mdc-icon-button__ripple {
+                  border-radius: 8px !important;
+                }
+
+                mat-icon {
+                  font-size: 18px !important;
+                  width: 18px !important;
+                  height: 18px !important;
+                  line-height: 18px !important;
+                  display: inline-block !important;
+                  font-family: 'Material Icons' !important;
+                  font-weight: normal !important;
+                  font-style: normal !important;
+                  letter-spacing: normal !important;
+                  text-transform: none !important;
+                  white-space: nowrap !important;
+                  word-wrap: normal !important;
+                  direction: ltr !important;
+                  -webkit-font-smoothing: antialiased !important;
+                  -moz-osx-font-smoothing: grayscale !important;
+                  text-rendering: optimizeLegibility !important;
+                  font-feature-settings: 'liga' !important;
+                  vertical-align: middle !important;
+                  user-select: none !important;
+                }
+
+                &.view-btn {
+                  background: rgba(59, 130, 246, 0.1) !important;
+                  color: #3b82f6 !important;
+                  border-color: rgba(59, 130, 246, 0.2) !important;
+
+                  mat-icon {
+                    color: #3b82f6 !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(59, 130, 246, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                  }
+                }
+
+                &.start-btn {
+                  background: rgba(16, 185, 129, 0.1) !important;
+                  color: #10b981 !important;
+                  border-color: rgba(16, 185, 129, 0.2) !important;
+
+                  mat-icon {
+                    color: #10b981 !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(16, 185, 129, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                  }
+                }
+
+                &.complete-btn {
+                  background: rgba(16, 185, 129, 0.1) !important;
+                  color: #10b981 !important;
+                  border-color: rgba(16, 185, 129, 0.2) !important;
+
+                  mat-icon {
+                    color: #10b981 !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(16, 185, 129, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                  }
+                }
+
+                &.hold-btn {
+                  background: rgba(245, 158, 11, 0.1) !important;
+                  color: #f59e0b !important;
+                  border-color: rgba(245, 158, 11, 0.2) !important;
+
+                  mat-icon {
+                    color: #f59e0b !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(245, 158, 11, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+                  }
+                }
+
+                &.edit-btn {
+                  background: rgba(100, 116, 139, 0.1) !important;
+                  color: #64748b !important;
+                  border-color: rgba(100, 116, 139, 0.2) !important;
+
+                  mat-icon {
+                    color: #64748b !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(100, 116, 139, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+                  }
+                }
+
+                &.delete-btn {
+                  background: rgba(239, 68, 68, 0.1) !important;
+                  color: #ef4444 !important;
+                  border-color: rgba(239, 68, 68, 0.2) !important;
+
+                  mat-icon {
+                    color: #ef4444 !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(239, 68, 68, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+                  }
+                }
+
+                &.undo-btn,
+                &.resume-btn {
+                  background: rgba(100, 116, 139, 0.1) !important;
+                  color: #64748b !important;
+                  border-color: rgba(100, 116, 139, 0.2) !important;
+
+                  mat-icon {
+                    color: #64748b !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                  }
+
+                  &:hover {
+                    background: rgba(100, 116, 139, 0.2) !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+                  }
+                }
+              }
             }
           }
 
@@ -489,9 +657,104 @@
               color: #64748b;
               line-height: 1.5;
               display: -webkit-box;
-              -webkit-line-clamp: 2;
+              -webkit-line-clamp: 3;
               -webkit-box-orient: vertical;
               overflow: hidden;
+
+              // Styling for rich text content
+              ::ng-deep {
+                p {
+                  margin: 0 0 8px 0;
+                  font-size: inherit;
+                  line-height: inherit;
+                  color: inherit;
+                }
+
+                strong, b {
+                  font-weight: 600;
+                  color: #475569;
+                }
+
+                em, i {
+                  font-style: italic;
+                  color: #64748b;
+                }
+
+                u {
+                  text-decoration: underline;
+                }
+
+                h1, h2, h3, h4, h5, h6 {
+                  margin: 0 0 6px 0;
+                  font-weight: 600;
+                  color: #374151;
+                  line-height: 1.3;
+                }
+
+                h1 { font-size: 1rem; }
+                h2 { font-size: 0.95rem; }
+                h3 { font-size: 0.9rem; }
+                h4, h5, h6 { font-size: 0.875rem; }
+
+                ul, ol {
+                  margin: 0 0 8px 0;
+                  padding-left: 16px;
+                  
+                  li {
+                    margin-bottom: 2px;
+                    font-size: inherit;
+                    line-height: inherit;
+                    color: inherit;
+                  }
+                }
+
+                blockquote {
+                  margin: 0 0 8px 0;
+                  padding: 6px 12px;
+                  border-left: 3px solid #10b981;
+                  background: rgba(16, 185, 129, 0.05);
+                  border-radius: 0 4px 4px 0;
+                  font-style: italic;
+                  color: #475569;
+                }
+
+                code {
+                  background: rgba(100, 116, 139, 0.1);
+                  color: #475569;
+                  padding: 2px 4px;
+                  border-radius: 3px;
+                  font-size: 0.8em;
+                  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                }
+
+                pre {
+                  background: rgba(100, 116, 139, 0.1);
+                  color: #475569;
+                  padding: 8px 12px;
+                  border-radius: 6px;
+                  font-size: 0.8em;
+                  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  margin: 0 0 8px 0;
+                }
+
+                a {
+                  color: #10b981;
+                  text-decoration: none;
+                  
+                  &:hover {
+                    text-decoration: underline;
+                  }
+                }
+
+                // Ensure proper text truncation even with HTML content
+                * {
+                  max-width: 100%;
+                  word-wrap: break-word;
+                }
+              }
             }
 
             .task-meta {
@@ -802,4 +1065,14 @@
     radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
+}
+
+// Global styles for task view dialog
+::ng-deep .task-view-dialog-container {
+  .mat-dialog-container {
+    padding: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
 } 

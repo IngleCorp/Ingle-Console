@@ -9,6 +9,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TaskFormComponent, TaskFormData } from './task-form/task-form.component';
+import { TaskViewComponent, TaskViewData } from './task-view/task-view.component';
 
 export interface Task {
   // ✅ New Interface Fields
@@ -295,6 +296,34 @@ export class TasksComponent implements OnInit {
           this.updateTask(task!.id!, result);
         } else {
           this.addTask(result);
+        }
+      }
+    });
+  }
+
+  openTaskView(task: Task): void {
+    const dialogData: TaskViewData = {
+      task,
+      assignees: this.assignees,
+      projects: this.projects,
+      priorities: this.priorities,
+      statuses: this.statuses
+    };
+
+    const dialogRef = this.dialog.open(TaskViewComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      data: dialogData,
+      panelClass: 'task-view-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'edit') {
+          this.openTaskDialog(true, result.task);
+        } else if (result.action === 'delete') {
+          this.deleteTask(result.task.id!);
         }
       }
     });

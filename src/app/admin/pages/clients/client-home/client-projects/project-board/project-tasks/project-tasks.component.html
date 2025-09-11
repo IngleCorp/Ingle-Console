@@ -59,6 +59,10 @@
                     <mat-icon>add</mat-icon>
                     <span>Add Task</span>
                 </button>
+                <button class="add-detailed-task-btn" (click)="openTaskDialog(false)" matTooltip="Create detailed task">
+                    <mat-icon>assignment_add</mat-icon>
+                    <span>Detailed Task</span>
+                </button>
             </div>
         </div>
         
@@ -116,6 +120,18 @@
                                     </div>
                                 </div>
                                 <div class="task-actions">
+                                    <button 
+                                        class="action-btn view-btn" 
+                                        (click)="openTaskView(task)" 
+                                        matTooltip="View task details">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                    <button 
+                                        class="action-btn edit-btn" 
+                                        (click)="openTaskDialog(true, task)" 
+                                        matTooltip="Edit task">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
                                     <button 
                                         class="action-btn progress-btn" 
                                         (click)="setProgress(task)" 
@@ -211,6 +227,18 @@
                                 </div>
                                 <div class="task-actions">
                                     <button 
+                                        class="action-btn view-btn" 
+                                        (click)="openTaskView(task)" 
+                                        matTooltip="View task details">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                    <button 
+                                        class="action-btn edit-btn" 
+                                        (click)="openTaskDialog(true, task)" 
+                                        matTooltip="Edit task">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                    <button 
                                         class="action-btn undo-btn" 
                                         (click)="undoTask(task.id)" 
                                         matTooltip="Move back to To Do">
@@ -286,6 +314,18 @@
                                     </div>
                                 </div>
                                 <div class="task-actions">
+                                    <button 
+                                        class="action-btn view-btn" 
+                                        (click)="openTaskView(task)" 
+                                        matTooltip="View task details">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+                                    <button 
+                                        class="action-btn edit-btn" 
+                                        (click)="openTaskDialog(true, task)" 
+                                        matTooltip="Edit task">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
                                     <button 
                                         class="action-btn undo-btn" 
                                         (click)="undoTask(task.id)" 

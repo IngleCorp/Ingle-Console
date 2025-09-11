@@ -25,6 +25,30 @@ export class TaskFormComponent implements OnInit {
   projectSearchCtrl = new FormControl('');
   filteredProjects: Observable<Project[]>;
 
+  // Quill editor configuration for rich text description
+  quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ 'header': 1 }, { 'header': 2 }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+      ['clean'],
+      ['link', 'image', 'video']
+    ]
+  };
+
+  quillStyles = {
+    height: '200px'
+  };
+
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TaskFormComponent>,

@@ -45,6 +45,9 @@
             Status is required
           </mat-error>
         </mat-form-field>
+
+        <!-- Is Hidden Toggle -->
+       
       </div>
 
       <div class="form-row">
@@ -91,6 +94,11 @@
           </mat-error>
         </div>
       </div>
+
+      <mat-slide-toggle formControlName="is_hidden" color="warn" class="is-hidden-toggle">
+        <mat-icon>visibility_off</mat-icon>
+        <span>Hidden</span>
+      </mat-slide-toggle>
     </form>
   </mat-dialog-content>
 

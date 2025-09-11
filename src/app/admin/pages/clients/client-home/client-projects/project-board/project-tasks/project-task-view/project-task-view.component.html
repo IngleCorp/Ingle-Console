@@ -1,0 +1,232 @@
+<div class="task-view-container">
+  <!-- Header Section -->
+  <div class="task-view-header">
+    <div class="header-content">
+      <div class="header-info">
+        <div class="task-title-section">
+          <h2 class="task-title">
+            <mat-icon class="title-icon">assignment</mat-icon>
+            {{ getTaskTitle() }}
+          </h2>
+          <div class="task-badges">
+            <div class="priority-badge" [style.background-color]="getPriorityInfo().color">
+              <mat-icon>priority_high</mat-icon>
+              {{ getPriorityInfo().label }}
+            </div>
+            <div class="status-badge" [style.background-color]="getStatusInfo().color">
+              <mat-icon>flag</mat-icon>
+              {{ getStatusInfo().label }}
+            </div>
+          </div>
+        </div>
+        <div class="task-meta-quick">
+          <div class="meta-item" *ngIf="data.task.id">
+            <mat-icon>tag</mat-icon>
+            <span>ID: {{ data.task.id }}</span>
+          </div>
+          <div class="meta-item" *ngIf="getCreatedDate()">
+            <mat-icon>event</mat-icon>
+            <span>Created: {{ getCreatedDate() | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button class="edit-btn" (click)="onEdit()" matTooltip="Edit Task">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <button mat-stroked-button class="delete-btn" (click)="onDelete()" matTooltip="Delete Task">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button mat-icon-button class="close-btn" [mat-dialog-close]="null" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <mat-dialog-content class="task-view-content">
+    <div class="content-grid">
+      
+      <!-- Description Section -->
+      <div class="content-section description-section">
+        <div class="section-header">
+          <mat-icon>description</mat-icon>
+          <h3>Description</h3>
+        </div>
+        <div class="section-content">
+          <div class="task-description" *ngIf="getTaskDescription(); else noDescription" [innerHTML]="getTaskDescription()"></div>
+          <ng-template #noDescription>
+            <div class="no-content">
+              <mat-icon>info</mat-icon>
+              <span>No description provided</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Assignment & Project Section -->
+      <div class="content-section assignment-section">
+        <div class="section-header">
+          <mat-icon>group</mat-icon>
+          <h3>Assignment & Project</h3>
+        </div>
+        <div class="section-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Assignees</label>
+              <div class="assignees-list" *ngIf="getTaskAssignees().length > 0; else noAssignees">
+                <div class="assignee-chip" *ngFor="let assignee of getTaskAssignees()">
+                  <mat-icon>person</mat-icon>
+                  {{ assignee }}
+                </div>
+              </div>
+              <ng-template #noAssignees>
+                <div class="no-content-small">
+                  <mat-icon>person_off</mat-icon>
+                  <span>Not assigned</span>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="info-item">
+              <label>Project</label>
+              <div class="project-info" *ngIf="getProjectName(); else noProject">
+                <mat-icon>folder</mat-icon>
+                <span>{{ getProjectName() }}</span>
+              </div>
+              <ng-template #noProject>
+                <div class="no-content-small">
+                  <mat-icon>folder_off</mat-icon>
+                  <span>No project assigned</span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline & Progress Section -->
+      <div class="content-section timeline-section">
+        <div class="section-header">
+          <mat-icon>schedule</mat-icon>
+          <h3>Timeline & Progress</h3>
+        </div>
+        <div class="section-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Due Date</label>
+              <div class="date-info" *ngIf="data.task.dueDate; else noDueDate">
+                <mat-icon>event</mat-icon>
+                <span>{{ data.task.dueDate | date:'fullDate' }}</span>
+              </div>
+              <ng-template #noDueDate>
+                <div class="no-content-small">
+                  <mat-icon>event_busy</mat-icon>
+                  <span>No due date set</span>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="info-item">
+              <label>Estimated Hours</label>
+              <div class="hours-info" *ngIf="data.task.estimatedHours; else noEstimatedHours">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ data.task.estimatedHours }}h</span>
+              </div>
+              <ng-template #noEstimatedHours>
+                <div class="no-content-small">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Not estimated</span>
+                </div>
+              </ng-template>
+            </div>
+
+            <div class="info-item" *ngIf="data.task.status === 'in-progress' || data.task.status === 'done'">
+              <label>Progress</label>
+              <div class="progress-info">
+                <div class="progress-bar-container">
+                  <mat-progress-bar 
+                    [value]="data.task.progress || 0" 
+                    color="primary"
+                    mode="determinate">
+                  </mat-progress-bar>
+                  <span class="progress-text">{{ data.task.progress || 0 }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="data.task.timeTaken">
+              <label>Time Taken</label>
+              <div class="hours-info">
+                <mat-icon>timer</mat-icon>
+                <span>{{ data.task.timeTaken }}h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Details Section -->
+      <div class="content-section details-section">
+        <div class="section-header">
+          <mat-icon>info</mat-icon>
+          <h3>Additional Details</h3>
+        </div>
+        <div class="section-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Created By</label>
+              <div class="user-info">
+                <mat-icon>person</mat-icon>
+                <span>{{ getCreatedBy() }}</span>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="getUpdatedDate()">
+              <label>Last Updated</label>
+              <div class="date-info">
+                <mat-icon>update</mat-icon>
+                <span>{{ getUpdatedDate() | date:'medium' }}</span>
+                <span class="updated-by" *ngIf="getUpdatedBy()">by {{ getUpdatedBy() }}</span>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="data.task.tags && data.task.tags.length > 0">
+              <label>Tags</label>
+              <div class="tags-list">
+                <div class="tag-chip" *ngFor="let tag of data.task.tags">
+                  <mat-icon>label</mat-icon>
+                  {{ tag }}
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="data.task.isActive !== undefined">
+              <label>Status</label>
+              <div class="active-status" [class.active]="data.task.isActive">
+                <mat-icon>{{ data.task.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                <span>{{ data.task.isActive ? 'Active' : 'Inactive' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- Footer Actions -->
+  <mat-dialog-actions class="task-view-actions">
+    <button mat-stroked-button [mat-dialog-close]="null">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+    <button mat-raised-button color="primary" (click)="onEdit()">
+      <mat-icon>edit</mat-icon>
+      Edit Task
+    </button>
+  </mat-dialog-actions>
+</div>

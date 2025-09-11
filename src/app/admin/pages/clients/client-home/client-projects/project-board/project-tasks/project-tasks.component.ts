@@ -3,9 +3,24 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { TimetakenComponent } from './timetaken/timetaken.component';
+// Import the project-specific task components
+import { ProjectTaskFormComponent, ProjectTaskFormData } from './project-task-form/project-task-form.component';
+import { ProjectTaskViewComponent, ProjectTaskViewData } from './project-task-view/project-task-view.component';
+
+// Local interfaces for task management
+interface TaskAssignee {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+}
+
 // import { ToastrService } from 'ngx-toastr'; // Uncomment if available
 // import { AssignComponent } from '...'; // Uncomment if available
-// import { TimetakenComponent } from './timetaken/timetaken.component'; // Uncomment if available
 
 @Component({
   selector: 'app-project-tasks',
@@ -21,6 +36,29 @@ export class ProjectTasksComponent implements OnInit {
   taskdone: any;
   taskonhold: any;
   buffervalue: number = 75;
+
+  // Task management data
+  priorities = [
+    { value: 'low', label: 'Low', color: '#10b981' },
+    { value: 'medium', label: 'Medium', color: '#f59e0b' },
+    { value: 'high', label: 'High', color: '#ef4444' },
+    { value: 'urgent', label: 'Urgent', color: '#dc2626' }
+  ];
+
+  statuses = [
+    { value: 'todo', label: 'To Do', color: '#6b7280' },
+    { value: 'in-progress', label: 'In Progress', color: '#3b82f6' },
+    { value: 'done', label: 'Done', color: '#10b981' },
+    { value: 'hold', label: 'On Hold', color: '#f59e0b' }
+  ];
+
+  assignees: TaskAssignee[] = [
+    { id: '1', name: 'Jasmal', email: 'jasmal@example.com' },
+    { id: '2', name: 'Ramshin', email: 'ramshin@example.com' },
+    { id: '3', name: 'Ajmal', email: 'ajmal@example.com' }
+  ];
+
+  projects: Project[] = [];
   constructor(
     private dialog: MatDialog,
     private afs: AngularFirestore,
@@ -35,12 +73,22 @@ export class ProjectTasksComponent implements OnInit {
       this.projectId = params.get('projectId');
       console.log('Project ID:', this.projectId);
       this.getTasks();
+      this.loadProjects();
       if (this.projectId) {
         this.afs.collection('projects').doc(this.projectId).valueChanges().subscribe((res: any) => {
           this.projectname = res?.name;
           console.log('Project Name:', this.projectname);
         });
       }
+    });
+  }
+
+  private loadProjects(): void {
+    this.afs.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+      this.projects = projects.map(project => ({
+        id: project.id,
+        name: project.name || 'Unnamed Project'
+      }));
     });
   }
 
@@ -212,5 +260,109 @@ export class ProjectTasksComponent implements OnInit {
     }
     const date = new Date(createdAt.seconds * 1000);
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+  }
+
+  // Task dialog and view methods
+  openTaskDialog(isEditing: boolean, task?: any): void {
+    const dialogData: ProjectTaskFormData = {
+      isEditing,
+      task: task || undefined,
+      projects: this.projects,
+      assignees: this.assignees,
+      priorities: this.priorities,
+      statuses: this.statuses
+    };
+
+    const dialogRef = this.dialog.open(ProjectTaskFormComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      data: dialogData,
+      disableClose: true,
+      panelClass: 'task-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (isEditing && task) {
+          this.updateTaskFromDialog(task.id, result);
+        } else {
+          this.addTaskFromDialog(result);
+        }
+      }
+    });
+  }
+
+  openTaskView(task: any): void {
+    const dialogData: ProjectTaskViewData = {
+      task,
+      assignees: this.assignees,
+      projects: this.projects,
+      priorities: this.priorities,
+      statuses: this.statuses
+    };
+
+    const dialogRef = this.dialog.open(ProjectTaskViewComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      data: dialogData,
+      panelClass: 'task-view-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'edit') {
+          this.openTaskDialog(true, result.task);
+        } else if (result.action === 'delete') {
+          this.removeTask(result.task.id);
+        }
+      }
+    });
+  }
+
+  private updateTaskFromDialog(taskId: string, formData: any): void {
+    const updateData = {
+      task: formData.title,
+      description: formData.description,
+      priority: formData.priority,
+      status: formData.status,
+      // Convert assignee IDs back to assigns format for compatibility
+      assigns: formData.assignees ? formData.assignees.map((id: string) => {
+        const assignee = this.assignees.find(a => a.id === id);
+        return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
+      }) : [],
+      estimatedHours: formData.estimatedHours,
+      dueDate: formData.dueDate,
+      tags: formData.tags,
+      updatedAt: new Date()
+    };
+
+    this.afs.doc('tasks/' + taskId).update(updateData);
+  }
+
+  private addTaskFromDialog(formData: any): void {
+    if (this.projectId) {
+      const data = {
+        task: formData.title,
+        description: formData.description || '',
+        priority: formData.priority || 'medium',
+        status: formData.status || 'todo',
+        createdAt: new Date(),
+        createdby: localStorage.getItem('username'),
+        createdbyid: localStorage.getItem('userid'),
+        projecttaged: this.projectId,
+        projectname: this.projectname,
+        assigns: formData.assignees ? formData.assignees.map((id: string) => {
+          const assignee = this.assignees.find(a => a.id === id);
+          return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
+        }) : [],
+        estimatedHours: formData.estimatedHours,
+        dueDate: formData.dueDate,
+        tags: formData.tags
+      };
+
+      this.afs.collection('tasks').add(data);
+    }
   }
 }

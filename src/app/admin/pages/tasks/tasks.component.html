@@ -86,6 +86,9 @@
               </div>
             </div>
             <div class="task-actions">
+              <button mat-icon-button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View Task Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
               <button mat-icon-button class="action-btn start-btn" (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start Progress">
                 <mat-icon>play_circle</mat-icon>
               </button>
@@ -107,7 +110,7 @@
                 {{ task.priority || 'medium' }}
               </div>
             </div>
-            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
             <div class="task-meta">
               <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
                 <div class="assignees-label">
@@ -172,6 +175,9 @@
               </div>
             </div>
             <div class="task-actions">
+              <button mat-icon-button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View Task Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
               <button mat-icon-button class="action-btn complete-btn" (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Mark Complete">
                 <mat-icon>check_circle</mat-icon>
               </button>
@@ -190,7 +196,7 @@
                 {{ task.priority || 'medium' }}
               </div>
             </div>
-            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
             <div class="task-meta">
               <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
                 <div class="assignees-label">
@@ -245,6 +251,9 @@
               </div>
             </div>
             <div class="task-actions">
+              <button mat-icon-button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View Task Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
               <button mat-icon-button class="action-btn undo-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Move Back to Todo">
                 <mat-icon>undo</mat-icon>
               </button>
@@ -263,7 +272,7 @@
                 {{ task.priority || 'medium' }}
               </div>
             </div>
-            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
             <div class="task-meta">
               <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
                 <div class="assignees-label">
@@ -314,6 +323,9 @@
               </div>
             </div>
             <div class="task-actions">
+              <button mat-icon-button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View Task Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
               <button mat-icon-button class="action-btn resume-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Move Back to Todo">
                 <mat-icon>undo</mat-icon>
               </button>
@@ -335,7 +347,7 @@
                 {{ task.priority || 'medium' }}
               </div>
             </div>
-            <p class="task-description" *ngIf="getTaskDescription(task)">{{ getTaskDescription(task) }}</p>
+            <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
             <div class="task-meta">
               <div class="task-assignees" *ngIf="getTaskAssignees(task).length > 0">
                 <div class="assignees-label">

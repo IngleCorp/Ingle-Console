@@ -9,6 +9,86 @@ body { margin: 0;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;}
+
+// Material Icons global fixes
+.material-icons,
+mat-icon,
+.mat-icon {
+  font-family: 'Material Icons', 'Material Icons Outlined', 'Material Icons Round', 'Material Icons Sharp', 'Material Icons Two Tone' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  font-feature-settings: 'liga' !important;
+  vertical-align: middle !important;
+  user-select: none !important;
+}
+
+// Angular Material button icon fixes
+.mat-mdc-icon-button,
+.mat-mdc-button {
+  mat-icon,
+  .mat-icon {
+    font-family: 'Material Icons' !important;
+    font-size: inherit !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+  }
+}
+
+// Specific fixes for task action buttons
+.action-btn {
+  mat-icon,
+  .mat-icon {
+    font-family: 'Material Icons' !important;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+    display: inline-block !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+// Force Material Icons to display in all contexts
+.mat-icon.material-icons,
+.mat-icon.mat-ligature-font,
+mat-icon.material-icons,
+mat-icon.mat-ligature-font {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: inherit !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+  font-feature-settings: 'liga' !important;
+  vertical-align: middle !important;
+  user-select: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
 .full-screen-dialog .mat-dialog-container {
     height: 100vh;
     margin: 0;

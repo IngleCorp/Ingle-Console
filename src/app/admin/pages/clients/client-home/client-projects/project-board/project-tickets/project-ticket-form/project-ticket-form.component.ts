@@ -69,11 +69,13 @@ export class ProjectTicketFormComponent implements OnInit, OnDestroy {
       type: ['info', Validators.required],
       status: ['open', Validators.required],
       number: ['', Validators.required],
-      description: ['', Validators.required]
+      description: ['', Validators.required],
+      is_hidden: [false]
     });
   }
 
   ngOnInit(): void {
+    console.log('data :',this.data)
     this.isEditMode = this.data?.type === 'edit';
     
     if (this.isEditMode && this.data?.ticket) {
@@ -101,7 +103,8 @@ export class ProjectTicketFormComponent implements OnInit, OnDestroy {
       type: ticket.type || 'info',
       status: ticket.status || 'open',
       number: ticket.number || '',
-      description: ticket.description || ''
+      description: ticket.description || '',
+      is_hidden: ticket.is_hidden || false
     });
   }
 
@@ -141,7 +144,13 @@ export class ProjectTicketFormComponent implements OnInit, OnDestroy {
     const ticketData = {
       ...formData,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      createdBy: this.data.currentUser.uid,
+      updatedBy: this.data.currentUser.uid,
+      reportedBy: this.data.currentUser.name,
+      projectId: this.data.projectId,
+      clientId: this.data.clientId,
+      is_hidden: formData.is_hidden || false
     };
 
     this.afs.collection('projects').doc(this.data.projectId).collection('tickets').add(ticketData)
@@ -167,7 +176,8 @@ export class ProjectTicketFormComponent implements OnInit, OnDestroy {
 
     const ticketData = {
       ...formData,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      is_hidden: formData.is_hidden || false
     };
 
     this.afs.collection('projects').doc(this.data.projectId).collection('tickets').doc(this.data.ticket.id).update(ticketData)
