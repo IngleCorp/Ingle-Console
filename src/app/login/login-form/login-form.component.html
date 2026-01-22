@@ -1,74 +1,122 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="logo-container">
-      <img src="/ingle_logo.png" alt="Ingle Logo" class="ingle-logo" />
+  <div class="login-wrapper">
+    <!-- Left Side - Branding & Visual -->
+    <div class="login-branding">
+      <div class="branding-content">
+        <div class="logo-container">
+          <img src="/ingle_logo.png" alt="Ingle Logo" class="ingle-logo" />
+        </div>
+        <h1 class="brand-title">Welcome Back</h1>
+        <p class="brand-subtitle">Sign in to continue to your account</p>
+        <div class="brand-features">
+          <div class="feature-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure & Protected</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-bolt"></i>
+            <span>Fast & Reliable</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-users"></i>
+            <span>Team Collaboration</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <h2 class="title">Welcome Back</h2>
+    <!-- Right Side - Login Form -->
+    <div class="login-form-section">
+      <div class="login-card">
+        <div class="card-header">
+          <h2 class="form-title">Sign In</h2>
+          <p class="form-subtitle">Enter your credentials to access your account</p>
+        </div>
 
-    <form (ngSubmit)="login()" autocomplete="on" novalidate>
-      
-      <!-- Email Floating Label -->
-      <div class="input-group">
-        <input
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="email"
-          class="form-control"
-          placeholder=" "
-          required
-          aria-label="Email address"
-        />
-        <label for="email">Email Address</label>
-        <span class="icon"><i class="fas fa-envelope"></i></span>
+        <form (ngSubmit)="login()" autocomplete="on" novalidate class="login-form">
+          <!-- Email Input -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <i class="fas fa-envelope"></i>
+              </span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                [(ngModel)]="email"
+                class="form-control"
+                placeholder="Email Address"
+                required
+                aria-label="Email address"
+              />
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <i class="fas fa-lock"></i>
+              </span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                [(ngModel)]="password"
+                class="form-control"
+                placeholder="Password"
+                required
+                aria-label="Password"
+              />
+              <button 
+                type="button" 
+                class="password-toggle" 
+                (click)="togglePassword()" 
+                aria-label="Toggle password visibility"
+                tabindex="0"
+              >
+                <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="error-container">
+            <i class="fas fa-exclamation-circle"></i>
+            <span class="error-message">{{ errorMessage }}</span>
+          </div>
+
+          <!-- Forgot Password & Remember Me -->
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+            <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="!isLoading" class="btn-content">
+              <span>Sign In</span>
+              <i class="fas fa-arrow-right"></i>
+            </span>
+            <span *ngIf="isLoading" class="btn-content">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Signing in...</span>
+            </span>
+          </button>
+
+          <!-- Sign Up Link -->
+          <div class="signup-section">
+            <p class="signup-text">
+              Don't have an account?
+              <a routerLink="/signup" class="signup-link">Create Account</a>
+            </p>
+          </div>
+        </form>
       </div>
-
-      <!-- Password Floating Label + Toggle -->
-      <div class="input-group">
-        <input
-          [type]="showPassword ? 'text' : 'password'"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          class="form-control"
-          placeholder=" "
-          required
-          aria-label="Password"
-        />
-        <label for="password">Password</label>
-        <button type="button" class="password-toggle" (click)="togglePassword()" aria-label="Toggle password visibility">
-          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-        </button>
-      </div>
-
-      <!-- Forgot & Error -->
-      <div class="options">
-        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
-        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Log In</span>
-        <span *ngIf="isLoading"><i class="fas fa-spinner fa-spin"></i> Logging in…</span>
-      </button>
-
-      <!-- Divider -->
-      <div class="divider"><span>OR</span></div>
-
-      <!-- Social Login -->
-      <div class="social-login">
-        <button type="button" class="btn btn-social google" (click)="loginWithGoogle()">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-      </div>
-
-      <!-- Sign Up Link -->
-      <p class="signup-text">
-        Don't have an account?
-        <a routerLink="/signup">Sign Up</a>
-      </p>
-    </form>
+    </div>
   </div>
 </div>
