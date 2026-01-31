@@ -1,80 +1,310 @@
-.task-detail-page {
-  font-family: 'Poppins', sans-serif;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 16px 24px;
+// Modern task detail — pro UX
+$font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+$radius: 10px;
+$radius-sm: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+$border: 1px solid rgba(0, 0, 0, 0.08);
+$text: #1d1d1f;
+$text-muted: #6e6e73;
+$bg-card: #ffffff;
+$bg-page: #f5f5f7;
+$primary: #0a84ff;
+
+.task-detail {
+  font-family: $font;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  background: $bg-page;
+  padding-bottom: 32px;
 }
 
-.detail-header {
+// ----- Header (sticky) -----
+.task-detail-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  .detail-title {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: $bg-card;
+  border-bottom: $border;
+  box-shadow: $shadow;
+  flex-wrap: wrap;
 }
 
-.loading-state,
-.task-not-found {
-  text-align: center;
-  padding: 48px 24px;
-  color: #757575;
+.header-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: $text-muted;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
   mat-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-    color: #bdbdbd;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
-  p { margin: 0 0 16px; }
+  &:hover {
+    color: $text;
+    background: rgba(0, 0, 0, 0.05);
+  }
 }
 
-.task-detail-form {
-  .form-row {
-    margin-bottom: 16px;
-    &.title-row { margin-bottom: 20px; }
-    &.two-cols {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      @media (max-width: 600px) {
-        grid-template-columns: 1fr;
-      }
-    }
-    &.progress-row {
-      .progress-label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 0.875rem;
-        color: rgba(0, 0, 0, 0.6);
-      }
-      .progress-control {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        .progress-slider { flex: 1; min-width: 120px; }
-        .progress-value { font-weight: 600; min-width: 40px; }
-      }
-    }
-  }
-  .full-width { width: 100%; }
-  .user-email { color: #757575; font-size: 0.85em; }
-  .meta-row {
-    margin-top: 8px;
-    margin-bottom: 24px;
-    font-size: 0.8rem;
-    color: #757575;
-    .meta-item { margin-right: 20px; }
-  }
-  .form-actions {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  .btn-spinner { margin-right: 6px; vertical-align: middle; }
+  .btn-save { min-width: 120px; }
+  .btn-delete { font-weight: 500; }
+}
+
+// ----- Loading / Empty -----
+.task-detail-loading,
+.task-detail-empty {
+  max-width: 480px;
+  margin: 48px auto;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.task-detail-loading {
+  mat-spinner { margin: 0 auto 16px; }
+  p { margin: 0; font-size: 0.9375rem; color: $text-muted; }
+}
+
+.task-detail-empty {
+  .empty-icon-wrap {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.06);
     display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
     align-items: center;
-    .btn-spinner { margin-right: 8px; vertical-align: middle; }
+    justify-content: center;
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: $text-muted;
+    }
   }
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text;
+  }
+  p {
+    margin: 0 0 24px;
+    font-size: 0.9375rem;
+    color: $text-muted;
+  }
+}
+
+// ----- Form -----
+.task-detail-form {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.form-hero {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+}
+
+.hero-title-field {
+  display: block;
+  margin-bottom: 16px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  ::ng-deep .mat-mdc-text-field-wrapper { padding: 0 16px; background: transparent; }
+  ::ng-deep .mat-mdc-form-field-infix { padding: 14px 0; }
+  ::ng-deep .mat-mdc-floating-label { font-size: 0.875rem; }
+  ::ng-deep input { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+}
+
+.hero-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  .meta-status { width: 160px; min-width: 140px; }
+  .meta-priority { width: 140px; min-width: 120px; }
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+// ----- Grid: main + sidebar -----
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-section-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 72px;
+  @media (max-width: 800px) {
+    position: static;
+  }
+}
+
+// ----- Section cards -----
+.section-card {
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+  padding: 20px;
+  transition: box-shadow 0.2s ease;
+  &:hover { box-shadow: $shadow-md; }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $text-muted;
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.9;
+  }
+}
+
+.section-card .full-width {
+  width: 100%;
+  display: block;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.option-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 8px;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+.option-email {
+  display: block;
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+// ----- Progress block -----
+.progress-block {
+  margin-top: 4px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  .progress-label { font-size: 0.875rem; color: $text-muted; }
+  .progress-value { font-size: 0.875rem; font-weight: 600; color: $text; }
+}
+
+.progress-track {
+  padding: 4px 0;
+}
+
+.progress-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  outline: none;
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: $primary;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
+  }
+  &::-webkit-slider-thumb:hover { transform: scale(1.1); }
+  &::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: $primary;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// ----- Meta (activity) -----
+.meta-card .meta-list {
+  margin-top: 4px;
+}
+
+.meta-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.875rem;
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+  &:first-child { padding-top: 0; }
+}
+
+.meta-key {
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.meta-val {
+  color: $text;
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+.full-width {
+  width: 100%;
 }

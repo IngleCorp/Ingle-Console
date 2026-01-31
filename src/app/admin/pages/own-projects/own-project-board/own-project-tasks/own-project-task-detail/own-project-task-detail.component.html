@@ -1,105 +1,158 @@
-<div class="task-detail-page">
-  <div class="detail-header">
-    <button mat-icon-button (click)="backToList()" matTooltip="Back to tasks">
+<div class="task-detail">
+  <!-- Header -->
+  <header class="task-detail-header">
+    <button type="button" class="header-back" (click)="backToList()" matTooltip="Back to tasks">
       <mat-icon>arrow_back</mat-icon>
+      <span>Tasks</span>
     </button>
-    <h1 class="detail-title">Task details</h1>
-  </div>
+    <div class="header-actions">
+      <button mat-button type="button" (click)="backToList()">Cancel</button>
+      <button mat-flat-button color="warn" type="button" class="btn-delete" (click)="deleteTask()">Delete</button>
+      <button mat-flat-button color="primary" type="submit" form="taskDetailForm" [disabled]="taskForm.invalid || isSaving" class="btn-save">
+        <mat-spinner diameter="18" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
+        {{ isSaving ? 'Saving...' : 'Save changes' }}
+      </button>
+    </div>
+  </header>
 
-  <div class="loading-state" *ngIf="isLoading && !task">
+  <!-- Loading -->
+  <div class="task-detail-loading" *ngIf="isLoading && !task">
     <mat-spinner diameter="40"></mat-spinner>
     <p>Loading task...</p>
   </div>
 
-  <div class="task-not-found" *ngIf="!isLoading && !task && projectId && taskId">
-    <mat-icon>error_outline</mat-icon>
-    <p>Task not found.</p>
-    <button mat-button (click)="backToList()">Back to tasks</button>
+  <!-- Not found -->
+  <div class="task-detail-empty" *ngIf="!isLoading && !task && projectId && taskId">
+    <div class="empty-icon-wrap">
+      <mat-icon>description</mat-icon>
+    </div>
+    <h2>Task not found</h2>
+    <p>This task may have been deleted or the link is invalid.</p>
+    <button mat-flat-button color="primary" (click)="backToList()">Back to tasks</button>
   </div>
 
-  <form [formGroup]="taskForm" *ngIf="!isLoading || task" class="task-detail-form" (ngSubmit)="save()">
-    <div class="form-row title-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Title</mat-label>
-        <input matInput formControlName="title" placeholder="Task title">
+  <!-- Form -->
+  <form id="taskDetailForm" [formGroup]="taskForm" *ngIf="!isLoading || task" class="task-detail-form" (ngSubmit)="save()">
+    <div class="form-hero">
+      <mat-form-field appearance="outline" class="hero-title-field">
+        <mat-label>Task title</mat-label>
+        <input matInput formControlName="title" placeholder="What needs to be done?">
         <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
         <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">At least 2 characters</mat-error>
       </mat-form-field>
-    </div>
-
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" rows="4" placeholder="Description"></textarea>
-      </mat-form-field>
-    </div>
-
-    <div class="form-row two-cols">
-      <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Priority</mat-label>
-        <mat-select formControlName="priority">
-          <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Assignees</mat-label>
-        <mat-select formControlName="assigneeIds" multiple placeholder="Select users">
-          <mat-option *ngFor="let u of users" [value]="u.id">{{ u.name }} <span class="user-email" *ngIf="u.email">({{ u.email }})</span></mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="form-row two-cols">
-      <mat-form-field appearance="outline">
-        <mat-label>Due date</mat-label>
-        <input matInput [matDatepicker]="duePicker" formControlName="dueDate">
-        <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
-        <mat-datepicker #duePicker></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Estimated hours</mat-label>
-        <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0">
-      </mat-form-field>
-    </div>
-
-    <div class="form-row progress-row">
-      <label class="progress-label">Progress</label>
-      <div class="progress-control">
-        <input type="range" min="0" max="100" step="5" class="progress-slider"
-               [value]="taskForm.get('progress')?.value ?? 0"
-               (input)="taskForm.get('progress')?.setValue(+$any($event.target).value)">
-        <span class="progress-value">{{ taskForm.get('progress')?.value ?? 0 }}%</span>
+      <div class="hero-meta">
+        <mat-form-field appearance="outline" class="meta-status">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let s of statuses" [value]="s.value">
+              <mat-icon class="option-icon">{{ s.icon }}</mat-icon>
+              {{ s.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="meta-priority">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
     </div>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tags (comma separated)</mat-label>
-        <input matInput formControlName="tags" placeholder="e.g. frontend, bug">
-      </mat-form-field>
-    </div>
+    <div class="form-grid">
+      <section class="form-section form-section-main">
+        <div class="section-card">
+          <h3 class="section-title">
+            <mat-icon>notes</mat-icon>
+            Description
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add description</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Describe the task..."></textarea>
+          </mat-form-field>
+        </div>
 
-    <div class="meta-row" *ngIf="task">
-      <span class="meta-item">Created: {{ getCreatedDisplay() }}</span>
-      <span class="meta-item">Updated: {{ getUpdatedDisplay() }}</span>
-    </div>
+        <div class="section-card">
+          <h3 class="section-title">
+            <mat-icon>label</mat-icon>
+            Tags
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tags (comma separated)</mat-label>
+            <input matInput formControlName="tags" placeholder="e.g. frontend, bug, urgent">
+          </mat-form-field>
+        </div>
+      </section>
 
-    <div class="form-actions">
-      <button mat-button type="button" (click)="backToList()">Cancel</button>
-      <button mat-raised-button color="warn" type="button" (click)="deleteTask()">Delete</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="taskForm.invalid || isSaving">
-        <mat-spinner diameter="20" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
-        {{ isSaving ? 'Saving...' : 'Save' }}
-      </button>
+      <aside class="form-section form-section-sidebar">
+        <div class="section-card">
+          <h3 class="section-title">
+            <mat-icon>people</mat-icon>
+            Assignees
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select people</mat-label>
+            <mat-select formControlName="assigneeIds" multiple placeholder="Assignees">
+              <mat-option *ngFor="let u of users" [value]="u.id">
+                {{ u.name }}
+                <span class="option-email" *ngIf="u.email">{{ u.email }}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">
+            <mat-icon>schedule</mat-icon>
+            Schedule
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Due date</mat-label>
+            <input matInput [matDatepicker]="duePicker" formControlName="dueDate">
+            <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
+            <mat-datepicker #duePicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Estimated hours</mat-label>
+            <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0">
+          </mat-form-field>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">
+            <mat-icon>trending_up</mat-icon>
+            Progress
+          </h3>
+          <div class="progress-block">
+            <div class="progress-header">
+              <span class="progress-label">Completion</span>
+              <span class="progress-value">{{ taskForm.get('progress')?.value ?? 0 }}%</span>
+            </div>
+            <div class="progress-track">
+              <input type="range" min="0" max="100" step="5" class="progress-slider"
+                     [value]="taskForm.get('progress')?.value ?? 0"
+                     (input)="taskForm.get('progress')?.setValue(+$any($event.target).value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card meta-card" *ngIf="task">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Activity
+          </h3>
+          <div class="meta-list">
+            <div class="meta-line">
+              <span class="meta-key">Created</span>
+              <span class="meta-val">{{ getCreatedDisplay() }}</span>
+            </div>
+            <div class="meta-line">
+              <span class="meta-key">Updated</span>
+              <span class="meta-val">{{ getUpdatedDisplay() }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   </form>
 </div>
