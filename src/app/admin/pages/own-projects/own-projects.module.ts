@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { OwnProjectsRoutingModule } from './own-projects-routing.module';
 import { OwnProjectsListComponent } from './own-projects-list/own-projects-list.component';
@@ -58,6 +59,7 @@ import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-t
     MatTooltipModule,
     MatCardModule,
     MatMenuModule,
+    DragDropModule,
   ],
 })
 export class OwnProjectsModule {}
