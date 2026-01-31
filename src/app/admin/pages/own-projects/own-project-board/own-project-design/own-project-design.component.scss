@@ -1,0 +1,365 @@
+$font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+$radius: 10px;
+$radius-sm: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+$border: 1px solid rgba(0, 0, 0, 0.08);
+$text: #1d1d1f;
+$text-muted: #6e6e73;
+$bg-card: #ffffff;
+$bg-subtle: #f5f5f7;
+
+.design-page {
+  font-family: $font;
+  -webkit-font-smoothing: antialiased;
+  padding: 0 4px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.design-header {
+  margin-bottom: 24px;
+}
+
+.header-title {
+  margin-bottom: 16px;
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: $text;
+    .title-icon { color: #5c6bc0; }
+  }
+  .page-subtitle {
+    margin: 4px 0 0 34px;
+    font-size: 0.875rem;
+    color: $text-muted;
+  }
+}
+
+.header-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: $border;
+  border-radius: $radius-sm;
+  background: $bg-card;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: $text-muted;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  box-shadow: $shadow;
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+  &:hover {
+    color: $text;
+    background: $bg-subtle;
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+  &.active {
+    color: #5c6bc0;
+    background: rgba(92, 107, 192, 0.08);
+    border-color: rgba(92, 107, 192, 0.3);
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 48px 24px;
+  mat-spinner { margin: 0 auto 16px; }
+  p { margin: 0; font-size: 0.9375rem; color: $text-muted; }
+}
+
+// ----- Product Canvas -----
+.canvas-intro {
+  margin: 0 0 20px;
+  font-size: 0.9375rem;
+  color: $text-muted;
+  max-width: 640px;
+}
+
+.canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.canvas-card {
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+  padding: 16px;
+  transition: box-shadow 0.2s ease;
+  &:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+}
+
+.canvas-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text;
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #5c6bc0;
+    opacity: 0.9;
+  }
+}
+
+.canvas-card-hint {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  color: $text-muted;
+  line-height: 1.35;
+}
+
+.canvas-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border: $border;
+  border-radius: $radius-sm;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: $text;
+  background: $bg-subtle;
+  resize: vertical;
+  transition: border-color 0.15s, background 0.15s;
+  &:focus {
+    outline: none;
+    border-color: #5c6bc0;
+    background: $bg-card;
+  }
+  &::placeholder { color: #9e9e9e; }
+}
+
+.canvas-actions {
+  margin-top: 8px;
+  .btn-spinner { margin-right: 8px; vertical-align: middle; }
+}
+
+// ----- Flow Diagrams (multiple) -----
+.flow-intro {
+  margin: 0 0 20px;
+  font-size: 0.9375rem;
+  color: $text-muted;
+  a { color: #5c6bc0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+}
+
+.flow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.flow-diagram-card {
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+.flow-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: $border;
+  background: $bg-subtle;
+}
+
+.flow-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.flow-card-actions {
+  display: flex;
+  gap: 4px;
+  .btn-delete mat-icon { color: #c62828; }
+  .btn-delete:hover mat-icon { color: #b71c1c; }
+}
+
+.flow-diagram-preview {
+  padding: 20px;
+  min-height: 120px;
+  overflow: auto;
+  ::ng-deep .mermaid { display: flex; justify-content: center; align-items: center; }
+  ::ng-deep svg { max-width: 100%; height: auto; }
+}
+
+.flow-form-card {
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.flow-form-body {
+  padding: 16px;
+}
+
+.flow-title-field {
+  width: 100%;
+  display: block;
+  margin-bottom: 12px;
+  max-width: 400px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.flow-form-code-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 12px;
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flow-form-preview {
+  min-height: 200px;
+  padding: 16px;
+  background: $bg-subtle;
+  border-radius: $radius-sm;
+  border: $border;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ::ng-deep .mermaid { display: flex; justify-content: center; align-items: center; }
+  ::ng-deep svg { max-width: 100%; height: auto; }
+}
+
+.flow-empty-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+.flow-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flow-editor-panel,
+.flow-preview-panel {
+  background: $bg-card;
+  border-radius: $radius;
+  border: $border;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: $border;
+  background: $bg-subtle;
+  h3 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $text;
+  }
+}
+
+.flow-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px 14px;
+  border: $border;
+  border-radius: $radius-sm;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: $text;
+  background: $bg-card;
+  resize: vertical;
+  display: block;
+  &:focus { outline: none; border-color: #5c6bc0; }
+  &::placeholder { color: #9e9e9e; }
+}
+
+.flow-editor-actions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: $border;
+  background: $bg-subtle;
+  .btn-spinner { margin-right: 6px; vertical-align: middle; }
+}
+
+.flow-preview-box {
+  min-height: 320px;
+  padding: 20px;
+  background: $bg-card;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ::ng-deep .mermaid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  ::ng-deep svg { max-width: 100%; height: auto; }
+}
+
+.flow-preview-placeholder {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text-muted;
+  text-align: center;
+}
+
+.mermaid-error,
+.mermaid-error-msg {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #c62828;
+  a { color: #5c6bc0; }
+}

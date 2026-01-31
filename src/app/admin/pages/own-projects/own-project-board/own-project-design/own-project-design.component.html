@@ -1,0 +1,110 @@
+<div class="design-page">
+  <header class="design-header">
+    <div class="header-title">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">design_services</mat-icon>
+        Design & Ideation
+      </h1>
+      <p class="page-subtitle">Product canvas, logic flows, and architecture</p>
+    </div>
+    <div class="header-tabs">
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'canvas'" (click)="setTab('canvas')">
+        <mat-icon>dashboard_customize</mat-icon>
+        Product Canvas
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'flow'" (click)="setTab('flow')">
+        <mat-icon>account_tree</mat-icon>
+        Flow Diagram
+      </button>
+    </div>
+  </header>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Product Canvas -->
+  <div class="design-content" *ngIf="!isLoading && activeTab === 'canvas'">
+    <p class="canvas-intro">Fill in the Lean / Product Canvas sections to shape your product idea. Data is saved automatically when you click Save.</p>
+    <div class="canvas-grid">
+      <div class="canvas-card" *ngFor="let cs of canvasSections">
+        <h3 class="canvas-card-title">
+          <mat-icon>{{ cs.icon }}</mat-icon>
+          {{ cs.label }}
+        </h3>
+        <p class="canvas-card-hint">{{ cs.hint }}</p>
+        <textarea
+          class="canvas-textarea"
+          [(ngModel)]="canvas[cs.key]"
+          [placeholder]="'Add ' + cs.label + '...'"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+    <div class="canvas-actions">
+      <button mat-flat-button color="primary" (click)="saveCanvas()" [disabled]="isSaving">
+        <mat-spinner diameter="20" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
+        {{ isSaving ? 'Saving...' : 'Save Canvas' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Flow Diagrams (multiple, each with title) -->
+  <div class="design-content flow-content" *ngIf="!isLoading && activeTab === 'flow'">
+    <p class="flow-intro">Add multiple flow diagrams with a title each. Use <a href="https://mermaid.js.org/syntax/flowchart.html" target="_blank" rel="noopener">Mermaid</a> syntax for flowcharts, sequence diagrams, and more.</p>
+
+    <!-- List of saved diagrams -->
+    <div class="flow-list" *ngIf="flowDiagrams.length">
+      <div class="flow-diagram-card" *ngFor="let diagram of flowDiagrams">
+        <div class="flow-card-header">
+          <h3 class="flow-card-title">{{ diagram.title }}</h3>
+          <div class="flow-card-actions">
+            <button mat-icon-button type="button" (click)="editFlow(diagram)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button type="button" (click)="deleteFlowDiagram(diagram.id)" matTooltip="Delete" class="btn-delete"><mat-icon>delete_outline</mat-icon></button>
+          </div>
+        </div>
+        <div class="flow-diagram-preview">
+          <pre class="mermaid">{{ diagram.mermaidCode }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add / Edit form -->
+    <div class="flow-form-card">
+      <div class="panel-header">
+        <h3>{{ editingFlowId ? 'Edit diagram' : 'Add new diagram' }}</h3>
+        <button mat-stroked-button type="button" *ngIf="editingFlowId" (click)="cancelFlowForm()">Cancel</button>
+        <button mat-stroked-button type="button" *ngIf="!editingFlowId && flowDiagrams.length" (click)="startAddFlow()">New diagram</button>
+      </div>
+      <div class="flow-form-body">
+        <mat-form-field appearance="outline" class="flow-title-field">
+          <mat-label>Diagram title</mat-label>
+          <input matInput [(ngModel)]="flowFormTitle" placeholder="e.g. User login flow">
+        </mat-form-field>
+        <div class="flow-form-code-row">
+          <textarea
+            class="flow-textarea"
+            [(ngModel)]="flowFormCode"
+            placeholder="e.g. flowchart LR&#10;  A[Start] --> B[End]"
+            rows="10"
+          ></textarea>
+          <div class="flow-form-preview" #mermaidContainer>
+            <p class="flow-preview-placeholder" *ngIf="!flowFormCode?.trim()">Mermaid code preview appears here.</p>
+            <p class="mermaid-error-msg" *ngIf="mermaidError">{{ mermaidError }}</p>
+          </div>
+        </div>
+        <div class="flow-editor-actions">
+          <button mat-stroked-button type="button" (click)="useFlowExample()">Load example</button>
+          <button mat-stroked-button type="button" (click)="renderMermaid()">Refresh preview</button>
+          <button mat-flat-button color="primary" (click)="saveFlowDiagram()" [disabled]="isSaving || !flowFormTitle?.trim()">
+            <mat-spinner diameter="18" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
+            {{ isSaving ? 'Saving...' : (editingFlowId ? 'Update diagram' : 'Save diagram') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <p class="flow-empty-hint" *ngIf="!flowDiagrams.length && !editingFlowId">Add a title and Mermaid code above, then click Save diagram to create your first flow.</p>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import { OwnProjectTasksComponent } from './own-project-board/own-project-tasks/
 import { OwnProjectAccountsComponent } from './own-project-board/own-project-accounts/own-project-accounts.component';
 import { OwnProjectFilesComponent } from './own-project-board/own-project-files/own-project-files.component';
 import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-tasks/own-project-task-detail/own-project-task-detail.component';
+import { OwnProjectDesignComponent } from './own-project-board/own-project-design/own-project-design.component';
 
 const routes: Routes = [
   { path: '', component: OwnProjectsListComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
       { path: 'info', component: OwnProjectInfoComponent },
       { path: 'accounts', component: OwnProjectAccountsComponent },
       { path: 'files', component: OwnProjectFilesComponent },
+      { path: 'design', component: OwnProjectDesignComponent },
     ]
   },
 ];

@@ -27,6 +27,7 @@ import { OwnProjectTasksComponent } from './own-project-board/own-project-tasks/
 import { OwnProjectAccountsComponent } from './own-project-board/own-project-accounts/own-project-accounts.component';
 import { OwnProjectFilesComponent } from './own-project-board/own-project-files/own-project-files.component';
 import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-tasks/own-project-task-detail/own-project-task-detail.component';
+import { OwnProjectDesignComponent } from './own-project-board/own-project-design/own-project-design.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-t
     OwnProjectInfoComponent,
     OwnProjectTasksComponent,
     OwnProjectTaskDetailComponent,
+    OwnProjectDesignComponent,
     OwnProjectAccountsComponent,
     OwnProjectFilesComponent,
   ],
