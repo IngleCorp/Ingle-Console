@@ -56,12 +56,15 @@
             <div class="task-card-body">
               <h3 class="task-card-title">{{ task.title }}</h3>
               <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-meta">
-                <span class="task-card-assignees" *ngIf="getAssigneesDisplay(task)"><mat-icon>person_outline</mat-icon>{{ getAssigneesDisplay(task) }}</span>
-                <span class="task-card-priority pill" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ getAssigneesDisplay(task) }}</span>
               </div>
-              <div class="task-card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete" class="action-delete"><mat-icon>delete_outline</mat-icon></button>
+              <div class="task-card-pills-row">
+                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
               </div>
             </div>
           </article>
@@ -83,12 +86,15 @@
                 <div class="progress-bar"><div class="progress-fill" [style.width.%]="task.progress"></div></div>
                 <span class="progress-label">{{ task.progress }}%</span>
               </div>
-              <div class="task-card-meta">
-                <span class="task-card-assignees" *ngIf="getAssigneesDisplay(task)"><mat-icon>person_outline</mat-icon>{{ getAssigneesDisplay(task) }}</span>
-                <span class="task-card-priority pill" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ getAssigneesDisplay(task) }}</span>
               </div>
-              <div class="task-card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete" class="action-delete"><mat-icon>delete_outline</mat-icon></button>
+              <div class="task-card-pills-row">
+                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
               </div>
             </div>
           </article>
@@ -106,11 +112,15 @@
             <div class="task-card-body">
               <h3 class="task-card-title">{{ task.title }}</h3>
               <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-meta">
-                <span class="task-card-assignees" *ngIf="getAssigneesDisplay(task)"><mat-icon>person_outline</mat-icon>{{ getAssigneesDisplay(task) }}</span>
+              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ getAssigneesDisplay(task) }}</span>
               </div>
-              <div class="task-card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete" class="action-delete"><mat-icon>delete_outline</mat-icon></button>
+              <div class="task-card-pills-row">
+                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
               </div>
             </div>
           </article>
@@ -128,12 +138,15 @@
             <div class="task-card-body">
               <h3 class="task-card-title">{{ task.title }}</h3>
               <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-meta">
-                <span class="task-card-assignees" *ngIf="getAssigneesDisplay(task)"><mat-icon>person_outline</mat-icon>{{ getAssigneesDisplay(task) }}</span>
-                <span class="task-card-priority pill" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ getAssigneesDisplay(task) }}</span>
               </div>
-              <div class="task-card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete" class="action-delete"><mat-icon>delete_outline</mat-icon></button>
+              <div class="task-card-pills-row">
+                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
               </div>
             </div>
           </article>
