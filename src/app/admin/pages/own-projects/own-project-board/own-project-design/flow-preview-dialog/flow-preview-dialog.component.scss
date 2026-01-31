@@ -1,0 +1,61 @@
+.flow-preview-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .zoom-label {
+    font-size: 0.8125rem;
+    color: rgba(0, 0, 0, 0.6);
+    min-width: 2.5rem;
+    text-align: right;
+  }
+}
+
+.dialog-content {
+  padding: 24px;
+  overflow: auto;
+  flex: 1;
+  min-height: 200px;
+}
+
+.mermaid-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: #f5f5f7;
+  border-radius: 10px;
+  min-height: 240px;
+  transform-origin: center center;
+  transition: transform 0.15s ease-out;
+  ::ng-deep .mermaid { display: flex; justify-content: center; align-items: center; }
+  ::ng-deep svg { max-width: 100%; height: auto; }
+}
+
+.mermaid-error {
+  margin: 0;
+  color: #c62828;
+  font-size: 0.9375rem;
+}
+
+.dialog-actions {
+  padding: 12px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}

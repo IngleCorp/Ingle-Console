@@ -1,0 +1,26 @@
+<div class="flow-preview-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>{{ data.title }}</h2>
+    <div class="header-actions">
+      <span class="zoom-label" *ngIf="zoom !== 1">{{ (zoom * 100) | number:'1.0-0' }}%</span>
+      <button mat-icon-button type="button" (click)="zoomOut()" [disabled]="zoom <= minZoom" matTooltip="Zoom out">
+        <mat-icon>zoom_out</mat-icon>
+      </button>
+      <button mat-icon-button type="button" (click)="resetZoom()" [disabled]="zoom === 1" matTooltip="Reset zoom">
+        <mat-icon>fit_screen</mat-icon>
+      </button>
+      <button mat-icon-button type="button" (click)="zoomIn()" [disabled]="zoom >= maxZoom" matTooltip="Zoom in">
+        <mat-icon>zoom_in</mat-icon>
+      </button>
+      <button mat-icon-button type="button" (click)="close()" matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div mat-dialog-content class="dialog-content">
+    <div class="mermaid-wrap" #mermaidWrap [style.transform]="'scale(' + zoom + ')'"></div>
+  </div>
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button type="button" (click)="close()">Close</button>
+  </div>
+</div>

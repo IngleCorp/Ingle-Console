@@ -28,6 +28,7 @@ import { OwnProjectAccountsComponent } from './own-project-board/own-project-acc
 import { OwnProjectFilesComponent } from './own-project-board/own-project-files/own-project-files.component';
 import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-tasks/own-project-task-detail/own-project-task-detail.component';
 import { OwnProjectDesignComponent } from './own-project-board/own-project-design/own-project-design.component';
+import { FlowPreviewDialogComponent } from './own-project-board/own-project-design/flow-preview-dialog/flow-preview-dialog.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { OwnProjectDesignComponent } from './own-project-board/own-project-desig
     OwnProjectTasksComponent,
     OwnProjectTaskDetailComponent,
     OwnProjectDesignComponent,
+    FlowPreviewDialogComponent,
     OwnProjectAccountsComponent,
     OwnProjectFilesComponent,
   ],

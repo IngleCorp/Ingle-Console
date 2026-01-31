@@ -60,11 +60,26 @@
         <div class="flow-card-header">
           <h3 class="flow-card-title">{{ diagram.title }}</h3>
           <div class="flow-card-actions">
+            <button mat-icon-button type="button" (click)="openPreview(diagram)" matTooltip="View full screen">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="downloadAsImage(diagram)" matTooltip="Download as PNG">
+              <mat-icon>image</mat-icon>
+            </button>
+            <mat-menu #downloadMenu="matMenu">
+              <button mat-menu-item (click)="downloadAsSvg(diagram)">
+                <mat-icon>code</mat-icon>
+                <span>Download as SVG</span>
+              </button>
+            </mat-menu>
+            <button mat-icon-button type="button" [matMenuTriggerFor]="downloadMenu" matTooltip="More (e.g. SVG)">
+              <mat-icon>more_vert</mat-icon>
+            </button>
             <button mat-icon-button type="button" (click)="editFlow(diagram)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
             <button mat-icon-button type="button" (click)="deleteFlowDiagram(diagram.id)" matTooltip="Delete" class="btn-delete"><mat-icon>delete_outline</mat-icon></button>
           </div>
         </div>
-        <div class="flow-diagram-preview">
+        <div class="flow-diagram-preview" [id]="'flow-preview-' + diagram.id">
           <pre class="mermaid">{{ diagram.mermaidCode }}</pre>
         </div>
       </div>

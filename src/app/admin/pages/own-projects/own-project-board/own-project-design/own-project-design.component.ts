@@ -2,7 +2,11 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import html2canvas from 'html2canvas';
+import { saveAs } from 'file-saver';
+import { FlowPreviewDialogComponent } from './flow-preview-dialog/flow-preview-dialog.component';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const DESIGN_DOC_ID = 'main';
@@ -81,7 +85,8 @@ export class OwnProjectDesignComponent implements OnInit, OnDestroy {
   constructor(
     private afs: AngularFirestore,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -281,6 +286,52 @@ export class OwnProjectDesignComponent implements OnInit, OnDestroy {
     const nodes = document.querySelectorAll('.flow-diagram-preview pre.mermaid');
     if (!nodes.length) return;
     mermaid.run({ nodes: Array.from(nodes) }).catch(() => {});
+  }
+
+  openPreview(diagram: FlowDiagramItem): void {
+    this.dialog.open(FlowPreviewDialogComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      maxHeight: '90vh',
+      data: { title: diagram.title, mermaidCode: diagram.mermaidCode }
+    });
+  }
+
+  downloadAsImage(diagram: FlowDiagramItem): void {
+    const el = document.getElementById('flow-preview-' + diagram.id);
+    if (!el) {
+      this.snackBar.open('Diagram not ready. Wait for preview to render.', 'Close', { duration: 3000 });
+      return;
+    }
+    html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+      canvas.toBlob(blob => {
+        if (blob) {
+          const name = (diagram.title || 'flow-diagram').replace(/[^a-z0-9-_]/gi, '-');
+          saveAs(blob, name + '.png');
+          this.snackBar.open('Image downloaded', 'Close', { duration: 2000 });
+        }
+      }, 'image/png');
+    }).catch(() => {
+      this.snackBar.open('Download failed', 'Close', { duration: 3000 });
+    });
+  }
+
+  downloadAsSvg(diagram: FlowDiagramItem): void {
+    const el = document.getElementById('flow-preview-' + diagram.id);
+    if (!el) {
+      this.snackBar.open('Diagram not ready. Wait for preview to render.', 'Close', { duration: 3000 });
+      return;
+    }
+    const svg = el.querySelector('svg');
+    if (!svg) {
+      this.snackBar.open('No diagram to export. Save and ensure it renders.', 'Close', { duration: 3000 });
+      return;
+    }
+    const svgStr = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    const name = (diagram.title || 'flow-diagram').replace(/[^a-z0-9-_]/gi, '-');
+    saveAs(blob, name + '.svg');
+    this.snackBar.open('SVG downloaded', 'Close', { duration: 2000 });
   }
 
   renderMermaid(): void {
