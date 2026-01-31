@@ -1,0 +1,80 @@
+.task-detail-page {
+  font-family: 'Poppins', sans-serif;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  .detail-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.loading-state,
+.task-not-found {
+  text-align: center;
+  padding: 48px 24px;
+  color: #757575;
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #bdbdbd;
+  }
+  p { margin: 0 0 16px; }
+}
+
+.task-detail-form {
+  .form-row {
+    margin-bottom: 16px;
+    &.title-row { margin-bottom: 20px; }
+    &.two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+    }
+    &.progress-row {
+      .progress-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.875rem;
+        color: rgba(0, 0, 0, 0.6);
+      }
+      .progress-control {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        .progress-slider { flex: 1; min-width: 120px; }
+        .progress-value { font-weight: 600; min-width: 40px; }
+      }
+    }
+  }
+  .full-width { width: 100%; }
+  .user-email { color: #757575; font-size: 0.85em; }
+  .meta-row {
+    margin-top: 8px;
+    margin-bottom: 24px;
+    font-size: 0.8rem;
+    color: #757575;
+    .meta-item { margin-right: 20px; }
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
+    .btn-spinner { margin-right: 8px; vertical-align: middle; }
+  }
+}

@@ -1,0 +1,105 @@
+<div class="task-detail-page">
+  <div class="detail-header">
+    <button mat-icon-button (click)="backToList()" matTooltip="Back to tasks">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="detail-title">Task details</h1>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading && !task">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading task...</p>
+  </div>
+
+  <div class="task-not-found" *ngIf="!isLoading && !task && projectId && taskId">
+    <mat-icon>error_outline</mat-icon>
+    <p>Task not found.</p>
+    <button mat-button (click)="backToList()">Back to tasks</button>
+  </div>
+
+  <form [formGroup]="taskForm" *ngIf="!isLoading || task" class="task-detail-form" (ngSubmit)="save()">
+    <div class="form-row title-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="Task title">
+        <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">At least 2 characters</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="4" placeholder="Description"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row two-cols">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Assignees</mat-label>
+        <mat-select formControlName="assigneeIds" multiple placeholder="Select users">
+          <mat-option *ngFor="let u of users" [value]="u.id">{{ u.name }} <span class="user-email" *ngIf="u.email">({{ u.email }})</span></mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row two-cols">
+      <mat-form-field appearance="outline">
+        <mat-label>Due date</mat-label>
+        <input matInput [matDatepicker]="duePicker" formControlName="dueDate">
+        <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
+        <mat-datepicker #duePicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Estimated hours</mat-label>
+        <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row progress-row">
+      <label class="progress-label">Progress</label>
+      <div class="progress-control">
+        <input type="range" min="0" max="100" step="5" class="progress-slider"
+               [value]="taskForm.get('progress')?.value ?? 0"
+               (input)="taskForm.get('progress')?.setValue(+$any($event.target).value)">
+        <span class="progress-value">{{ taskForm.get('progress')?.value ?? 0 }}%</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tags (comma separated)</mat-label>
+        <input matInput formControlName="tags" placeholder="e.g. frontend, bug">
+      </mat-form-field>
+    </div>
+
+    <div class="meta-row" *ngIf="task">
+      <span class="meta-item">Created: {{ getCreatedDisplay() }}</span>
+      <span class="meta-item">Updated: {{ getUpdatedDisplay() }}</span>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button type="button" (click)="backToList()">Cancel</button>
+      <button mat-raised-button color="warn" type="button" (click)="deleteTask()">Delete</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="taskForm.invalid || isSaving">
+        <mat-spinner diameter="20" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
+        {{ isSaving ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </form>
+</div>

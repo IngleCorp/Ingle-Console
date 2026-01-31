@@ -1,0 +1,88 @@
+<div class="own-project-files-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">folder</mat-icon>
+          Files
+        </h1>
+        <p class="page-subtitle">Upload and manage project files</p>
+      </div>
+      <div class="header-actions">
+        <div class="search-bar">
+          <mat-icon>search</mat-icon>
+          <input type="text" [(ngModel)]="searchTerm" (input)="searchFiles()" placeholder="Search files..." />
+          <button *ngIf="searchTerm" (click)="clearSearch()" mat-icon-button matTooltip="Clear">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="filter-bar">
+          <mat-icon>filter_list</mat-icon>
+          <select [(ngModel)]="selectedFileType" (change)="filterByType()">
+            <option value="">All Types</option>
+            <option value="image">Images</option>
+            <option value="document">Documents</option>
+            <option value="spreadsheet">Spreadsheets</option>
+            <option value="code">Code</option>
+            <option value="archive">Archives</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="upload-area"
+    [class.drag-over]="dragOver"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+    <input type="file" id="own-file-upload" (change)="onFileSelected($event)" hidden />
+    <button class="upload-btn" (click)="triggerFileInput()">
+      <mat-icon>upload_file</mat-icon>
+      <span>Upload File</span>
+    </button>
+    <span class="upload-hint">or drag & drop (max 10MB)</span>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading && !projectFiles?.length">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="files-grid" *ngIf="!isLoading && filteredFiles?.length">
+    <div class="file-card" *ngFor="let file of filteredFiles; trackBy: trackByFile">
+      <div class="file-icon" [ngStyle]="{'background': getFileTypeColor(file.format)}">
+        <mat-icon>{{ getFileIcon(file.format) }}</mat-icon>
+      </div>
+      <div class="file-info">
+        <div class="file-name" [matTooltip]="file.name">{{ file.name }}</div>
+        <div class="file-meta">
+          <span class="file-type">{{ file.format | uppercase }}</span>
+          <span class="file-size">{{ file.size }}</span>
+        </div>
+        <div class="file-meta">
+          <span class="file-date">{{ getCreatedDisplay(file.createdAt) }}</span>
+          <span class="file-user">{{ file.createdbyname?.split(' ')[0] || '?' }}</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <a [href]="file.url" target="_blank" rel="noopener" mat-icon-button matTooltip="Open">
+          <mat-icon>open_in_new</mat-icon>
+        </a>
+        <button mat-icon-button (click)="downloadFile(file)" matTooltip="Download">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteFile(file.id, file.name)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && !filteredFiles?.length">
+    <mat-icon class="empty-icon">folder_open</mat-icon>
+    <h3>No files yet</h3>
+    <p>Upload files for this project using the button above.</p>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<div class="own-project-accounts-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">vpn_key</mat-icon>
+          Credentials
+        </h1>
+        <p class="page-subtitle">Manage accounts and credentials for this project</p>
+      </div>
+      <div class="header-actions">
+        <button class="add-btn" (click)="toggleAddForm()" [class.active]="showAddForm">
+          <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
+          <span>{{ showAddForm ? 'Cancel' : 'Add Account' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section" *ngIf="showAddForm">
+    <div class="form-container">
+      <h3>{{ editingAccount ? 'Edit Account' : 'Add Account' }}</h3>
+      <form [formGroup]="accountForm" (ngSubmit)="editingAccount ? updateAccount() : addAccount()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Account Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Admin Panel">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" placeholder="Username">
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" placeholder="Password">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>URL (optional)</mat-label>
+            <input matInput formControlName="url" placeholder="https://...">
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description (optional)</mat-label>
+            <textarea matInput formControlName="description" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="form-actions">
+          <button type="button" mat-stroked-button (click)="resetForm()">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="accountForm.invalid">
+            {{ editingAccount ? 'Update' : 'Add' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (input)="searchAccounts()" placeholder="Search by name, username...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="accounts-grid" *ngIf="filteredAccounts?.length">
+    <div class="account-card" *ngFor="let account of filteredAccounts; trackBy: trackByAccount">
+      <div class="card-header">
+        <mat-icon class="card-icon">vpn_key</mat-icon>
+        <h4>{{ account.name }}</h4>
+        <div class="card-actions">
+          <button mat-icon-button (click)="editAccount(account)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button (click)="deleteAccount(account.id, account.name)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <span class="label">Username</span>
+          <span class="value">
+            {{ account.username }}
+            <button mat-icon-button (click)="copyToClipboard(account.username)" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+          </span>
+        </div>
+        <div class="field">
+          <span class="label">Password</span>
+          <span class="value">
+            {{ showPasswords[account.id] ? account.password : '••••••••' }}
+            <button mat-icon-button (click)="togglePasswordVisibility(account.id)" matTooltip="{{ showPasswords[account.id] ? 'Hide' : 'Show' }}">
+              <mat-icon>{{ showPasswords[account.id] ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <button mat-icon-button (click)="copyToClipboard(account.password)" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+          </span>
+        </div>
+        <div class="field" *ngIf="account.url">
+          <span class="label">URL</span>
+          <a [href]="account.url" target="_blank" rel="noopener" class="url-link">{{ account.url }}</a>
+        </div>
+        <p class="description" *ngIf="account.description">{{ account.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!filteredAccounts?.length">
+    <mat-icon class="empty-icon">vpn_key</mat-icon>
+    <h3>No credentials yet</h3>
+    <p>Add accounts and passwords for this project.</p>
+    <button mat-raised-button color="primary" (click)="toggleAddForm()">
+      <mat-icon>add</mat-icon>
+      Add first account
+    </button>
+  </div>
+</div>

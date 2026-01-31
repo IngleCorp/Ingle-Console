@@ -1,0 +1,114 @@
+<div class="own-project-info-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">info</mat-icon>
+          Info & Links
+        </h1>
+        <p class="page-subtitle">Manage project details, links and metadata</p>
+      </div>
+      <div class="header-actions">
+        <button class="add-info-btn" (click)="toggleAddForm()" [class.active]="add" matTooltip="Add info">
+          <mat-icon>{{ add ? 'close' : 'add' }}</mat-icon>
+          <span>{{ add ? 'Cancel' : 'Add Info' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-form-section" *ngIf="add">
+    <div class="form-card">
+      <h3>{{ editMode ? 'Edit' : 'Add' }} Information</h3>
+      <div *ngIf="feedback.message" class="feedback-message" [ngClass]="feedback.type">{{ feedback.message }}</div>
+      <form (ngSubmit)="addInfo()" #f="ngForm">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Label</mat-label>
+            <input matInput [(ngModel)]="label" name="label" placeholder="e.g. Repo URL, Docs" required [disabled]="loading">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="type" name="type" required [disabled]="loading">
+              <mat-option value="text">Text</mat-option>
+              <mat-option value="link">Link</mat-option>
+              <mat-option value="date">Date</mat-option>
+              <mat-option value="email">Email</mat-option>
+              <mat-option value="phone">Phone</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Value</mat-label>
+            <input matInput [type]="getInputType()" [(ngModel)]="value" name="value" [placeholder]="getValuePlaceholder()" required [disabled]="loading">
+          </mat-form-field>
+        </div>
+        <div class="form-actions">
+          <button type="button" mat-stroked-button (click)="cancelAdd()" [disabled]="loading">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="!f.valid || loading">
+            {{ editMode ? 'Update' : 'Add' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="info-display-section">
+    <div class="section-header">
+      <h3>Information</h3>
+      <div class="filter-section">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Filter by type</mat-label>
+          <mat-select [(ngModel)]="selectedTypeFilter" (selectionChange)="filterByType()">
+            <mat-option value="">All</mat-option>
+            <mat-option value="text">Text</mat-option>
+            <mat-option value="link">Link</mat-option>
+            <mat-option value="email">Email</mat-option>
+            <mat-option value="phone">Phone</mat-option>
+            <mat-option value="date">Date</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span class="stat-item">{{ filteredInfodata?.length || 0 }} items</span>
+      </div>
+    </div>
+    <div class="info-grid" *ngIf="filteredInfodata?.length">
+      <div class="info-card" *ngFor="let info of filteredInfodata; trackBy: trackByInfo">
+        <div class="card-header">
+          <span class="type-badge type-{{ info.type }}">
+            <mat-icon>{{ getTypeIcon(info.type) }}</mat-icon>
+            {{ info.type }}
+          </span>
+          <div class="card-actions">
+            <button mat-icon-button (click)="editInfo(info)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button (click)="deleteInfo(info.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+          </div>
+        </div>
+        <h4 class="info-label">{{ info.label }}</h4>
+        <div class="info-value" [ngSwitch]="info.type">
+          <a *ngSwitchCase="'link'" [href]="info.value" target="_blank" class="link-value">{{ info.value }}</a>
+          <a *ngSwitchCase="'email'" [href]="'mailto:' + info.value">{{ info.value }}</a>
+          <a *ngSwitchCase="'phone'" [href]="'tel:' + info.value">{{ info.value }}</a>
+          <span *ngSwitchCase="'date'">{{ info.value | date:'mediumDate' }}</span>
+          <span *ngSwitchDefault>{{ info.value }}</span>
+        </div>
+        <div class="card-footer">
+          <span class="created" [matTooltip]="'By ' + (info.createdby || '?')">
+            <mat-icon>person</mat-icon>
+            {{ info.createdby?.split(' ')[0] || '?' }}
+          </span>
+          <span class="created">{{ getCreatedDisplay(info.createdAt) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="!filteredInfodata?.length">
+      <mat-icon class="empty-icon">info</mat-icon>
+      <h3>No information yet</h3>
+      <p>Add links, contacts and other data for this project.</p>
+      <button mat-raised-button color="primary" (click)="toggleAddForm()">
+        <mat-icon>add</mat-icon>
+        Add first item
+      </button>
+    </div>
+  </div>
+</div>

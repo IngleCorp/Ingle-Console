@@ -1,0 +1,86 @@
+<div class="own-project-form-dialog">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+      {{ isEditMode ? 'Edit Project' : 'Create Own Project' }}
+    </h2>
+    <p class="dialog-subtitle">Manage company product / ideation project</p>
+  </div>
+
+  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form">
+    <div class="form-content">
+      <div class="form-section">
+        <h3 class="section-title"><mat-icon>info</mat-icon> Basic Info</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Project Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Ingle Manage v2">
+            <mat-error>{{ getError('name') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="2" placeholder="Brief description"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="form-row two-cols">
+          <mat-form-field appearance="outline">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option *ngFor="let t of types" [value]="t.value">{{ t.label }}</mat-option>
+            </mat-select>
+            <mat-error>{{ getError('type') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="form-row two-cols">
+          <mat-form-field appearance="outline">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Progress %</mat-label>
+            <input matInput type="number" formControlName="progress" min="0" max="100">
+            <mat-error>{{ getError('progress') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="form-row two-cols">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2" placeholder="Optional notes"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        <span *ngIf="!isLoading">{{ isEditMode ? 'Update' : 'Create' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

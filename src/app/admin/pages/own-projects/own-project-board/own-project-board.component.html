@@ -1,0 +1,76 @@
+<div class="own-project-board">
+  <div class="project-header" [class.collapsed]="isHeaderCollapsed">
+    <div class="header-content collapsed-content" *ngIf="isHeaderCollapsed">
+      <h1 class="project-name">{{ projectInfo?.name || 'Project' }}</h1>
+      <div class="header-actions-compact">
+        <a class="back-btn" routerLink="/admin/own-projects" matTooltip="Back to Own Projects">
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+        <button class="expand-btn" (click)="toggleHeader()" matTooltip="Expand">
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="header-content expanded-content" *ngIf="!isHeaderCollapsed">
+      <div class="project-info">
+        <div class="project-avatar">
+          <div class="avatar-placeholder" [class]="getStatusClass(projectInfo?.status)">
+            <mat-icon>{{ getStatusIcon(projectInfo?.status) }}</mat-icon>
+          </div>
+        </div>
+        <div class="project-details">
+          <h1 class="project-name">{{ projectInfo?.name || 'Project' }}</h1>
+          <p class="project-subtitle">{{ projectInfo?.description || 'Own product / ideation project' }}</p>
+          <div class="project-meta">
+            <span class="meta-item" *ngIf="projectInfo?.startDate">
+              <mat-icon>event</mat-icon>
+              {{ projectInfo.startDate | date:'MMM dd, yyyy' }}
+            </span>
+            <span class="meta-item" *ngIf="projectInfo?.endDate">
+              <mat-icon>event_available</mat-icon>
+              Due {{ projectInfo.endDate | date:'MMM dd, yyyy' }}
+            </span>
+            <span class="meta-item" *ngIf="projectInfo?.progress !== undefined">
+              <mat-icon>trending_up</mat-icon>
+              {{ projectInfo.progress }}% progress
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="back-btn" routerLink="/admin/own-projects" matTooltip="Back to Own Projects">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </a>
+        <button class="collapse-btn" (click)="toggleHeader()" matTooltip="Collapse">
+          <mat-icon>expand_less</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="project-navigation">
+    <nav class="project-nav">
+      <a class="nav-item" routerLink="tasks" routerLinkActive="active">
+        <mat-icon>assignment</mat-icon>
+        <span>Tasks</span>
+      </a>
+      <a class="nav-item" routerLink="info" routerLinkActive="active">
+        <mat-icon>info</mat-icon>
+        <span>Info & Links</span>
+      </a>
+      <a class="nav-item" routerLink="accounts" routerLinkActive="active">
+        <mat-icon>vpn_key</mat-icon>
+        <span>Credentials</span>
+      </a>
+      <a class="nav-item" routerLink="files" routerLinkActive="active">
+        <mat-icon>folder</mat-icon>
+        <span>Files</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="project-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

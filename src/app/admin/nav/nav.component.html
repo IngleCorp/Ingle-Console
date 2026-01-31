@@ -253,7 +253,15 @@
             </div>
           </a>
 
-        
+          <!-- Own Projects -->
+          <a mat-list-item routerLink="own-projects" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">
+            <div class="nav-item-content">
+              <div class="nav-icon-wrapper">
+                <mat-icon class="nav-icon">rocket_launch</mat-icon>
+              </div>
+              <span class="nav-label" *ngIf="!isCollapsed">Own Projects</span>
+            </div>
+          </a>
 
           <!-- Tasks -->
           <a mat-list-item routerLink="tasks" routerLinkActive="active-link" class="nav-item" (click)="closeSidenav()">

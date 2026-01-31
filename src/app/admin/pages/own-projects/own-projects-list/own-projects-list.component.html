@@ -1,0 +1,111 @@
+<div class="own-projects-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">rocket_launch</mat-icon>
+          Own Projects
+        </h1>
+        <p class="page-subtitle">Manage development and ideation for company products</p>
+      </div>
+      <div class="actions-section">
+        <button class="add-project-btn" (click)="addProject()">
+          <mat-icon>add</mat-icon>
+          New Project
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-section" *ngIf="projects?.length">
+    <div class="stat-card">
+      <div class="stat-icon active"><mat-icon>play_circle</mat-icon></div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getActiveCount() }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed"><mat-icon>check_circle</mat-icon></div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getCompletedCount() }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pending"><mat-icon>schedule</mat-icon></div>
+      <div class="stat-content">
+        <span class="stat-number">{{ getPendingCount() }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon total"><mat-icon>folder</mat-icon></div>
+      <div class="stat-content">
+        <span class="stat-number">{{ projects.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="projects-grid" *ngIf="projects?.length">
+    <div class="project-card" *ngFor="let project of projects" (click)="gotoProjectBoard(project.id)">
+      <div class="card-header">
+        <div class="project-avatar">
+          <div class="avatar-placeholder" [class]="getProjectStatusClass(project.status)">
+            <mat-icon>{{ getProjectIcon(project.status) }}</mat-icon>
+          </div>
+        </div>
+        <span class="project-type-badge">{{ getProjectTypeLabel(project.type) }}</span>
+        <div class="project-status" [class]="getProjectStatusClass(project.status)">
+          <span class="status-dot"></span>
+          {{ project.status || 'Active' }}
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="project-name">{{ project.name }}</h3>
+        <p class="project-description" *ngIf="project.description">{{ project.description }}</p>
+        <div class="project-meta">
+          <div class="meta-item" *ngIf="project.startDate">
+            <mat-icon class="meta-icon">event</mat-icon>
+            <span>{{ project.startDate | date:'MMM dd, yyyy' }}</span>
+          </div>
+          <div class="meta-item" *ngIf="project.endDate">
+            <mat-icon class="meta-icon">event_available</mat-icon>
+            <span>Due {{ project.endDate | date:'MMM dd, yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="project-progress" *ngIf="project.progress !== undefined">
+          <span class="progress-label">Progress</span>
+          <mat-progress-bar [value]="project.progress" mode="determinate"></mat-progress-bar>
+          <span class="progress-value">{{ project.progress }}%</span>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn edit-btn" (click)="editProject(project.id, $event)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="action-btn delete-btn" (click)="deleteProject(project.id, project.name, $event)" matTooltip="Delete">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && (!projects || !projects.length)">
+    <mat-icon class="empty-icon">rocket_launch</mat-icon>
+    <h3>No Own Projects Yet</h3>
+    <p>Create a project to manage tasks, credentials, links, and files for your products.</p>
+    <button class="empty-action-btn" (click)="addProject()">
+      <mat-icon>add</mat-icon>
+      Create First Project
+    </button>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading projects...</p>
+  </div>
+</div>

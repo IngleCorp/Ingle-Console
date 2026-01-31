@@ -1,0 +1,184 @@
+<div class="own-project-tasks-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">assignment</mat-icon>
+          Tasks
+        </h1>
+        <p class="page-subtitle">Manage tasks for this project</p>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <div class="stat-icon todo"><mat-icon>pending</mat-icon></div>
+          <div class="stat-content">
+            <span class="stat-number">{{ tasktodo?.length || 0 }}</span>
+            <span class="stat-label">To Do</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon inprogress"><mat-icon>progress_activity</mat-icon></div>
+          <div class="stat-content">
+            <span class="stat-number">{{ taskinprogress?.length || 0 }}</span>
+            <span class="stat-label">In Progress</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon done"><mat-icon>check_circle</mat-icon></div>
+          <div class="stat-content">
+            <span class="stat-number">{{ taskdone?.length || 0 }}</span>
+            <span class="stat-label">Done</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon hold"><mat-icon>pause_circle</mat-icon></div>
+          <div class="stat-content">
+            <span class="stat-number">{{ taskonhold?.length || 0 }}</span>
+            <span class="stat-label">On Hold</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-task-section">
+    <div class="input-group">
+      <mat-form-field appearance="outline" class="task-input-field">
+        <mat-label>New task</mat-label>
+        <input matInput [(ngModel)]="taskText" (keyup.enter)="addTask()" placeholder="Add a task...">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="addTask()" [disabled]="!taskText?.trim() || isLoading">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading && !taskdata?.length">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <div class="kanban-board" *ngIf="!isLoading || taskdata?.length">
+    <div class="kanban-column todo-column">
+      <div class="column-header">
+        <mat-icon>pending</mat-icon>
+        <h3>To Do</h3>
+        <span class="task-count">{{ tasktodo?.length || 0 }}</span>
+      </div>
+      <div class="task-list">
+        <div class="task-card" *ngFor="let task of tasktodo; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
+          <div class="task-body">
+            <span class="task-title">{{ task.title }}</span>
+            <span class="task-assignees" *ngIf="getAssigneesDisplay(task)">{{ getAssigneesDisplay(task) }}</span>
+            <span class="task-priority" *ngIf="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+          </div>
+          <div class="task-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'in-progress')" matTooltip="In progress">
+              <mat-icon>play_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'done')" matTooltip="Mark done">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'hold')" matTooltip="On hold">
+              <mat-icon>pause_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column inprogress-column">
+      <div class="column-header">
+        <mat-icon>progress_activity</mat-icon>
+        <h3>In Progress</h3>
+        <span class="task-count">{{ taskinprogress?.length || 0 }}</span>
+      </div>
+      <div class="task-list">
+        <div class="task-card inprogress" *ngFor="let task of taskinprogress; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
+          <div class="task-body">
+            <span class="task-title">{{ task.title }}</span>
+            <span class="task-assignees" *ngIf="getAssigneesDisplay(task)">{{ getAssigneesDisplay(task) }}</span>
+            <span class="task-priority" *ngIf="task.priority">{{ getPriorityLabel(task.priority) }}</span>
+          </div>
+          <div class="task-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'todo')" matTooltip="Back to To Do">
+              <mat-icon>replay</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'done')" matTooltip="Mark done">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'hold')" matTooltip="On hold">
+              <mat-icon>pause_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column done-column">
+      <div class="column-header">
+        <mat-icon>check_circle</mat-icon>
+        <h3>Done</h3>
+        <span class="task-count">{{ taskdone?.length || 0 }}</span>
+      </div>
+      <div class="task-list">
+        <div class="task-card done" *ngFor="let task of taskdone; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
+          <div class="task-body">
+            <span class="task-title">{{ task.title }}</span>
+            <span class="task-assignees" *ngIf="getAssigneesDisplay(task)">{{ getAssigneesDisplay(task) }}</span>
+          </div>
+          <div class="task-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'todo')" matTooltip="Back to To Do">
+              <mat-icon>replay</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'in-progress')" matTooltip="In progress">
+              <mat-icon>play_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column hold-column">
+      <div class="column-header">
+        <mat-icon>pause_circle</mat-icon>
+        <h3>On Hold</h3>
+        <span class="task-count">{{ taskonhold?.length || 0 }}</span>
+      </div>
+      <div class="task-list">
+        <div class="task-card hold" *ngFor="let task of taskonhold; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
+          <div class="task-body">
+            <span class="task-title">{{ task.title }}</span>
+            <span class="task-assignees" *ngIf="getAssigneesDisplay(task)">{{ getAssigneesDisplay(task) }}</span>
+          </div>
+          <div class="task-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'todo')" matTooltip="Back to To Do">
+              <mat-icon>replay</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'in-progress')" matTooltip="In progress">
+              <mat-icon>play_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateTaskStatus(task.id, 'done')" matTooltip="Mark done">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteTask(task.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && !taskdata?.length">
+    <mat-icon class="empty-icon">assignment</mat-icon>
+    <h3>No tasks yet</h3>
+    <p>Add a task above or open a task to set assignees and details.</p>
+  </div>
+</div>

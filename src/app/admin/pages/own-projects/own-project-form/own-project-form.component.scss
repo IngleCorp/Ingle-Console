@@ -1,0 +1,43 @@
+.own-project-form-dialog {
+  .dialog-header {
+    padding: 16px 24px 0;
+    .dialog-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 1.25rem;
+      .title-icon { font-size: 28px; width: 28px; height: 28px; }
+    }
+    .dialog-subtitle { margin: 4px 0 0; color: #757575; font-size: 0.9rem; }
+  }
+  .form-content { padding: 16px 24px; }
+  .form-section {
+    margin-bottom: 16px;
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      font-size: 1rem;
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    }
+  }
+  .form-row {
+    margin-bottom: 12px;
+    &.two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .full-width { width: 100%; }
+    mat-form-field { width: 100%; }
+  }
+  .dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}

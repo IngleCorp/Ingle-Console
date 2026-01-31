@@ -48,6 +48,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/clients/clients.module').then(m => m.ClientsModule)
       },
       {
+        path: 'own-projects',
+        loadChildren: () => import('./pages/own-projects/own-projects.module').then(m => m.OwnProjectsModule)
+      },
+      {
         path: 'activities',
         component: ActivitiesComponent
       },
