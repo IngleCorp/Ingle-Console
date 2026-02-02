@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { OwnProjectsRoutingModule } from './own-projects-routing.module';
@@ -29,6 +30,7 @@ import { OwnProjectFilesComponent } from './own-project-board/own-project-files/
 import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-tasks/own-project-task-detail/own-project-task-detail.component';
 import { OwnProjectDesignComponent } from './own-project-board/own-project-design/own-project-design.component';
 import { FlowPreviewDialogComponent } from './own-project-board/own-project-design/flow-preview-dialog/flow-preview-dialog.component';
+import { OwnProjectWhiteboardComponent } from './own-project-board/own-project-whiteboard/own-project-whiteboard.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +42,7 @@ import { FlowPreviewDialogComponent } from './own-project-board/own-project-desi
     OwnProjectTaskDetailComponent,
     OwnProjectDesignComponent,
     FlowPreviewDialogComponent,
+    OwnProjectWhiteboardComponent,
     OwnProjectAccountsComponent,
     OwnProjectFilesComponent,
   ],
@@ -63,6 +66,7 @@ import { FlowPreviewDialogComponent } from './own-project-board/own-project-desi
     MatTooltipModule,
     MatCardModule,
     MatMenuModule,
+    MatDividerModule,
     DragDropModule,
   ],
 })

@@ -1,0 +1,312 @@
+<div class="whiteboard-page" #whiteboardPage [class.fullscreen-mode]="isFullscreen">
+  <!-- Main Toolbar -->
+  <div class="toolbar">
+    <!-- Basic Tools -->
+    <div class="toolbar-section">
+      <button
+        *ngFor="let tool of basicTools"
+        type="button"
+        class="tool-btn"
+        [class.active]="activeTool === tool.id"
+        (click)="setTool(tool.id)"
+        [matTooltip]="tool.label"
+      >
+        <mat-icon>{{ tool.icon }}</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Shape Tools -->
+    <div class="toolbar-section">
+      <button
+        *ngFor="let tool of shapeTools"
+        type="button"
+        class="tool-btn"
+        [class.active]="activeTool === tool.id"
+        (click)="setTool(tool.id)"
+        [matTooltip]="tool.label"
+      >
+        <mat-icon>{{ tool.icon }}</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Connector Tools -->
+    <div class="toolbar-section">
+      <button
+        *ngFor="let tool of connectorTools"
+        type="button"
+        class="tool-btn"
+        [class.active]="activeTool === tool.id"
+        (click)="setTool(tool.id)"
+        [matTooltip]="tool.label"
+      >
+        <mat-icon>{{ tool.icon }}</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Text Tools -->
+    <div class="toolbar-section">
+      <button
+        *ngFor="let tool of textTools"
+        type="button"
+        class="tool-btn"
+        [class.active]="activeTool === tool.id"
+        (click)="setTool(tool.id)"
+        [matTooltip]="tool.label"
+      >
+        <mat-icon>{{ tool.icon }}</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="tool-btn"
+        (click)="addTextToSelectedShape()"
+        matTooltip="Add Text to Shape (select a shape first)"
+      >
+        <mat-icon>title</mat-icon>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Quick Add Menu -->
+    <div class="toolbar-section">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="quickAddMenu"
+        matTooltip="Quick Add Shapes"
+        class="tool-btn"
+      >
+        <mat-icon>add_box</mat-icon>
+      </button>
+      <mat-menu #quickAddMenu="matMenu">
+        <button mat-menu-item (click)="addQuickShape('process')">
+          <mat-icon>crop_square</mat-icon>
+          <span>Process (Rectangle)</span>
+        </button>
+        <button mat-menu-item (click)="addQuickShape('decision')">
+          <mat-icon>change_history</mat-icon>
+          <span>Decision (Diamond)</span>
+        </button>
+        <button mat-menu-item (click)="addQuickShape('terminator')">
+          <mat-icon>rounded_corner</mat-icon>
+          <span>Start/End (Rounded)</span>
+        </button>
+        <button mat-menu-item (click)="addQuickShape('data')">
+          <mat-icon>filter_none</mat-icon>
+          <span>Input/Output (Parallelogram)</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="addQuickShape('table')">
+          <mat-icon>table_chart</mat-icon>
+          <span>Insert Table</span>
+        </button>
+      </mat-menu>
+
+      <button
+        mat-icon-button
+        (click)="openTableDialog()"
+        matTooltip="Insert Table"
+        class="tool-btn"
+      >
+        <mat-icon>table_chart</mat-icon>
+      </button>
+    </div>
+
+    <!-- Spacer to push zoom controls to the right -->
+    <div class="toolbar-spacer"></div>
+
+    <!-- Zoom & View Controls -->
+    <div class="toolbar-section zoom-section">
+      <button
+        type="button"
+        class="tool-btn"
+        (click)="zoomOut()"
+        matTooltip="Zoom Out (Cmd+-)"
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="zoom-display" (click)="resetView()" matTooltip="Click to Reset View (Cmd+0)">
+        {{ zoomPercent }}%
+      </span>
+      <button
+        type="button"
+        class="tool-btn"
+        (click)="zoomIn()"
+        matTooltip="Zoom In (Cmd++)"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="tool-btn"
+        (click)="resetView()"
+        matTooltip="Reset View (Cmd+0)"
+      >
+        <mat-icon>center_focus_strong</mat-icon>
+      </button>
+
+      <div class="toolbar-divider"></div>
+
+      <button
+        type="button"
+        class="tool-btn"
+        (click)="toggleFullscreen()"
+        [matTooltip]="isFullscreen ? 'Exit Fullscreen (Esc)' : 'Fullscreen (F)'"
+      >
+        <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Properties Bar -->
+  <div class="properties-bar">
+    <!-- Stroke Color -->
+    <div class="prop-group">
+      <span class="prop-label">Stroke</span>
+      <div class="color-row">
+        <button
+          *ngFor="let color of colors"
+          type="button"
+          class="color-btn small"
+          [class.active]="strokeColor === color"
+          [style.backgroundColor]="color"
+          [style.border]="color === '#ffffff' ? '1px solid #ccc' : 'none'"
+          (click)="setColor(color)"
+        ></button>
+      </div>
+    </div>
+
+    <div class="prop-divider"></div>
+
+    <!-- Fill Color -->
+    <div class="prop-group">
+      <span class="prop-label">Fill</span>
+      <div class="color-row">
+        <button
+          *ngFor="let color of fillColors"
+          type="button"
+          class="color-btn small"
+          [class.active]="fillColor === color"
+          [style.backgroundColor]="color === 'transparent' ? '#fff' : color"
+          [style.border]="color === 'transparent' || color === '#ffffff' ? '1px solid #ccc' : 'none'"
+          [class.transparent]="color === 'transparent'"
+          (click)="setFillColor(color)"
+        >
+          <mat-icon *ngIf="color === 'transparent'" class="no-fill-icon">block</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="prop-divider"></div>
+
+    <!-- Stroke Width -->
+    <div class="prop-group">
+      <span class="prop-label">Width</span>
+      <div class="stroke-row">
+        <button
+          *ngFor="let width of strokeWidths"
+          type="button"
+          class="stroke-btn"
+          [class.active]="strokeWidth === width"
+          (click)="setStrokeWidth(width)"
+        >
+          <span class="stroke-preview" [style.height.px]="width"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="prop-spacer"></div>
+
+    <!-- Actions -->
+    <div class="prop-group actions">
+      <button mat-icon-button (click)="undo()" [disabled]="!canUndo" matTooltip="Undo (Cmd+Z)">
+        <mat-icon>undo</mat-icon>
+      </button>
+      <button mat-icon-button (click)="redo()" [disabled]="!canRedo" matTooltip="Redo (Cmd+Shift+Z)">
+        <mat-icon>redo</mat-icon>
+      </button>
+      <button mat-icon-button (click)="duplicateSelected()" matTooltip="Duplicate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteSelected()" matTooltip="Delete (Del)">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <button mat-icon-button (click)="bringForward()" matTooltip="Bring Forward">
+        <mat-icon>flip_to_front</mat-icon>
+      </button>
+      <button mat-icon-button (click)="sendBackward()" matTooltip="Send Backward">
+        <mat-icon>flip_to_back</mat-icon>
+      </button>
+      <button mat-icon-button (click)="clearCanvas()" matTooltip="Clear All">
+        <mat-icon>layers_clear</mat-icon>
+      </button>
+    </div>
+
+    <div class="prop-spacer"></div>
+
+    <!-- Save/Export -->
+    <div class="prop-group save-group">
+      <button mat-icon-button (click)="exportAsImage()" matTooltip="Export as PNG">
+        <mat-icon>image</mat-icon>
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="saveWhiteboard()"
+        [disabled]="isSaving"
+        class="save-btn"
+      >
+        <mat-spinner diameter="16" *ngIf="isSaving"></mat-spinner>
+        <mat-icon *ngIf="!isSaving">save</mat-icon>
+        {{ isSaving ? 'Saving...' : 'Save' }}
+      </button>
+      <span class="unsaved-badge" *ngIf="hasUnsavedChanges && !isSaving">●</span>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrapper">
+    <div class="loading-overlay" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading...</p>
+    </div>
+    <div class="canvas-container" #canvasContainer>
+      <canvas #canvasEl id="whiteboard-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Table Dialog -->
+  <div class="dialog-overlay" *ngIf="showTableDialog" (click)="closeTableDialog()">
+    <div class="table-dialog" (click)="$event.stopPropagation()">
+      <h3>Insert Table</h3>
+      <div class="table-inputs">
+        <mat-form-field appearance="outline">
+          <mat-label>Rows</mat-label>
+          <input matInput type="number" [(ngModel)]="tableRows" min="1" max="20">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Columns</mat-label>
+          <input matInput type="number" [(ngModel)]="tableCols" min="1" max="10">
+        </mat-form-field>
+      </div>
+      <div class="table-preview">
+        <div class="preview-grid" [style.gridTemplateColumns]="'repeat(' + tableCols + ', 1fr)'">
+          <div
+            *ngFor="let cell of [].constructor(tableRows * tableCols); let i = index"
+            class="preview-cell"
+            [class.header]="i < tableCols"
+          ></div>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button mat-button (click)="closeTableDialog()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="insertTable()">Insert</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -91,12 +91,16 @@ $text-secondary: #757575;
   background: $white;
   border-bottom: 1px solid $border;
   padding: 0 24px;
+  overflow-x: auto;
   .project-nav {
     display: flex;
     gap: 4px;
     max-width: 1200px;
     margin: 0 auto;
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
   }
   .nav-item {
     display: flex;
