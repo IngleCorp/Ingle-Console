@@ -16,6 +16,125 @@
   }
 }
 
+// Editor view hidden when showing grid (keeps canvas in DOM)
+.editor-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+
+  &.hidden {
+    display: none !important;
+  }
+}
+
+// Grid view: whiteboard cards
+.board-grid-view {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  background: #e5e5e5;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.board-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  text-align: left;
+  padding: 0;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.board-card-thumb {
+  aspect-ratio: 4/3;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.board-card-placeholder {
+  color: rgba(0, 0, 0, 0.25);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.board-card-info {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.board-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board-card-meta {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.board-card-new {
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  background: #fafafa;
+
+  &:hover {
+    border-color: #007aff;
+    background: rgba(0, 122, 255, 0.04);
+  }
+}
+
+.board-card-new-thumb {
+  background: transparent;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.board-card-new .board-card-title {
+  color: rgba(0, 0, 0, 0.6);
+}
+
 // Native fullscreen styling
 :host:fullscreen,
 :host:-webkit-full-screen,
@@ -76,6 +195,87 @@
       background: rgba(0, 0, 0, 0.06);
     }
   }
+}
+
+// Current board bar (editor view)
+.board-bar {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: #f5f5f7;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 12px;
+}
+
+.board-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.7);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.board-current-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board-add-btn,
+.board-rename-btn,
+.board-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #ffffff;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.7);
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.board-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .tool-btn {

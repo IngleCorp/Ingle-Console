@@ -1,4 +1,38 @@
 <div class="whiteboard-page" #whiteboardPage [class.fullscreen-mode]="isFullscreen">
+  <!-- Grid view: list of whiteboards as cards -->
+  <div *ngIf="viewMode === 'grid'" class="board-grid-view">
+    <div class="board-grid">
+      <button
+        *ngFor="let board of boards"
+        type="button"
+        class="board-card"
+        (click)="openBoard(board.id)"
+      >
+        <div class="board-card-thumb">
+          <img *ngIf="board.thumbnail" [src]="board.thumbnail" alt="" />
+          <div *ngIf="!board.thumbnail" class="board-card-placeholder">
+            <mat-icon>draw</mat-icon>
+          </div>
+        </div>
+        <div class="board-card-info">
+          <span class="board-card-title">{{ board.name }}</span>
+          <span class="board-card-meta">{{ getEditedAgo(board.updatedAt) }}</span>
+        </div>
+      </button>
+
+      <button type="button" class="board-card board-card-new" (click)="createNewBoard()">
+        <div class="board-card-thumb board-card-new-thumb">
+          <mat-icon>add</mat-icon>
+        </div>
+        <div class="board-card-info">
+          <span class="board-card-title">New whiteboard</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor view: toolbar + canvas (hidden when grid) -->
+  <div [class.hidden]="viewMode === 'grid'" class="editor-view">
   <!-- Main Toolbar -->
   <div class="toolbar">
     <!-- Basic Tools -->
@@ -163,6 +197,35 @@
     </div>
   </div>
 
+  <!-- Current board bar: Back + name + rename + delete -->
+  <div class="board-bar">
+    <button type="button" class="board-back-btn" (click)="backToGrid()" matTooltip="Back to whiteboards">
+      <mat-icon>arrow_back</mat-icon>
+      <span>Boards</span>
+    </button>
+    <span class="board-current-name">{{ currentBoardName }}</span>
+    <div class="board-actions">
+      <button
+        type="button"
+        class="board-rename-btn"
+        (click)="renameCurrentBoard()"
+        [disabled]="!currentBoardId"
+        matTooltip="Rename"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="board-delete-btn"
+        (click)="deleteCurrentBoard()"
+        [disabled]="!currentBoardId"
+        matTooltip="Delete"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
   <!-- Properties Bar -->
   <div class="properties-bar">
     <!-- Stroke Color -->
@@ -279,6 +342,8 @@
       <canvas #canvasEl id="whiteboard-canvas"></canvas>
     </div>
   </div>
+  </div>
+  <!-- /editor-view -->
 
   <!-- Table Dialog -->
   <div class="dialog-overlay" *ngIf="showTableDialog" (click)="closeTableDialog()">

@@ -27,6 +27,7 @@ import {
 } from 'fabric';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
+// Legacy single-doc id (no longer used for saving, but kept for backward compatibility if needed)
 const WHITEBOARD_DOC_ID = 'whiteboard';
 
 // Custom properties to serialize
@@ -111,6 +112,15 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
   private lastPanY = 0;
   private spacebarHeld = false;
 
+  // Multiple whiteboards state
+  boards: { id: string; name: string; updatedAt?: any; thumbnail?: string }[] = [];
+  currentBoardId: string | null = null;
+  currentBoardName = '';
+  private boardsSub?: Subscription;
+
+  // View: 'grid' = list of boards as cards; 'editor' = open whiteboard canvas
+  viewMode: 'grid' | 'editor' = 'grid';
+
   // Fullscreen state
   isFullscreen = false;
 
@@ -177,6 +187,7 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
 
   ngOnDestroy(): void {
     this.whiteboardSub?.unsubscribe();
+    this.boardsSub?.unsubscribe();
     if (this.canvas) {
       this.canvas.dispose();
     }
@@ -299,7 +310,8 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
 
     this.setupPenBrush();
     this.setupCanvasEvents();
-    this.loadWhiteboard();
+    // Load list of whiteboards for this project and open one
+    this.loadBoardsList();
     this.saveHistory();
   }
 
@@ -1477,6 +1489,16 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
     return json;
   }
 
+  /** Small JPEG thumbnail for grid preview (low resolution to keep payload small). */
+  private getThumbnailDataUrl(): string | undefined {
+    if (!this.canvas || this.canvas.getObjects().length === 0) return undefined;
+    try {
+      return this.canvas.toDataURL({ format: 'jpeg', quality: 0.5, multiplier: 0.2 });
+    } catch {
+      return undefined;
+    }
+  }
+
   /**
    * Firestore does NOT allow undefined anywhere in the payload.
    * This helper recursively removes all keys with value === undefined
@@ -1610,17 +1632,92 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
     this.snackBar.open('Image exported', 'Close', { duration: 2000 });
   }
 
-  loadWhiteboard(): void {
+  // -------- Multiple whiteboards per project --------
+
+  /**
+   * Load the list of whiteboard documents under the project and
+   * pick the latest one (or create a new board) if none is selected.
+   */
+  private loadBoardsList(): void {
     if (!this.projectId) return;
+
+    this.boardsSub?.unsubscribe();
+    this.boardsSub = this.afs
+      .collection(OWN_PROJECTS_COLLECTION)
+      .doc(this.projectId)
+      .collection('whiteboard', ref => ref.orderBy('updatedAt', 'desc'))
+      .snapshotChanges()
+      .subscribe(snaps => {
+        this.boards = snaps.map(s => {
+          const data = s.payload.doc.data() as any;
+          return {
+            id: s.payload.doc.id,
+            name: data?.name || 'Untitled',
+            updatedAt: data?.updatedAt,
+            thumbnail: data?.thumbnail || undefined
+          };
+        });
+      });
+  }
+
+  /** Open a whiteboard (switch to editor view and load that board). */
+  openBoard(boardId: string): void {
+    this.currentBoardId = boardId;
+    const meta = this.boards.find(b => b.id === boardId);
+    this.currentBoardName = meta?.name || 'Untitled';
+    this.viewMode = 'editor';
+    this.loadWhiteboard(boardId);
+    setTimeout(() => this.resizeCanvas(), 150);
+  }
+
+  /** Return to grid view (list of boards). */
+  backToGrid(): void {
+    this.viewMode = 'grid';
+    this.currentBoardId = null;
+    this.currentBoardName = '';
+  }
+
+  /** Human-readable "Edited X ago" from updatedAt. */
+  getEditedAgo(updatedAt: any): string {
+    if (!updatedAt) return 'Never edited';
+    const t = updatedAt?.toDate ? updatedAt.toDate() : new Date(updatedAt);
+    const now = new Date();
+    const ms = now.getTime() - t.getTime();
+    const sec = Math.floor(ms / 1000);
+    const min = Math.floor(sec / 60);
+    const hr = Math.floor(min / 60);
+    const day = Math.floor(hr / 24);
+    const month = Math.floor(day / 30);
+    const year = Math.floor(day / 365);
+    if (year > 0) return `Edited ${year} year${year > 1 ? 's' : ''} ago`;
+    if (month > 0) return `Edited ${month} month${month > 1 ? 's' : ''} ago`;
+    if (day > 0) return `Edited ${day} day${day > 1 ? 's' : ''} ago`;
+    if (hr > 0) return `Edited ${hr} hour${hr > 1 ? 's' : ''} ago`;
+    if (min > 0) return `Edited ${min} minute${min > 1 ? 's' : ''} ago`;
+    return 'Edited just now';
+  }
+
+  /**
+   * Load a specific whiteboard by id.
+   */
+  loadWhiteboard(boardId: string): void {
+    if (!this.projectId) return;
+    this.whiteboardSub?.unsubscribe();
     this.isLoading = true;
+    this.currentBoardId = boardId;
+
     this.whiteboardSub = this.afs
       .collection(OWN_PROJECTS_COLLECTION)
       .doc(this.projectId)
       .collection('whiteboard')
-      .doc(WHITEBOARD_DOC_ID)
+      .doc(boardId)
       .valueChanges()
       .subscribe({
         next: (data: any) => {
+          // Reset canvas
+          this.canvas.clear();
+          this.canvas.backgroundColor = '#f8f9fa';
+
           if (data?.canvasJson) {
             this.isLoadingState = true;
             this.canvas.loadFromJSON(data.canvasJson).then(() => {
@@ -1629,7 +1726,11 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
               this.isLoadingState = false;
               this.saveHistory();
             });
+          } else {
+            this.canvas.renderAll();
           }
+
+          this.currentBoardName = data?.name || this.currentBoardName || 'Untitled';
           this.isLoading = false;
         },
         error: () => {
@@ -1639,21 +1740,129 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
       });
   }
 
-  saveWhiteboard(): void {
+  switchBoard(boardId: string): void {
+    if (boardId === this.currentBoardId) return;
+    const meta = this.boards.find(b => b.id === boardId);
+    this.currentBoardName = meta?.name || 'Untitled';
+    this.loadWhiteboard(boardId);
+  }
+
+  /**
+   * Create a new (blank) whiteboard with "Untitled <date/time>" name
+   * and switch the canvas to it.
+   */
+  createNewBoard(): void {
     if (!this.projectId) return;
-    this.isSaving = true;
-    const payload = {
-      canvasJson: this.sanitizeForFirestore(this.getCanvasJSON()),
-      updatedAt: new Date(),
+
+    const now = new Date();
+    const name = `Untitled ${now.toLocaleString()}`;
+
+    const colRef = this.afs
+      .collection(OWN_PROJECTS_COLLECTION)
+      .doc(this.projectId)
+      .collection('whiteboard');
+
+    const docRef = colRef.doc(); // auto id
+    const boardId = docRef.ref.id;
+
+    const payload = this.sanitizeForFirestore({
+      name,
+      updatedAt: now,
       updatedBy: localStorage.getItem('userid') || '',
       updatedByName: localStorage.getItem('username') || 'Unknown'
-    };
-    console.log('payload :', payload);
+    });
+
+    docRef.set(payload).then(() => {
+      this.currentBoardId = boardId;
+      this.currentBoardName = name;
+      this.viewMode = 'editor';
+
+      // Clear canvas for the new board
+      this.canvas.clear();
+      this.canvas.backgroundColor = '#f8f9fa';
+      this.canvas.renderAll();
+
+      this.history = [];
+      this.historyIndex = -1;
+      this.saveHistory();
+      setTimeout(() => this.resizeCanvas(), 150);
+    });
+  }
+
+  renameCurrentBoard(): void {
+    if (!this.projectId || !this.currentBoardId) return;
+    const current = this.boards.find(b => b.id === this.currentBoardId);
+    const nextName = prompt('Whiteboard name', current?.name || this.currentBoardName || '');
+    if (!nextName) return;
+
+    this.currentBoardName = nextName;
     this.afs
       .collection(OWN_PROJECTS_COLLECTION)
       .doc(this.projectId)
       .collection('whiteboard')
-      .doc(WHITEBOARD_DOC_ID)
+      .doc(this.currentBoardId)
+      .set(this.sanitizeForFirestore({ name: nextName }), { merge: true });
+  }
+
+  deleteCurrentBoard(): void {
+    if (!this.projectId || !this.currentBoardId) return;
+
+    const current = this.boards.find(b => b.id === this.currentBoardId);
+    const name = current?.name || this.currentBoardName || 'this whiteboard';
+    const ok = confirm(`Delete "${name}"? This cannot be undone.`);
+    if (!ok) return;
+
+    const boardIdToDelete = this.currentBoardId;
+
+    this.afs
+      .collection(OWN_PROJECTS_COLLECTION)
+      .doc(this.projectId)
+      .collection('whiteboard')
+      .doc(boardIdToDelete)
+      .delete()
+      .then(() => {
+        if (this.currentBoardId === boardIdToDelete) {
+          this.currentBoardId = null;
+          this.currentBoardName = '';
+          this.canvas.clear();
+          this.canvas.backgroundColor = '#f8f9fa';
+          this.canvas.renderAll();
+          this.history = [];
+          this.historyIndex = -1;
+          this.backToGrid();
+        }
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to delete whiteboard', 'Close', { duration: 3000 });
+      });
+  }
+
+  saveWhiteboard(): void {
+    if (!this.projectId) return;
+    this.isSaving = true;
+    // If first save and no board selected yet, create an id and default name
+    if (!this.currentBoardId) {
+      const now = new Date();
+      this.currentBoardName = `Untitled ${now.toLocaleString()}`;
+      this.currentBoardId = this.afs.createId();
+    }
+
+    const now = new Date();
+    const thumb = this.getThumbnailDataUrl();
+    const payload: any = {
+      name: this.currentBoardName || `Untitled ${now.toLocaleString()}`,
+      canvasJson: this.sanitizeForFirestore(this.getCanvasJSON()),
+      updatedAt: now,
+      updatedBy: localStorage.getItem('userid') || '',
+      updatedByName: localStorage.getItem('username') || 'Unknown'
+    };
+    if (thumb) payload.thumbnail = thumb;
+
+    this.afs
+      .collection(OWN_PROJECTS_COLLECTION)
+      .doc(this.projectId)
+      .collection('whiteboard')
+      .doc(this.currentBoardId!)
       .set(payload, { merge: true })
       .then(() => {
         this.snackBar.open('Saved', 'Close', { duration: 2000 });
