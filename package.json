@@ -37,6 +37,7 @@
     "jspdf-autotable": "^5.0.2",
     "ngx-quill": "^26.0.10",
     "quill": "^2.0.3",
+    "quill-better-table": "^1.2.10",
     "quill-table": "^1.0.0",
     "rxjs": "~7.8.0",
     "signature_pad": "^5.0.9",

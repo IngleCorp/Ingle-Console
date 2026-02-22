@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,8 @@ import { saveAs } from 'file-saver';
 import { asBlob } from 'html-docx-js-typescript';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import 'quill-table';
+import Quill from 'quill';
+import QuillBetterTable from 'quill-better-table';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const DOCS_SUBCOLLECTION = 'docs';
@@ -26,6 +27,18 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   isSaving = false;
   isLoading = false;
   isExporting = false;
+  /** Show the row/col form for inserting a new table */
+  showInsertTablePanel = false;
+  insertTableRows = 3;
+  insertTableCols = 3;
+  readonly maxTableRows = 20;
+  readonly maxTableCols = 12;
+  /** True when cursor/selection is inside a table – show table ops toolbar */
+  isTableSelected = false;
+  /** Right-click context menu on table */
+  tableContextMenuVisible = false;
+  tableContextMenuX = 0;
+  tableContextMenuY = 0;
   private quillEditor: any;
   private docSub?: Subscription;
 
@@ -40,10 +53,13 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
       [{ color: [] }, { background: [] }],
       [{ align: [] }],
       ['clean'],
-      ['link', 'image'],
-      ['table']
+      ['link', 'image']
     ],
-    table: {
+    table: false,
+    keyboard: {
+      bindings: QuillBetterTable.keyboardBindings
+    },
+    'better-table': {
       operationMenu: {
         items: {
           unmergeCells: { text: 'Unmerge cells' }
@@ -85,6 +101,46 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     this.docSub?.unsubscribe();
   }
 
+  @HostListener('document:click')
+  closeTableContextMenuOnClick(): void {
+    this.tableContextMenuVisible = false;
+  }
+
+  @HostListener('document:contextmenu')
+  closeTableContextMenuOnRightClick(): void {
+    this.tableContextMenuVisible = false;
+  }
+
+  onEditorContextMenu(event: MouseEvent): void {
+    const target = event.target as Node;
+    const el = target?.nodeType === Node.ELEMENT_NODE ? (target as Element) : (target as Element)?.parentElement;
+    const inTable = el?.closest?.('td') || el?.closest?.('th');
+    if (inTable) {
+      event.preventDefault();
+      event.stopPropagation();
+      const menuWidth = 180;
+      const menuHeight = 280;
+      let x = event.clientX;
+      let y = event.clientY;
+      if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 8;
+      if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 8;
+      if (x < 8) x = 8;
+      if (y < 8) y = 8;
+      this.tableContextMenuX = x;
+      this.tableContextMenuY = y;
+      this.tableContextMenuVisible = true;
+    }
+  }
+
+  closeTableContextMenu(): void {
+    this.tableContextMenuVisible = false;
+  }
+
+  ctxDeleteRow(): void { this.deleteTableRow(); this.closeTableContextMenu(); }
+  ctxDeleteColumn(): void { this.deleteTableColumn(); this.closeTableContextMenu(); }
+  ctxMergeCells(): void { this.mergeTableCells(); this.closeTableContextMenu(); }
+  ctxSplitCell(): void { this.splitTableCells(); this.closeTableContextMenu(); }
+
   loadDoc(): void {
     if (!this.projectId || !this.docId) return;
     this.isLoading = true;
@@ -113,54 +169,237 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
 
   onEditorCreated(editor: any): void {
     this.quillEditor = editor;
+    editor.on('selection-change', () => {
+      setTimeout(() => this.updateTableSelectionState(), 0);
+    });
   }
 
-  insertTable(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.insertTable(3, 3);
+  /** Detect if cursor is inside a table using Quill selection + getLeaf (avoids window.getSelection() desync). */
+  private updateTableSelectionState(): void {
+    if (!this.quillEditor) {
+      this.isTableSelected = false;
+      return;
+    }
+    const range = this.quillEditor.getSelection();
+    if (!range) {
+      this.isTableSelected = false;
+      return;
+    }
+    try {
+      const [leaf] = this.quillEditor.getLeaf(range.index);
+      const domNode = leaf?.domNode;
+      this.isTableSelected = !!(domNode && (domNode as Element).closest?.('td, th'));
+    } catch {
+      this.isTableSelected = false;
+    }
+  }
+
+  openInsertTablePanel(): void {
+    this.insertTableRows = 3;
+    this.insertTableCols = 3;
+    this.showInsertTablePanel = true;
+  }
+
+  cancelInsertTable(): void {
+    this.showInsertTablePanel = false;
+  }
+
+  confirmInsertTable(): void {
+    const rows = Math.max(1, Math.min(this.maxTableRows, this.insertTableRows));
+    const cols = Math.max(1, Math.min(this.maxTableCols, this.insertTableCols));
+    this.insertTable(rows, cols);
+    this.showInsertTablePanel = false;
+  }
+
+  private getBetterTable(): any {
+    return this.quillEditor?.getModule?.('better-table');
+  }
+
+  /** Build rect in coordinate system expected by quill-better-table (relative to container). */
+  private getRelativeRect(targetRect: DOMRect, container: Element): { x: number; y: number; x1: number; y1: number; width: number; height: number } {
+    const cr = container.getBoundingClientRect();
+    const x = targetRect.left - cr.left - container.scrollLeft;
+    const y = targetRect.top - cr.top - container.scrollTop;
+    return {
+      x,
+      y,
+      x1: x + targetRect.width,
+      y1: y + targetRect.height,
+      width: targetRect.width,
+      height: targetRect.height
+    };
+  }
+
+  /** Column index of cell in its row (for insertColumn/deleteColumn). */
+  private getCellColIndex(row: any, cell: any): number {
+    let colIndex = 0;
+    if (!row?.children) return 0;
+    let node = row.children.head;
+    while (node && node !== cell) {
+      colIndex += parseInt(node.formats?.()?.colspan || '1', 10);
+      node = node.next;
+    }
+    return colIndex;
+  }
+
+  insertTable(rows: number, cols: number): void {
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    bt.insertTable(rows, cols);
+  }
+
+  insertRowAbove(): void {
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row, cell] = bt.getTable() ?? [];
+    if (!tableContainer || !row || !cell) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(cell.domNode.getBoundingClientRect(), wrapper);
+    tableContainer.insertRow(compareRect, false, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Row inserted above', 'Close', { duration: 2000 });
+  }
+
+  insertRowBelow(): void {
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row, cell] = bt.getTable() ?? [];
+    if (!tableContainer || !row || !cell) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(cell.domNode.getBoundingClientRect(), wrapper);
+    tableContainer.insertRow(compareRect, true, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Row inserted below', 'Close', { duration: 2000 });
+  }
+
+  insertColumnBefore(): void {
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row, cell] = bt.getTable() ?? [];
+    if (!tableContainer || !row || !cell) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(cell.domNode.getBoundingClientRect(), wrapper);
+    const colIndex = this.getCellColIndex(row, cell);
+    tableContainer.insertColumn(compareRect, colIndex, false, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Column inserted before', 'Close', { duration: 2000 });
+  }
+
+  insertColumnAfter(): void {
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row, cell] = bt.getTable() ?? [];
+    if (!tableContainer || !row || !cell) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(cell.domNode.getBoundingClientRect(), wrapper);
+    const colIndex = this.getCellColIndex(row, cell);
+    tableContainer.insertColumn(compareRect, colIndex, true, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Column inserted after', 'Close', { duration: 2000 });
   }
 
   addTableRow(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.insertRow();
+    this.insertRowBelow();
   }
 
   addTableColumn(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.insertColumn();
+    this.insertColumnAfter();
   }
 
   deleteTableRow(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.deleteRow();
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row] = bt.getTable() ?? [];
+    if (!tableContainer || !row) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(row.domNode.getBoundingClientRect(), wrapper);
+    tableContainer.deleteRow(compareRect, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Row deleted', 'Close', { duration: 2000 });
   }
 
   deleteTableColumn(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.deleteColumn();
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const [tableContainer, row, cell] = bt.getTable() ?? [];
+    if (!tableContainer || !row || !cell) {
+      this.snackBar.open('Click inside a table cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    const wrapper = this.quillEditor.root.parentNode;
+    const compareRect = this.getRelativeRect(cell.domNode.getBoundingClientRect(), wrapper);
+    const colIndex = this.getCellColIndex(row, cell);
+    const isDeleteTable = tableContainer.deleteColumns(compareRect, [colIndex], wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    if (!isDeleteTable) this.snackBar.open('Column deleted', 'Close', { duration: 2000 });
   }
 
   mergeTableCells(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.mergeCells();
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const tableSelection = bt.tableSelection;
+    const selectedTds = tableSelection?.selectedTds ?? [];
+    if (selectedTds.length < 2) {
+      this.snackBar.open('Select multiple cells to merge (drag to select)', 'Close', { duration: 3000 });
+      return;
+    }
+    const [tableContainer] = bt.getTable() ?? [];
+    if (!tableContainer || !tableSelection?.boundary) return;
+    const boundary = tableSelection.boundary;
+    const wrapper = this.quillEditor.root.parentNode;
+    const columnToolCells = bt.columnTool?.colToolCells?.() ?? [];
+    const rowspan = (tableContainer.rows?.() ?? []).reduce((sum: number, r: any) => {
+      const rowRect = this.getRelativeRect(r.domNode.getBoundingClientRect(), wrapper);
+      if (rowRect.y >= boundary.y - 5 && rowRect.y + rowRect.height <= boundary.y + boundary.height + 5) sum += 1;
+      return sum;
+    }, 0) || 1;
+    const colspan = columnToolCells.length > 0
+      ? columnToolCells.reduce((sum: number, c: Element) => {
+          const cellRect = this.getRelativeRect(c.getBoundingClientRect(), wrapper);
+          if (cellRect.x >= boundary.x - 5 && cellRect.x + cellRect.width <= boundary.x + boundary.width + 5) sum += 1;
+          return sum;
+        }, 0)
+      : selectedTds.length;
+    tableContainer.mergeCells(boundary, selectedTds, rowspan, colspan, wrapper);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Cells merged', 'Close', { duration: 2000 });
   }
 
   splitTableCells(): void {
-    if (!this.quillEditor) return;
-    const tableModule = this.quillEditor.getModule('table');
-    if (tableModule) tableModule.splitCell();
+    const bt = this.getBetterTable();
+    if (!bt) return;
+    const tableSelection = bt.tableSelection;
+    const selectedTds = tableSelection?.selectedTds ?? [];
+    const [tableContainer] = bt.getTable() ?? [];
+    if (!tableContainer || selectedTds.length === 0) {
+      this.snackBar.open('Click inside a merged cell first', 'Close', { duration: 2500 });
+      return;
+    }
+    tableContainer.unmergeCells(selectedTds, this.quillEditor.root.parentNode);
+    this.quillEditor.update(Quill.sources.USER);
+    this.snackBar.open('Cells unmerged', 'Close', { duration: 2000 });
   }
 
   save(): void {
     if (this.form.invalid || !this.projectId) return;
     const name = this.form.get('name')?.value?.trim() || 'Untitled Doc';
-    const content = this.form.get('content')?.value ?? '';
+    // Use editor DOM HTML when available so merged/split tables (colspan/rowspan) are saved correctly
+    const content = this.quillEditor?.root?.innerHTML ?? this.form.get('content')?.value ?? '';
     this.isSaving = true;
 
     const payload = {
@@ -243,7 +482,7 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   }
 
   downloadAsPdf(): void {
-    const content = this.form.get('content')?.value ?? '';
+    const content = this.quillEditor?.root?.innerHTML ?? this.form.get('content')?.value ?? '';
     const title = this.form.get('name')?.value?.trim() || 'Document';
     if (!content || !content.trim()) {
       this.snackBar.open('Add some content before exporting', 'Close', { duration: 2000 });
@@ -299,7 +538,7 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   }
 
   downloadAsDoc(): void {
-    const content = this.form.get('content')?.value ?? '';
+    const content = this.quillEditor?.root?.innerHTML ?? this.form.get('content')?.value ?? '';
     if (!content || !content.trim()) {
       this.snackBar.open('Add some content before exporting', 'Close', { duration: 2000 });
       return;

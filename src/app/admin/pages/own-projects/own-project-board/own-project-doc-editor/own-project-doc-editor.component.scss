@@ -111,9 +111,9 @@
 .table-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 12px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -124,7 +124,18 @@
     color: #757575;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-right: 8px;
+    margin-right: 4px;
+    &.sub {
+      color: #3f51b5;
+      padding-left: 12px;
+      border-left: 1px solid #e0e0e0;
+    }
+  }
+  .toolbar-btn .menu-chevron {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-left: -2px;
   }
   .toolbar-btn {
     display: inline-flex;
@@ -140,6 +151,54 @@
     transition: background 0.15s;
     mat-icon { font-size: 18px; width: 18px; height: 18px; }
     &:hover { background: rgba(0, 0, 0, 0.06); }
+    &.active {
+      background: rgba(63, 81, 181, 0.12);
+      color: #3f51b5;
+    }
+    &.primary {
+      background: #3f51b5;
+      color: #fff;
+      &:hover { background: #303f9f; }
+    }
+  }
+  .table-insert-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .insert-table-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #f5f5f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    .panel-fields {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .panel-field {
+      width: 90px;
+      margin: 0;
+      font-size: 0.875rem;
+      .mat-mdc-form-field-subscript-wrapper { display: none; }
+    }
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  .table-ops-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
   }
 }
 
@@ -166,4 +225,45 @@
     padding: 8px 12px;
   }
   th { background: #f1f3f5; font-weight: 600; }
+}
+
+// Right-click table context menu
+.table-context-menu {
+  position: fixed;
+  z-index: 1100;
+  min-width: 180px;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  .ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 14px;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.87);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    &:hover {
+      background: rgba(63, 81, 181, 0.08);
+      mat-icon { color: #3f51b5; }
+    }
+  }
+  .ctx-divider {
+    height: 1px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.08);
+  }
 }
