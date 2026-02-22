@@ -108,110 +108,55 @@
   }
 }
 
-.table-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  flex-wrap: wrap;
-  .toolbar-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #757575;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-right: 4px;
-    &.sub {
-      color: #3f51b5;
-      padding-left: 12px;
-      border-left: 1px solid #e0e0e0;
-    }
-  }
-  .toolbar-btn .menu-chevron {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-left: -2px;
-  }
-  .toolbar-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.7);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.15s;
-    mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    &:hover { background: rgba(0, 0, 0, 0.06); }
-    &.active {
-      background: rgba(63, 81, 181, 0.12);
-      color: #3f51b5;
-    }
-    &.primary {
-      background: #3f51b5;
-      color: #fff;
-      &:hover { background: #303f9f; }
-    }
-  }
-  .table-insert-row {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .insert-table-panel {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: #f5f5f7;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    flex-wrap: wrap;
-    .panel-fields {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .panel-field {
-      width: 90px;
-      margin: 0;
-      font-size: 0.875rem;
-      .mat-mdc-form-field-subscript-wrapper { display: none; }
-    }
-    .panel-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-  }
-  .table-ops-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-}
-
+// Editor wrapper: Table button row (projected above toolbar) + Quill toolbar + editor
 .quill-wrapper {
+  margin-bottom: 16px;
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
   min-height: 420px;
+
+  // Table button row: sits just above Quill toolbar header
+  ::ng-deep [above-quill-editor-toolbar].table-toolbar-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  ::ng-deep .toolbar-btn.table-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: #444;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    height: 28px;
+    line-height: 1;
+    box-sizing: border-box;
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: #000;
+    }
+  }
 }
 
 ::ng-deep .quill-editor {
-  .ql-container { border: none; font-size: 15px; }
+  display: block;
+  .ql-toolbar { border: none; border-radius: 0; }
+  .ql-container { border: none; border-top: 1px solid #e0e0e0; font-size: 15px; }
   .ql-editor { min-height: 380px; }
 }
 

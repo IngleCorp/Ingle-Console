@@ -1,0 +1,24 @@
+<div class="insert-table-dialog">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon>table_chart</mat-icon>
+    Insert table
+  </h2>
+  <mat-dialog-content class="dialog-content">
+    <div class="fields">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Rows</mat-label>
+        <input matInput type="number" [(ngModel)]="rows" min="1" [max]="maxRows" />
+        <mat-hint>1–{{ maxRows }}</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Columns</mat-label>
+        <input matInput type="number" [(ngModel)]="cols" min="1" [max]="maxCols" />
+        <mat-hint>1–{{ maxCols }}</mat-hint>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onInsert()">Insert</button>
+  </mat-dialog-actions>
+</div>

@@ -3,7 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { InsertTableDialogComponent, InsertTableResult } from './insert-table-dialog/insert-table-dialog.component';
 import { saveAs } from 'file-saver';
 import { asBlob } from 'html-docx-js-typescript';
 import jsPDF from 'jspdf';
@@ -27,13 +29,7 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   isSaving = false;
   isLoading = false;
   isExporting = false;
-  /** Show the row/col form for inserting a new table */
-  showInsertTablePanel = false;
-  insertTableRows = 3;
-  insertTableCols = 3;
-  readonly maxTableRows = 20;
-  readonly maxTableCols = 12;
-  /** True when cursor/selection is inside a table – show table ops toolbar */
+  /** True when cursor/selection is inside a table (e.g. for future use) */
   isTableSelected = false;
   private quillEditor: any;
   private docSub?: Subscription;
@@ -74,7 +70,8 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     private afs: AngularFirestore,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -150,21 +147,17 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  openInsertTablePanel(): void {
-    this.insertTableRows = 3;
-    this.insertTableCols = 3;
-    this.showInsertTablePanel = true;
-  }
-
-  cancelInsertTable(): void {
-    this.showInsertTablePanel = false;
-  }
-
-  confirmInsertTable(): void {
-    const rows = Math.max(1, Math.min(this.maxTableRows, this.insertTableRows));
-    const cols = Math.max(1, Math.min(this.maxTableCols, this.insertTableCols));
-    this.insertTable(rows, cols);
-    this.showInsertTablePanel = false;
+  openInsertTableDialog(): void {
+    const dialogRef = this.dialog.open(InsertTableDialogComponent, {
+      width: '320px',
+      disableClose: false
+    });
+    dialogRef.afterClosed().subscribe((result: InsertTableResult | undefined) => {
+      if (result) {
+        this.insertTable(result.rows, result.cols);
+        this.snackBar.open('Table inserted', 'Close', { duration: 2000 });
+      }
+    });
   }
 
   private getBetterTable(): any {

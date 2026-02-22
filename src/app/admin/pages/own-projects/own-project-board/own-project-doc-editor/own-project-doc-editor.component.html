@@ -65,85 +65,6 @@
       </mat-form-field>
     </div>
 
-    <div class="table-toolbar">
-      <span class="toolbar-label">Table</span>
-      <div class="table-insert-row">
-        <button
-          type="button"
-          class="toolbar-btn"
-          (click)="showInsertTablePanel ? cancelInsertTable() : openInsertTablePanel()"
-          [class.active]="showInsertTablePanel"
-          matTooltip="Insert table"
-        >
-          <mat-icon>table_chart</mat-icon>
-          <span>Insert table</span>
-        </button>
-        <div class="insert-table-panel" *ngIf="showInsertTablePanel">
-          <div class="panel-fields">
-            <mat-form-field appearance="outline" class="panel-field">
-              <mat-label>Rows</mat-label>
-              <input matInput type="number" [(ngModel)]="insertTableRows" [ngModelOptions]="{standalone: true}" min="1" [max]="maxTableRows" />
-              <mat-hint>1–{{ maxTableRows }}</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="panel-field">
-              <mat-label>Columns</mat-label>
-              <input matInput type="number" [(ngModel)]="insertTableCols" [ngModelOptions]="{standalone: true}" min="1" [max]="maxTableCols" />
-              <mat-hint>1–{{ maxTableCols }}</mat-hint>
-            </mat-form-field>
-          </div>
-          <div class="panel-actions">
-            <button type="button" class="toolbar-btn" (click)="cancelInsertTable()">Cancel</button>
-            <button type="button" class="toolbar-btn primary" (click)="confirmInsertTable()">Insert</button>
-          </div>
-        </div>
-      </div>
-      <div class="table-ops-toolbar" *ngIf="isTableSelected">
-        <span class="toolbar-label sub">Table tools</span>
-        <button type="button" class="toolbar-btn" [matMenuTriggerFor]="rowMenu" matTooltip="Insert row">
-          <mat-icon>add_row</mat-icon>
-          <span>Row</span>
-          <mat-icon class="menu-chevron">expand_more</mat-icon>
-        </button>
-        <mat-menu #rowMenu="matMenu">
-          <button mat-menu-item (click)="insertRowAbove()">
-            <mat-icon>vertical_align_top</mat-icon>
-            <span>Insert row above</span>
-          </button>
-          <button mat-menu-item (click)="insertRowBelow()">
-            <mat-icon>vertical_align_bottom</mat-icon>
-            <span>Insert row below</span>
-          </button>
-        </mat-menu>
-        <button type="button" class="toolbar-btn" [matMenuTriggerFor]="colMenu" matTooltip="Insert column">
-          <mat-icon>add_column</mat-icon>
-          <span>Column</span>
-          <mat-icon class="menu-chevron">expand_more</mat-icon>
-        </button>
-        <mat-menu #colMenu="matMenu">
-          <button mat-menu-item (click)="insertColumnBefore()">
-            <mat-icon>format_indent_decrease</mat-icon>
-            <span>Insert column before</span>
-          </button>
-          <button mat-menu-item (click)="insertColumnAfter()">
-            <mat-icon>format_indent_increase</mat-icon>
-            <span>Insert column after</span>
-          </button>
-        </mat-menu>
-        <button type="button" class="toolbar-btn" (click)="deleteTableRow()" matTooltip="Delete row">
-          <mat-icon>remove_row</mat-icon>
-        </button>
-        <button type="button" class="toolbar-btn" (click)="deleteTableColumn()" matTooltip="Delete column">
-          <mat-icon>remove_column</mat-icon>
-        </button>
-        <button type="button" class="toolbar-btn" (click)="mergeTableCells()" matTooltip="Merge cells">
-          <mat-icon>merge_type</mat-icon>
-        </button>
-        <button type="button" class="toolbar-btn" (click)="splitTableCells()" matTooltip="Split cell">
-          <mat-icon>call_split</mat-icon>
-        </button>
-      </div>
-    </div>
-
     <div class="quill-wrapper">
       <quill-editor
         formControlName="content"
@@ -152,7 +73,19 @@
         placeholder="Write your document here... You can use the toolbar for formatting and insert tables."
         class="quill-editor"
         (onEditorCreated)="onEditorCreated($event)"
-      ></quill-editor>
+      >
+        <div above-quill-editor-toolbar class="table-toolbar-row">
+          <button
+            type="button"
+            class="toolbar-btn table-btn"
+            (click)="openInsertTableDialog()"
+            matTooltip="Insert table"
+          >
+            <mat-icon>table_chart</mat-icon>
+            <span>Table</span>
+          </button>
+        </div>
+      </quill-editor>
     </div>
   </div>
 </div>

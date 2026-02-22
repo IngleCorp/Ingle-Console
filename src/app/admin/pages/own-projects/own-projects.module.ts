@@ -34,6 +34,7 @@ import { FlowPreviewDialogComponent } from './own-project-board/own-project-desi
 import { OwnProjectWhiteboardComponent } from './own-project-board/own-project-whiteboard/own-project-whiteboard.component';
 import { OwnProjectDocsComponent } from './own-project-board/own-project-docs/own-project-docs.component';
 import { OwnProjectDocEditorComponent } from './own-project-board/own-project-doc-editor/own-project-doc-editor.component';
+import { InsertTableDialogComponent } from './own-project-board/own-project-doc-editor/insert-table-dialog/insert-table-dialog.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { OwnProjectDocEditorComponent } from './own-project-board/own-project-do
     OwnProjectWhiteboardComponent,
     OwnProjectDocsComponent,
     OwnProjectDocEditorComponent,
+    InsertTableDialogComponent,
     OwnProjectAccountsComponent,
     OwnProjectFilesComponent,
   ],
