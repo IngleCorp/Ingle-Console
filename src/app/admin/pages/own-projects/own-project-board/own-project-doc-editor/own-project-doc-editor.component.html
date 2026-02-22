@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    <div class="quill-wrapper" (contextmenu)="onEditorContextMenu($event)">
+    <div class="quill-wrapper">
       <quill-editor
         formControlName="content"
         [modules]="editorModules"
@@ -153,50 +153,6 @@
         class="quill-editor"
         (onEditorCreated)="onEditorCreated($event)"
       ></quill-editor>
-    </div>
-
-    <!-- Right-click table context menu -->
-    <div
-      *ngIf="tableContextMenuVisible"
-      class="table-context-menu"
-      [style.left.px]="tableContextMenuX"
-      [style.top.px]="tableContextMenuY"
-      (click)="$event.stopPropagation()"
-    >
-      <button type="button" class="ctx-item" (click)="insertRowAbove(); closeTableContextMenu()">
-        <mat-icon>vertical_align_top</mat-icon>
-        <span>Insert row above</span>
-      </button>
-      <button type="button" class="ctx-item" (click)="insertRowBelow(); closeTableContextMenu()">
-        <mat-icon>vertical_align_bottom</mat-icon>
-        <span>Insert row below</span>
-      </button>
-      <button type="button" class="ctx-item" (click)="insertColumnBefore(); closeTableContextMenu()">
-        <mat-icon>format_indent_decrease</mat-icon>
-        <span>Insert column before</span>
-      </button>
-      <button type="button" class="ctx-item" (click)="insertColumnAfter(); closeTableContextMenu()">
-        <mat-icon>format_indent_increase</mat-icon>
-        <span>Insert column after</span>
-      </button>
-      <div class="ctx-divider"></div>
-      <button type="button" class="ctx-item" (click)="ctxDeleteRow()">
-        <mat-icon>remove_row</mat-icon>
-        <span>Delete row</span>
-      </button>
-      <button type="button" class="ctx-item" (click)="ctxDeleteColumn()">
-        <mat-icon>remove_column</mat-icon>
-        <span>Delete column</span>
-      </button>
-      <div class="ctx-divider"></div>
-      <button type="button" class="ctx-item" (click)="ctxMergeCells()">
-        <mat-icon>merge_type</mat-icon>
-        <span>Merge cells</span>
-      </button>
-      <button type="button" class="ctx-item" (click)="ctxSplitCell()">
-        <mat-icon>call_split</mat-icon>
-        <span>Split cell</span>
-      </button>
     </div>
   </div>
 </div>

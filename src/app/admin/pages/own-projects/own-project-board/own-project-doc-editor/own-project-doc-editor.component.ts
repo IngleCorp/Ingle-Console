@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,10 +35,6 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   readonly maxTableCols = 12;
   /** True when cursor/selection is inside a table – show table ops toolbar */
   isTableSelected = false;
-  /** Right-click context menu on table */
-  tableContextMenuVisible = false;
-  tableContextMenuX = 0;
-  tableContextMenuY = 0;
   private quillEditor: any;
   private docSub?: Subscription;
 
@@ -100,46 +96,6 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.docSub?.unsubscribe();
   }
-
-  @HostListener('document:click')
-  closeTableContextMenuOnClick(): void {
-    this.tableContextMenuVisible = false;
-  }
-
-  @HostListener('document:contextmenu')
-  closeTableContextMenuOnRightClick(): void {
-    this.tableContextMenuVisible = false;
-  }
-
-  onEditorContextMenu(event: MouseEvent): void {
-    const target = event.target as Node;
-    const el = target?.nodeType === Node.ELEMENT_NODE ? (target as Element) : (target as Element)?.parentElement;
-    const inTable = el?.closest?.('td') || el?.closest?.('th');
-    if (inTable) {
-      event.preventDefault();
-      event.stopPropagation();
-      const menuWidth = 180;
-      const menuHeight = 280;
-      let x = event.clientX;
-      let y = event.clientY;
-      if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 8;
-      if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 8;
-      if (x < 8) x = 8;
-      if (y < 8) y = 8;
-      this.tableContextMenuX = x;
-      this.tableContextMenuY = y;
-      this.tableContextMenuVisible = true;
-    }
-  }
-
-  closeTableContextMenu(): void {
-    this.tableContextMenuVisible = false;
-  }
-
-  ctxDeleteRow(): void { this.deleteTableRow(); this.closeTableContextMenu(); }
-  ctxDeleteColumn(): void { this.deleteTableColumn(); this.closeTableContextMenu(); }
-  ctxMergeCells(): void { this.mergeTableCells(); this.closeTableContextMenu(); }
-  ctxSplitCell(): void { this.splitTableCells(); this.closeTableContextMenu(); }
 
   loadDoc(): void {
     if (!this.projectId || !this.docId) return;
