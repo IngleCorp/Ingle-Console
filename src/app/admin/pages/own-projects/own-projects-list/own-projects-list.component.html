@@ -77,11 +77,6 @@
         </div>
       </div>
       <div class="card-footer">
-        <div class="project-progress" *ngIf="project.progress !== undefined">
-          <span class="progress-label">Progress</span>
-          <mat-progress-bar [value]="project.progress" mode="determinate"></mat-progress-bar>
-          <span class="progress-value">{{ project.progress }}%</span>
-        </div>
         <div class="card-actions">
           <button class="action-btn edit-btn" (click)="editProject(project.id, $event)" matTooltip="Edit">
             <mat-icon>edit</mat-icon>
