@@ -18,6 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { QuillModule } from 'ngx-quill';
 
 import { OwnProjectsRoutingModule } from './own-projects-routing.module';
 import { OwnProjectsListComponent } from './own-projects-list/own-projects-list.component';
@@ -31,6 +32,8 @@ import { OwnProjectTaskDetailComponent } from './own-project-board/own-project-t
 import { OwnProjectDesignComponent } from './own-project-board/own-project-design/own-project-design.component';
 import { FlowPreviewDialogComponent } from './own-project-board/own-project-design/flow-preview-dialog/flow-preview-dialog.component';
 import { OwnProjectWhiteboardComponent } from './own-project-board/own-project-whiteboard/own-project-whiteboard.component';
+import { OwnProjectDocsComponent } from './own-project-board/own-project-docs/own-project-docs.component';
+import { OwnProjectDocEditorComponent } from './own-project-board/own-project-doc-editor/own-project-doc-editor.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,8 @@ import { OwnProjectWhiteboardComponent } from './own-project-board/own-project-w
     OwnProjectDesignComponent,
     FlowPreviewDialogComponent,
     OwnProjectWhiteboardComponent,
+    OwnProjectDocsComponent,
+    OwnProjectDocEditorComponent,
     OwnProjectAccountsComponent,
     OwnProjectFilesComponent,
   ],
@@ -68,6 +73,7 @@ import { OwnProjectWhiteboardComponent } from './own-project-board/own-project-w
     MatMenuModule,
     MatDividerModule,
     DragDropModule,
+    QuillModule,
   ],
 })
 export class OwnProjectsModule {}

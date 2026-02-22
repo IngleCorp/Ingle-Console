@@ -1,0 +1,105 @@
+<div class="own-project-doc-editor-page">
+  <div class="editor-header">
+    <button type="button" class="back-btn" (click)="back()" matTooltip="Back to Docs">
+      <mat-icon>arrow_back</mat-icon>
+      <span>Docs</span>
+    </button>
+    <div class="header-title">
+      <mat-icon class="title-icon">edit_note</mat-icon>
+      <span>{{ isNewDoc ? 'New Doc' : 'Edit Doc' }}</span>
+    </div>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="copyShareUrl()"
+        [matTooltip]="isNewDoc ? 'Save doc first to copy link' : 'Copy share link'"
+        [disabled]="isNewDoc"
+      >
+        <mat-icon>link</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="downloadAsPdf()"
+        [disabled]="isExporting"
+        matTooltip="Download as PDF"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="downloadAsDoc()"
+        [disabled]="isExporting"
+        matTooltip="Download as Word (DOCX)"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
+      <button
+        class="save-btn"
+        (click)="save()"
+        [disabled]="isSaving || form.invalid"
+        matTooltip="Save"
+      >
+        <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!isSaving">save</mat-icon>
+        {{ isSaving ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading doc...</p>
+  </div>
+
+  <div class="editor-body" [class.loading]="isLoading" [formGroup]="form">
+    <div class="doc-name-row">
+      <mat-form-field appearance="outline" class="doc-name-field">
+        <mat-label>Doc name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter doc name" maxlength="200" />
+        <mat-icon matSuffix>title</mat-icon>
+        <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/200</mat-hint>
+        <mat-error>Name is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="table-toolbar">
+      <span class="toolbar-label">Table</span>
+      <button type="button" class="toolbar-btn" (click)="insertTable()" matTooltip="Insert table (3×3)">
+        <mat-icon>table_chart</mat-icon>
+        <span>Insert</span>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="addTableRow()" matTooltip="Add row">
+        <mat-icon>add_row</mat-icon>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="addTableColumn()" matTooltip="Add column">
+        <mat-icon>add_column</mat-icon>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="deleteTableRow()" matTooltip="Delete row">
+        <mat-icon>remove_row</mat-icon>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="deleteTableColumn()" matTooltip="Delete column">
+        <mat-icon>remove_column</mat-icon>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="mergeTableCells()" matTooltip="Merge cells">
+        <mat-icon>merge_type</mat-icon>
+      </button>
+      <button type="button" class="toolbar-btn" (click)="splitTableCells()" matTooltip="Split cell">
+        <mat-icon>call_split</mat-icon>
+      </button>
+    </div>
+
+    <div class="quill-wrapper">
+      <quill-editor
+        formControlName="content"
+        [modules]="editorModules"
+        [styles]="editorStyles"
+        placeholder="Write your document here... You can use the toolbar for formatting and insert tables."
+        class="quill-editor"
+        (onEditorCreated)="onEditorCreated($event)"
+      ></quill-editor>
+    </div>
+  </div>
+</div>

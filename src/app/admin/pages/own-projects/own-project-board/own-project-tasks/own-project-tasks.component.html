@@ -19,10 +19,10 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="stat todo"><span class="stat-num">{{ tasktodo?.length || 0 }}</span><span class="stat-lbl">To Do</span></div>
-      <div class="stat inprogress"><span class="stat-num">{{ taskinprogress?.length || 0 }}</span><span class="stat-lbl">In Progress</span></div>
-      <div class="stat done"><span class="stat-num">{{ taskdone?.length || 0 }}</span><span class="stat-lbl">Done</span></div>
-      <div class="stat hold"><span class="stat-num">{{ taskonhold?.length || 0 }}</span><span class="stat-lbl">On Hold</span></div>
+      <div class="stat todo"><span class="stat-num">{{ tasktodo.length || 0 }}</span><span class="stat-lbl">To Do</span></div>
+      <div class="stat inprogress"><span class="stat-num">{{ taskinprogress.length || 0 }}</span><span class="stat-lbl">In Progress</span></div>
+      <div class="stat done"><span class="stat-num">{{ taskdone.length || 0 }}</span><span class="stat-lbl">Done</span></div>
+      <div class="stat hold"><span class="stat-num">{{ taskonhold.length || 0 }}</span><span class="stat-lbl">On Hold</span></div>
     </div>
   </header>
 
@@ -31,24 +31,24 @@
       <mat-label>New task</mat-label>
       <input matInput [(ngModel)]="taskText" (keyup.enter)="addTask()" placeholder="Add a task...">
     </mat-form-field>
-    <button mat-flat-button color="primary" class="add-btn" (click)="addTask()" [disabled]="!taskText?.trim() || isLoading">
+    <button mat-flat-button color="primary" class="add-btn" (click)="addTask()" [disabled]="!taskText.trim() || isLoading">
       <mat-icon>add</mat-icon>
       Add
     </button>
   </div>
 
-  <div class="loading-state" *ngIf="isLoading && !taskdata?.length">
+  <div class="loading-state" *ngIf="isLoading && !taskdata.length">
     <mat-spinner diameter="32"></mat-spinner>
   </div>
 
   <!-- Kanban view (drag & drop between columns to change status) -->
-  <div class="kanban-view" *ngIf="viewMode === 'kanban' && (!isLoading || taskdata?.length)">
+  <div class="kanban-view" *ngIf="viewMode === 'kanban' && (!isLoading || taskdata.length)">
     <div class="kanban-board" cdkDropListGroup>
       <div class="col todo-col">
         <div class="col-head">
           <mat-icon>pending</mat-icon>
           <span>To Do</span>
-          <span class="count">{{ tasktodo?.length || 0 }}</span>
+          <span class="count">{{ tasktodo.length || 0 }}</span>
         </div>
         <div class="col-cards" cdkDropList [id]="'todo'" [cdkDropListData]="tasktodo" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="task-card" *ngFor="let task of tasktodo; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
@@ -74,7 +74,7 @@
         <div class="col-head">
           <mat-icon>progress_activity</mat-icon>
           <span>In Progress</span>
-          <span class="count">{{ taskinprogress?.length || 0 }}</span>
+          <span class="count">{{ taskinprogress.length || 0 }}</span>
         </div>
         <div class="col-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="taskinprogress" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="task-card" *ngFor="let task of taskinprogress; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
@@ -104,7 +104,7 @@
         <div class="col-head">
           <mat-icon>check_circle</mat-icon>
           <span>Done</span>
-          <span class="count">{{ taskdone?.length || 0 }}</span>
+          <span class="count">{{ taskdone.length || 0 }}</span>
         </div>
         <div class="col-cards" cdkDropList [id]="'done'" [cdkDropListData]="taskdone" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="task-card done" *ngFor="let task of taskdone; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
@@ -130,7 +130,7 @@
         <div class="col-head">
           <mat-icon>pause_circle</mat-icon>
           <span>On Hold</span>
-          <span class="count">{{ taskonhold?.length || 0 }}</span>
+          <span class="count">{{ taskonhold.length || 0 }}</span>
         </div>
         <div class="col-cards" cdkDropList [id]="'hold'" [cdkDropListData]="taskonhold" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="task-card hold" *ngFor="let task of taskonhold; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
@@ -156,9 +156,9 @@
   </div>
 
   <!-- List view -->
-  <div class="list-view" *ngIf="viewMode === 'list' && (!isLoading || taskdata?.length)">
+  <div class="list-view" *ngIf="viewMode === 'list' && (!isLoading || taskdata.length)">
     <div class="list-toolbar">
-      <span class="list-total">{{ taskdata?.length || 0 }} task{{ (taskdata?.length || 0) === 1 ? '' : 's' }}</span>
+      <span class="list-total">{{ taskdata.length || 0 }} task{{ (taskdata.length || 0) === 1 ? '' : 's' }}</span>
     </div>
     <div class="list-body">
       <div class="list-row" *ngFor="let task of taskdata; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
@@ -180,7 +180,7 @@
     </div>
   </div>
 
-  <div class="empty-state" *ngIf="!isLoading && !taskdata?.length">
+  <div class="empty-state" *ngIf="!isLoading && !taskdata.length">
     <mat-icon class="empty-icon">assignment</mat-icon>
     <p class="empty-title">No tasks yet</p>
     <p class="empty-desc">Add a task above or open one to set assignees and details.</p>

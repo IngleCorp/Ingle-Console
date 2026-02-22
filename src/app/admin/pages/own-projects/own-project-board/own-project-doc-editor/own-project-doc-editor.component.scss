@@ -1,0 +1,169 @@
+@import 'quill/dist/quill.snow.css';
+
+.own-project-doc-editor-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #fafafa;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    &:hover { background: rgba(0, 0, 0, 0.06); }
+  }
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    .title-icon { color: #3f51b5; font-size: 22px; width: 22px; height: 22px; }
+  }
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    mat-icon { font-size: 22px; width: 22px; height: 22px; }
+    &:hover:not(:disabled) { background: rgba(0, 0, 0, 0.06); color: #3f51b5; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+  .save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #3f51b5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  p { margin-top: 12px; font-size: 0.9rem; color: #757575; }
+}
+
+.editor-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  position: relative;
+  &.loading { pointer-events: none; opacity: 0.7; }
+}
+
+.doc-name-row {
+  margin-bottom: 16px;
+  .doc-name-field {
+    width: 100%;
+    max-width: 480px;
+  }
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  .toolbar-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #757575;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 8px;
+  }
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    &:hover { background: rgba(0, 0, 0, 0.06); }
+  }
+}
+
+.quill-wrapper {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 420px;
+}
+
+::ng-deep .quill-editor {
+  .ql-container { border: none; font-size: 15px; }
+  .ql-editor { min-height: 380px; }
+}
+
+// Quill table module styles (basic)
+::ng-deep .ql-editor table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  td, th {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+  }
+  th { background: #f1f3f5; font-weight: 600; }
+}

@@ -112,7 +112,7 @@
         <div class="flow-editor-actions">
           <button mat-stroked-button type="button" (click)="useFlowExample()">Load example</button>
           <button mat-stroked-button type="button" (click)="renderMermaid()">Refresh preview</button>
-          <button mat-flat-button color="primary" (click)="saveFlowDiagram()" [disabled]="isSaving || !flowFormTitle?.trim()">
+          <button mat-flat-button color="primary" (click)="saveFlowDiagram()" [disabled]="isSaving || !flowFormTitle.trim()">
             <mat-spinner diameter="18" *ngIf="isSaving" class="btn-spinner"></mat-spinner>
             {{ isSaving ? 'Saving...' : (editingFlowId ? 'Update diagram' : 'Save diagram') }}
           </button>

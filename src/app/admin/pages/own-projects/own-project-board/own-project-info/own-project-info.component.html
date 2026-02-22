@@ -69,10 +69,10 @@
             <mat-option value="date">Date</mat-option>
           </mat-select>
         </mat-form-field>
-        <span class="stat-item">{{ filteredInfodata?.length || 0 }} items</span>
+        <span class="stat-item">{{ filteredInfodata.length || 0 }} items</span>
       </div>
     </div>
-    <div class="info-grid" *ngIf="filteredInfodata?.length">
+    <div class="info-grid" *ngIf="filteredInfodata.length">
       <div class="info-card" *ngFor="let info of filteredInfodata; trackBy: trackByInfo">
         <div class="card-header">
           <span class="type-badge type-{{ info.type }}">
@@ -101,7 +101,7 @@
         </div>
       </div>
     </div>
-    <div class="empty-state" *ngIf="!filteredInfodata?.length">
+    <div class="empty-state" *ngIf="!filteredInfodata.length">
       <mat-icon class="empty-icon">info</mat-icon>
       <h3>No information yet</h3>
       <p>Add links, contacts and other data for this project.</p>
