@@ -22,6 +22,12 @@ export interface Task {
   assignees?: string[];
   projectId?: string | null;
   projectName?: string | null;
+  /** Source of the task, e.g. 'ownProject' when synced from an own project board. */
+  source?: string;
+  /** When source === 'ownProject', id of the ownProjects document. */
+  ownProjectId?: string | null;
+  /** When source === 'ownProject', id of the subcollection task under the own project. */
+  ownProjectTaskId?: string | null;
   dueDate?: Date;
   estimatedHours?: number;
   actualHours?: number;

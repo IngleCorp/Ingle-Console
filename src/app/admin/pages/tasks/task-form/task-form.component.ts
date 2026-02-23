@@ -71,6 +71,21 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
+  get isOwnProjectTask(): boolean {
+    const t: any = this.data.task;
+    return !!t && t.source === 'ownProject' && !!t.ownProjectId;
+  }
+
+  get ownProjectTaskLink(): string | null {
+    if (!this.isOwnProjectTask) return null;
+    const t: any = this.data.task;
+    const projectId = t.ownProjectId;
+    const ownTaskId = t.ownProjectTaskId;
+    return ownTaskId
+      ? `/admin/own-projects/${projectId}/tasks/${ownTaskId}`
+      : `/admin/own-projects/${projectId}/tasks`;
+  }
+
   private _filterProjects(value: string): Project[] {
     const filterValue = value.toLowerCase();
     return this.data.projects.filter(project => project.name.toLowerCase().includes(filterValue));

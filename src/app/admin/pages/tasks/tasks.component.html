@@ -127,7 +127,9 @@
               <div class="task-info">
                 <div class="info-item" *ngIf="getTaskProjectId(task)">
                   <mat-icon>folder</mat-icon>
-                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                  <span>
+                    {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  </span>
                 </div>
                 <div class="info-item" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>
@@ -213,7 +215,9 @@
               <div class="task-info">
                 <div class="info-item" *ngIf="getTaskProjectId(task)">
                   <mat-icon>folder</mat-icon>
-                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                  <span>
+                    {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  </span>
                 </div>
                 <div class="info-item" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>
@@ -364,7 +368,9 @@
               <div class="task-info">
                 <div class="info-item" *ngIf="getTaskProjectId(task)">
                   <mat-icon>folder</mat-icon>
-                  <span>{{ getProjectName(getTaskProjectId(task)) }}</span>
+                  <span>
+                    {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  </span>
                 </div>
                 <div class="info-item hold-info" *ngIf="task.updatedAt">
                   <mat-icon>schedule</mat-icon>

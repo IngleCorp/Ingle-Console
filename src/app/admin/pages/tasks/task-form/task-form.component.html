@@ -9,6 +9,17 @@
     </button>
   </div>
 
+  <div *ngIf="isOwnProjectTask" class="own-project-link">
+    <a
+      [routerLink]="ownProjectTaskLink"
+      (click)="dialogRef.close(null)"
+      class="own-project-link-btn"
+    >
+      <mat-icon>open_in_new</mat-icon>
+      Open in Own Project
+    </a>
+  </div>
+
   <mat-dialog-content>
     <form [formGroup]="taskForm" class="task-form">
       <!-- Task Title - First field -->
