@@ -25,7 +25,30 @@ export class OwnProjectFormComponent {
     { value: 'active', label: 'Active', icon: 'play_circle' },
     { value: 'pending', label: 'Pending', icon: 'schedule' },
     { value: 'completed', label: 'Completed', icon: 'check_circle' },
-    { value: 'on-hold', label: 'On Hold', icon: 'pause_circle' }
+    { value: 'on-hold', label: 'On Hold', icon: 'pause_circle' },
+    { value: 'building', label: 'Building', icon: 'build' },
+    { value: 'launching', label: 'Launching', icon: 'launch' },
+    { value: 'launched', label: 'Launched', icon: 'launch' },
+    { value: 'archived', label: 'Archived', icon: 'archive' },
+    { value: 'cancelled', label: 'Cancelled', icon: 'cancel' },
+    {value:'mvp',label:'MVP',icon:'m'},
+    {value:'ideation',label:'Ideation',icon:'idea'},
+    {value:'development',label:'Development',icon:'code'},
+    {value:'testing',label:'Testing',icon:'test'},
+    {value:'deployment',label:'Deployment',icon:'deploy'},
+    {value:'maintenance',label:'Maintenance',icon:'maintenance'},
+    {value:'other',label:'Other',icon:'other'},
+    {value:'research',label:'Research',icon:'research'},
+    {value:'design',label:'Design',icon:'design'},
+    {value:'marketing',label:'Marketing',icon:'marketing'},
+    {value:'sales',label:'Sales',icon:'sales'},
+    {value:'customer-support',label:'Customer Support',icon:'customer-support'},
+    {value:'product-management',label:'Product Management',icon:'product-management'},
+    {value:'quality-assurance',label:'Quality Assurance',icon:'quality-assurance'},
+    {value:'administration',label:'Administration',icon:'administration'},
+    {value:'client-services',label:'Client Services',icon:'client-services'},
+
+  
   ];
 
   types = [
