@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
+const ROOT_TASKS_COLLECTION = 'tasks';
 
 export interface AssigneeOption {
   id: string;
@@ -157,7 +158,27 @@ export class OwnProjectTaskDetailComponent implements OnInit, OnDestroy {
       updatedByName: localStorage.getItem('username') || 'Unknown'
     };
     this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(this.taskId).update(payload)
-      .then(() => {
+      .then(async () => {
+        const rootTaskId = (this.task as any)?.rootTaskId;
+        if (rootTaskId) {
+          try {
+            await this.afs.collection(ROOT_TASKS_COLLECTION).doc(rootTaskId).update({
+              task: v.title,
+              title: v.title,
+              description: payload.description,
+              status: payload.status,
+              priority: payload.priority,
+              progress: payload.progress,
+              assigns: assigns,
+              assignees: assigns.map((a: any) => a.uid),
+              updatedAt: payload.updatedAt,
+              updatedBy: payload.updatedBy,
+              updatedByName: payload.updatedByName
+            });
+          } catch (e) {
+            console.warn('Could not sync update to main tasks', e);
+          }
+        }
         this.snackBar.open('Task updated', 'Close', { duration: 3000 });
         this.isSaving = false;
         this.task = { ...this.task, ...payload };
@@ -175,7 +196,12 @@ export class OwnProjectTaskDetailComponent implements OnInit, OnDestroy {
   deleteTask(): void {
     if (!confirm('Delete this task? This cannot be undone.')) return;
     if (!this.projectId || !this.taskId) return;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(this.taskId).delete()
+    const rootTaskId = (this.task as any)?.rootTaskId;
+    const deleteOwn = () => this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).collection('tasks').doc(this.taskId!).delete();
+    const runDelete = rootTaskId
+      ? this.afs.collection(ROOT_TASKS_COLLECTION).doc(rootTaskId).delete().then(() => deleteOwn()).catch(() => deleteOwn())
+      : deleteOwn();
+    runDelete
       .then(() => {
         this.snackBar.open('Task deleted', 'Close', { duration: 3000 });
         this.backToList();

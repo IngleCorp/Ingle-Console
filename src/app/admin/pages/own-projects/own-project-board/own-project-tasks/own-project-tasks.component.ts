@@ -6,6 +6,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
+const ROOT_TASKS_COLLECTION = 'tasks';
+const ACTIVITIES_COLLECTION = 'activities';
 const KANBAN_STATUSES = ['todo', 'in-progress', 'done', 'hold'] as const;
 
 @Component({
@@ -76,6 +78,8 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
     const text = this.taskText?.trim();
     if (!text || !this.projectId) return;
     this.isLoading = true;
+    const createdBy = localStorage.getItem('userid') || '';
+    const createdByName = localStorage.getItem('username') || 'Unknown';
     const payload = {
       title: text,
       description: '',
@@ -86,14 +90,59 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
       dueDate: null,
       estimatedHours: null,
       createdAt: new Date(),
-      createdBy: localStorage.getItem('userid') || '',
-      createdByName: localStorage.getItem('username') || 'Unknown'
+      createdBy,
+      createdByName
     };
     this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').add(payload)
-      .then(() => {
+      .then(async (docRef) => {
         this.taskText = '';
         this.snackBar.open('Task added', 'Close', { duration: 2000 });
         this.getTasks();
+        // Sync to root tasks collection and keep reference both ways
+        try {
+          const projectSnap = await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).get().toPromise();
+          const projectName = (projectSnap?.data() as any)?.name || 'Own Project';
+          const rootTaskData = {
+            task: text,
+            title: text,
+            description: '',
+            status: 'todo',
+            priority: 'medium',
+            progress: 0,
+            assignees: [],
+            assigns: [],
+            projectId: this.projectId,
+            projectName,
+            projecttaged: this.projectId,
+            createdAt: new Date(),
+            createdBy,
+            createdByName,
+            isActive: true,
+            source: 'ownProject',
+            ownProjectId: this.projectId,
+            ownProjectTaskId: docRef.id
+          };
+          const rootRef = await this.afs.collection(ROOT_TASKS_COLLECTION).add(rootTaskData);
+          await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).collection('tasks').doc(docRef.id).update({ rootTaskId: rootRef.id });
+        } catch (e) {
+          console.warn('Could not sync task to main tasks list', e);
+        }
+        // Record activity
+        try {
+          await this.afs.collection(ACTIVITIES_COLLECTION).add({
+            type: 'task',
+            action: 'Created',
+            entityId: docRef.id,
+            entityName: text,
+            details: `Task created in Own Project: ${text}`,
+            createdAt: new Date(),
+            createdBy,
+            createdByName,
+            icon: 'add_task'
+          });
+        } catch (e) {
+          console.warn('Could not record activity', e);
+        }
       })
       .catch(() => {
         this.snackBar.open('Failed to add task', 'Close', { duration: 3000 });
@@ -103,9 +152,22 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
 
   updateTaskStatus(taskId: string, newStatus: string): void {
     if (!this.projectId) return;
+    const updatedAt = new Date();
     this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(taskId)
-      .update({ status: newStatus, updatedAt: new Date() })
-      .then(() => { /* valueChanges will update lists */ })
+      .update({ status: newStatus, updatedAt })
+      .then(async () => {
+        const taskSnap = await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).collection('tasks').doc(taskId).get().toPromise();
+        const rootTaskId = (taskSnap?.data() as any)?.rootTaskId;
+        if (rootTaskId) {
+          try {
+            const update: any = { status: newStatus, updatedAt };
+            if (newStatus === 'done') update.progress = 100;
+            await this.afs.collection(ROOT_TASKS_COLLECTION).doc(rootTaskId).update(update);
+          } catch (e) {
+            console.warn('Could not sync status to main tasks', e);
+          }
+        }
+      })
       .catch(() => this.snackBar.open('Update failed', 'Close', { duration: 3000 }));
   }
 
@@ -134,7 +196,18 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
   deleteTask(taskId: string): void {
     if (!confirm('Delete this task?')) return;
     if (!this.projectId) return;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(taskId).delete()
+    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(taskId).get().toPromise()
+      .then(async (taskSnap) => {
+        const rootTaskId = (taskSnap?.data() as any)?.rootTaskId;
+        if (rootTaskId) {
+          try {
+            await this.afs.collection(ROOT_TASKS_COLLECTION).doc(rootTaskId).delete();
+          } catch (e) {
+            console.warn('Could not delete from main tasks', e);
+          }
+        }
+        return this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).collection('tasks').doc(taskId).delete();
+      })
       .then(() => {
         this.snackBar.open('Task deleted', 'Close', { duration: 2000 });
         this.getTasks();

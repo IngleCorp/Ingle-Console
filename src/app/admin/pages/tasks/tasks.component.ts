@@ -379,7 +379,6 @@ export class TasksComponent implements OnInit {
       const user = await this.auth.currentUser;
       if (user) {
         const selectedProject = this.projects.find(p => p.id === formData.projectId);
-
         const updateData = {
           ...formData,
           task: formData.title,
@@ -391,8 +390,26 @@ export class TasksComponent implements OnInit {
           projectName: selectedProject?.name || null,
           projecttaged: selectedProject?.id || null,
         };
-
         await this.firestore.collection('tasks').doc(taskId).update(updateData);
+        const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();
+        const data = taskSnap?.data() as any;
+        if (data?.source === 'ownProject' && data?.ownProjectId && data?.ownProjectTaskId) {
+          const assigns = (formData.assignees || []).map((uid: string) => ({ uid, name: '', email: '' }));
+          await this.firestore.collection('ownProjects').doc(data.ownProjectId).collection('tasks').doc(data.ownProjectTaskId).update({
+            title: formData.title,
+            description: formData.description ?? '',
+            status: formData.status,
+            priority: formData.priority,
+            progress: updateData.progress ?? 0,
+            assigns,
+            dueDate: formData.dueDate ?? null,
+            estimatedHours: formData.estimatedHours ?? null,
+            tags: formData.tags ?? [],
+            updatedAt: updateData.updatedAt,
+            updatedBy: updateData.updatedBy,
+            updatedByName: updateData.updatedByName
+          });
+        }
         this.showNotification('Task updated successfully!', 'success');
       }
     } catch (error) {
@@ -406,6 +423,11 @@ export class TasksComponent implements OnInit {
   async deleteTask(taskId: string): Promise<void> {
     if (confirm('Are you sure you want to delete this task?')) {
       try {
+        const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();
+        const data = taskSnap?.data() as any;
+        if (data?.source === 'ownProject' && data?.ownProjectId && data?.ownProjectTaskId) {
+          await this.firestore.collection('ownProjects').doc(data.ownProjectId).collection('tasks').doc(data.ownProjectTaskId).delete();
+        }
         await this.firestore.collection('tasks').doc(taskId).delete();
         this.showNotification('Task deleted successfully!', 'success');
       } catch (error) {
@@ -418,20 +440,21 @@ export class TasksComponent implements OnInit {
   async updateTaskStatus(taskId: string, status: Task['status']): Promise<void> {
     try {
       const user = await this.auth.currentUser;
-      const updateData: any = { status };
-      
+      const updateData: any = { status, updatedAt: new Date() };
       if (status === 'done') {
         updateData.progress = 100;
-        updateData.timeTaken = 0; // Could be calculated from actual time tracking
+        updateData.timeTaken = 0;
       }
-      
-      updateData.updatedAt = new Date();
       if (user) {
         updateData.updatedBy = user.uid;
         updateData.updatedByName = user.displayName || user.email || 'Unknown User';
       }
-
       await this.firestore.collection('tasks').doc(taskId).update(updateData);
+      const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();
+      const data = taskSnap?.data() as any;
+      if (data?.source === 'ownProject' && data?.ownProjectId && data?.ownProjectTaskId) {
+        await this.firestore.collection('ownProjects').doc(data.ownProjectId).collection('tasks').doc(data.ownProjectTaskId).update(updateData);
+      }
       this.showNotification(`Task moved to ${status}`, 'success');
     } catch (error) {
       console.error('Error updating task status:', error);
@@ -441,10 +464,13 @@ export class TasksComponent implements OnInit {
 
   async updateTaskProgress(taskId: string, progress: number): Promise<void> {
     try {
-      await this.firestore.collection('tasks').doc(taskId).update({
-        progress: Math.min(100, Math.max(0, progress)),
-        updatedAt: new Date()
-      });
+      const updateData = { progress: Math.min(100, Math.max(0, progress)), updatedAt: new Date() };
+      await this.firestore.collection('tasks').doc(taskId).update(updateData);
+      const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();
+      const data = taskSnap?.data() as any;
+      if (data?.source === 'ownProject' && data?.ownProjectId && data?.ownProjectTaskId) {
+        await this.firestore.collection('ownProjects').doc(data.ownProjectId).collection('tasks').doc(data.ownProjectTaskId).update(updateData);
+      }
     } catch (error) {
       console.error('Error updating task progress:', error);
       this.showNotification('Error updating task progress', 'error');
