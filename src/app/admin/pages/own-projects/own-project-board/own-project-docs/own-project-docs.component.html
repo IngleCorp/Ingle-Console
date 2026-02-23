@@ -1,59 +1,40 @@
 <div class="own-project-docs-page">
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="page-title">
-          <mat-icon class="title-icon">description</mat-icon>
-          Docs
-        </h1>
-        <p class="page-subtitle">Create and manage project documents with rich text</p>
-      </div>
-      <div class="header-actions">
-        <button class="add-doc-btn" (click)="createDoc()">
-          <mat-icon>add</mat-icon>
-          New Doc
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="loading-state" *ngIf="isLoading && !docs?.length">
+  <div class="loading-state" *ngIf="isLoading">
     <mat-spinner diameter="40"></mat-spinner>
     <p>Loading docs...</p>
   </div>
 
-  <div class="docs-grid" *ngIf="!isLoading && docs?.length">
-    <div
-      class="doc-card"
-      *ngFor="let doc of docs"
-      (click)="openDoc(doc.id)"
-    >
-      <div class="doc-icon">
-        <mat-icon>description</mat-icon>
-      </div>
-      <div class="doc-info">
-        <h3 class="doc-name">{{ doc.name }}</h3>
-        <span class="doc-meta">{{ getEditedAgo(doc.updatedAt) }}</span>
-      </div>
-      <div class="doc-actions">
-        <button
-          mat-icon-button
-          (click)="deleteDoc(doc.id, doc.name, $event)"
-          matTooltip="Delete"
-        >
-          <mat-icon>delete_outline</mat-icon>
-        </button>
+  <div class="docs-grid-wrap" *ngIf="!isLoading">
+    <p class="empty-hint" *ngIf="!docs.length">No docs yet. Create one below.</p>
+    <div class="docs-grid">
+      <button type="button" class="doc-card doc-card-new" (click)="createDoc()">
+        <div class="doc-card-new-icon">
+          <mat-icon>add</mat-icon>
+        </div>
+        <span class="doc-card-new-title">New Doc</span>
+      </button>
+      <div
+        class="doc-card"
+        *ngFor="let doc of docs"
+        (click)="openDoc(doc.id)"
+      >
+        <div class="doc-icon">
+          <mat-icon>description</mat-icon>
+        </div>
+        <div class="doc-info">
+          <h3 class="doc-name">{{ doc.name }}</h3>
+          <span class="doc-meta">{{ getEditedAgo(doc.updatedAt) }}</span>
+        </div>
+        <div class="doc-actions">
+          <button
+            mat-icon-button
+            (click)="deleteDoc(doc.id, doc.name, $event)"
+            matTooltip="Delete"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="empty-state" *ngIf="!isLoading && !docs?.length">
-    <mat-icon class="empty-icon">description</mat-icon>
-    <h3>No docs yet</h3>
-    <p>Create a doc to write notes, specs, or documentation with rich text and tables.</p>
-    <button class="empty-action-btn" (click)="createDoc()">
-      <mat-icon>add</mat-icon>
-      Create First Doc
-    </button>
   </div>
 </div>

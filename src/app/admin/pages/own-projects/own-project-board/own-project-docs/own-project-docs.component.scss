@@ -1,51 +1,73 @@
 .own-project-docs-page {
   font-family: 'Poppins', sans-serif;
-}
-
-.page-header {
-  margin-bottom: 24px;
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .page-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    font-size: 1.5rem;
-    .title-icon { color: #3f51b5; }
-  }
-  .page-subtitle { margin: 4px 0 0; color: #757575; font-size: 0.9rem; }
-  .add-doc-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: #3f51b5;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.9rem;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; }
-  }
+  padding: 24px;
 }
 
 .loading-state {
   text-align: center;
-  padding: 32px;
+  padding: 48px 24px;
   p { margin: 8px 0 0; color: #757575; font-size: 0.9rem; }
+}
+
+.docs-grid-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.empty-hint {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: #757575;
 }
 
 .docs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+// New Doc card first (same pattern as whiteboard "New whiteboard" card)
+.doc-card-new {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  padding: 24px;
+  gap: 12px;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: #3f51b5;
+    background: rgba(63, 81, 181, 0.04);
+    box-shadow: 0 4px 12px rgba(63, 81, 181, 0.12);
+  }
+}
+
+.doc-card-new-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.doc-card-new .doc-card-new-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.doc-card-new:hover .doc-card-new-title {
+  color: #3f51b5;
 }
 
 .doc-card {
@@ -53,16 +75,19 @@
   border-radius: 12px;
   padding: 16px;
   border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: flex-start;
   gap: 12px;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s ease;
+
   &:hover {
     border-color: #3f51b5;
-    box-shadow: 0 4px 12px rgba(63, 81, 181, 0.12);
+    box-shadow: 0 8px 24px rgba(63, 81, 181, 0.12);
+    transform: translateY(-2px);
   }
+
   .doc-icon {
     width: 48px;
     height: 48px;
@@ -93,27 +118,5 @@
   .doc-actions {
     flex-shrink: 0;
     button mat-icon { font-size: 20px; width: 20px; height: 20px; }
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  .empty-icon { font-size: 56px; width: 56px; height: 56px; color: #bdbdbd; margin-bottom: 16px; }
-  h3 { margin: 0 0 8px; }
-  p { color: #757575; margin: 0 0 20px; }
-  .empty-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: #3f51b5;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.95rem;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; }
   }
 }
