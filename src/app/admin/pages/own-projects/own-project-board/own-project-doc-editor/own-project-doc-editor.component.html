@@ -82,7 +82,7 @@
           <button
             type="button"
             class="toolbar-btn table-btn"
-            (click)="openInsertTableDialog()"
+            (click)="openInsertTableModal()"
             matTooltip="Insert table"
           >
             <mat-icon>table_chart</mat-icon>
@@ -90,6 +90,34 @@
           </button>
         </div>
       </quill-editor>
+    </div>
+  </div>
+
+  <!-- In-component insert-table modal (shows in fullscreen because it's inside the page) -->
+  <div class="insert-table-modal-overlay" *ngIf="showInsertTableModal" (click)="closeInsertTableModal()">
+    <div class="insert-table-modal" (click)="$event.stopPropagation()">
+      <h2 class="insert-table-modal-title">
+        <mat-icon>table_chart</mat-icon>
+        Insert table
+      </h2>
+      <div class="insert-table-modal-content">
+        <div class="insert-table-fields">
+          <label class="insert-table-field">
+            <span class="insert-table-label">Rows</span>
+            <input type="number" [(ngModel)]="insertTableRows" min="1" [max]="insertTableMaxRows" />
+            <span class="insert-table-hint">1–{{ insertTableMaxRows }}</span>
+          </label>
+          <label class="insert-table-field">
+            <span class="insert-table-label">Columns</span>
+            <input type="number" [(ngModel)]="insertTableCols" min="1" [max]="insertTableMaxCols" />
+            <span class="insert-table-hint">1–{{ insertTableMaxCols }}</span>
+          </label>
+        </div>
+      </div>
+      <div class="insert-table-modal-actions">
+        <button type="button" class="insert-table-btn cancel" (click)="closeInsertTableModal()">Cancel</button>
+        <button type="button" class="insert-table-btn primary" (click)="confirmInsertTable()">Insert</button>
+      </div>
     </div>
   </div>
 </div>

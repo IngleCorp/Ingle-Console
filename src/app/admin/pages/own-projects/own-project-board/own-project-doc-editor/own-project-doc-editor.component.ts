@@ -3,9 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { InsertTableDialogComponent, InsertTableResult } from './insert-table-dialog/insert-table-dialog.component';
 import { saveAs } from 'file-saver';
 import { asBlob } from 'html-docx-js-typescript';
 import jsPDF from 'jspdf';
@@ -33,6 +31,12 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   isTableSelected = false;
   /** True when doc editor is in browser fullscreen */
   isFullscreen = false;
+  /** In-component insert-table modal (works in fullscreen) */
+  showInsertTableModal = false;
+  insertTableRows = 3;
+  insertTableCols = 3;
+  readonly insertTableMaxRows = 20;
+  readonly insertTableMaxCols = 12;
   @ViewChild('docEditorPage') docEditorPage?: ElementRef<HTMLElement>;
   private quillEditor: any;
   private docSub?: Subscription;
@@ -75,8 +79,7 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     private afs: AngularFirestore,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private snackBar: MatSnackBar
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -213,17 +216,22 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  openInsertTableDialog(): void {
-    const dialogRef = this.dialog.open(InsertTableDialogComponent, {
-      width: '320px',
-      disableClose: false
-    });
-    dialogRef.afterClosed().subscribe((result: InsertTableResult | undefined) => {
-      if (result) {
-        this.insertTable(result.rows, result.cols);
-        this.snackBar.open('Table inserted', 'Close', { duration: 2000 });
-      }
-    });
+  openInsertTableModal(): void {
+    this.insertTableRows = 3;
+    this.insertTableCols = 3;
+    this.showInsertTableModal = true;
+  }
+
+  closeInsertTableModal(): void {
+    this.showInsertTableModal = false;
+  }
+
+  confirmInsertTable(): void {
+    const rows = Math.max(1, Math.min(this.insertTableMaxRows, this.insertTableRows));
+    const cols = Math.max(1, Math.min(this.insertTableMaxCols, this.insertTableCols));
+    this.insertTable(rows, cols);
+    this.snackBar.open('Table inserted', 'Close', { duration: 2000 });
+    this.closeInsertTableModal();
   }
 
   private getBetterTable(): any {
