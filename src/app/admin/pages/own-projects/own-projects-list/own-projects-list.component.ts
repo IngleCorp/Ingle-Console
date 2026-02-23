@@ -28,13 +28,26 @@ export class OwnProjectsListComponent implements OnInit {
     this.getProjects();
   }
 
+  /** Convert Firestore Timestamp to Date for DatePipe and other use. */
+  private toDate(value: any): Date | null {
+    if (value == null) return null;
+    if (value?.toDate && typeof value.toDate === 'function') return value.toDate();
+    if (value instanceof Date) return value;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   getProjects(): void {
     this.isLoading = true;
     this.afs.collection(OWN_PROJECTS_COLLECTION)
       .valueChanges({ idField: 'id' })
       .subscribe({
         next: (res: any) => {
-          this.projects = res || [];
+          this.projects = (res || []).map((p: any) => ({
+            ...p,
+            startDate: this.toDate(p.startDate) ?? p.startDate,
+            endDate: this.toDate(p.endDate) ?? p.endDate
+          }));
           this.isLoading = false;
         },
         error: (err) => {
