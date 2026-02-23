@@ -5,12 +5,14 @@
       <span>Docs</span>
     </button>
     <div class="header-title-wrap">
-     
-      <mat-form-field appearance="outline" class="header-doc-name">
-        <mat-label>Doc name</mat-label>
-        <input matInput formControlName="name" placeholder="Enter doc name" maxlength="200" />
-        <mat-error>Name is required</mat-error>
-      </mat-form-field>
+      <input
+        type="text"
+        class="header-doc-name-input"
+        formControlName="name"
+        placeholder="Doc name"
+        maxlength="200"
+      />
+      <span class="header-doc-name-count">{{ form.get('name')?.value?.length || 0 }}/200</span>
     </div>
     <div class="header-actions">
       <button

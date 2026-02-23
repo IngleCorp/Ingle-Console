@@ -59,27 +59,33 @@
     flex: 1;
     min-width: 0;
     margin: 0 8px;
-    .title-icon {
-      color: #3f51b5;
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-      flex-shrink: 0;
-    }
-    .header-doc-name {
+    .header-doc-name-input {
       flex: 1;
       min-width: 0;
       max-width: 420px;
-      margin: 0;
-      font-size: 0.95rem;
-      .mat-mdc-text-field-wrapper { background: transparent; }
-      .mat-mdc-form-field-flex { align-items: center; }
-      .mat-mdc-form-field-subscript-wrapper { display: none; }
-      .mat-mdc-input-element {
-        font-weight: 600;
-        color: #1d1d1f;
-        font-size: 1.05rem;
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1d1d1f;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+        font-weight: 500;
       }
+      &:focus {
+        outline: none;
+        border-color: #3f51b5;
+        box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+      }
+    }
+    .header-doc-name-count {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: rgba(0, 0, 0, 0.5);
     }
   }
   .header-actions {
