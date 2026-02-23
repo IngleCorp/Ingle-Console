@@ -18,21 +18,32 @@
         *ngFor="let doc of docs"
         (click)="openDoc(doc.id)"
       >
-        <div class="doc-icon">
-          <mat-icon>description</mat-icon>
+        <div class="doc-card-row doc-card-title-row">
+          <div class="doc-icon">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div class="doc-info">
+            <h3 class="doc-name">{{ doc.name }}</h3>
+            <span class="doc-meta">{{ getEditedAgo(doc.updatedAt) }}</span>
+          </div>
         </div>
-        <div class="doc-info">
-          <h3 class="doc-name">{{ doc.name }}</h3>
-          <span class="doc-meta">{{ getEditedAgo(doc.updatedAt) }}</span>
-        </div>
-        <div class="doc-actions">
-          <button
-            mat-icon-button
-            (click)="deleteDoc(doc.id, doc.name, $event)"
-            matTooltip="Delete"
-          >
-            <mat-icon>delete_outline</mat-icon>
-          </button>
+        <div class="doc-card-row doc-card-actions-row">
+          <div class="doc-actions">
+            <button
+              mat-icon-button
+              (click)="copyDocLink(doc, $event)"
+              matTooltip="Copy title and link"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="deleteDoc(doc.id, doc.name, $event)"
+              matTooltip="Delete"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>

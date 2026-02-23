@@ -62,6 +62,24 @@ export class OwnProjectDocsComponent implements OnInit {
     this.router.navigate(['docs', docId], { relativeTo: this.route.parent });
   }
 
+  copyDocLink(doc: { id: string; name: string }, event: Event): void {
+    event.stopPropagation();
+    if (!this.projectId) return;
+    const path = this.router.serializeUrl(
+      this.router.createUrlTree(['/admin', 'own-projects', this.projectId, 'docs', doc.id])
+    );
+    const url = `${window.location.origin}${path}`;
+    const text = `${doc.name} - ${url}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => this.snackBar.open('Title and link copied', 'Close', { duration: 2000 }),
+        () => this.snackBar.open('Copy failed', 'Close', { duration: 2000 })
+      );
+    } else {
+      this.snackBar.open('Copy not supported', 'Close', { duration: 2000 });
+    }
+  }
+
   deleteDoc(docId: string, docName: string, event: Event): void {
     event.stopPropagation();
     if (!confirm(`Delete "${docName}"?`)) return;
