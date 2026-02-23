@@ -64,7 +64,7 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   };
 
   editorStyles = {
-    height: '100%',
+    height: 'calc(100% - 85px)',
     minHeight: '420px',
     borderTop:'2px solid black',
     backgroundColor: '#ffffff'
@@ -169,7 +169,28 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
     this.quillEditor = editor;
     editor.on('selection-change', () => {
       setTimeout(() => this.updateTableSelectionState(), 0);
+      setTimeout(() => this.scrollCursorIntoViewInContainer(), 0);
     });
+  }
+
+  /** Scroll the cursor into view inside .ql-container only, so the page/toolbar don't scroll away. */
+  private scrollCursorIntoViewInContainer(): void {
+    if (!this.quillEditor?.root?.parentNode) return;
+    const container = this.quillEditor.root.parentNode as HTMLElement;
+    if (!container.classList?.contains('ql-container')) return;
+    const range = this.quillEditor.getSelection();
+    if (!range) return;
+    const [leaf] = this.quillEditor.getLeaf(range.index);
+    const node = leaf?.domNode as HTMLElement | undefined;
+    if (!node) return;
+    const nodeRect = node.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const scrollTop = container.scrollTop;
+    if (nodeRect.top < containerRect.top) {
+      container.scrollTop = scrollTop + (nodeRect.top - containerRect.top);
+    } else if (nodeRect.bottom > containerRect.bottom) {
+      container.scrollTop = scrollTop + (nodeRect.bottom - containerRect.bottom);
+    }
   }
 
   /** Detect if cursor is inside a table using Quill selection + getLeaf (avoids window.getSelection() desync). */

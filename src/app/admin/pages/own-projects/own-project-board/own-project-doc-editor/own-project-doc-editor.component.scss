@@ -1,10 +1,17 @@
 @import 'quill/dist/quill.snow.css';
 
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
 .own-project-doc-editor-page {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  overflow: hidden;
   background: #fafafa;
 
   &.fullscreen-mode {
@@ -15,14 +22,32 @@
   }
 }
 
-// Native fullscreen: root div is the fullscreen element
+// Native fullscreen: root must not scroll; only .ql-container scrolls so toolbar never hides
 .own-project-doc-editor-page:fullscreen,
 .own-project-doc-editor-page:-webkit-full-screen,
 .own-project-doc-editor-page:-moz-full-screen,
 .own-project-doc-editor-page:-ms-fullscreen {
-  height: 100vh;
-  min-height: 100vh;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
   border-radius: 0;
+  display: flex !important;
+  flex-direction: column !important;
+
+  .editor-header {
+    flex-shrink: 0 !important;
+  }
+  .editor-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .quill-wrapper {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
 }
 
 .editor-header {
@@ -33,10 +58,6 @@
   background: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 12;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
   .back-btn {
     display: inline-flex;
     align-items: center;
@@ -145,61 +166,62 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0px;
+  padding: 12px;
   position: relative;
   width: 100%;
   overflow: hidden;
   &.loading { pointer-events: none; opacity: 0.7; }
 }
 
-// Editor wrapper: full width, fills height; toolbar fixed, content scrolls
+// Editor wrapper: toolbar band on top, content area below (only content scrolls)
 .quill-wrapper {
   flex: 1;
   min-height: 0;
   width: 100%;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
-  // Table button row: sticky, stays visible when content scrolls (above Quill toolbar)
+  // Toolbar band: in flow above content so it never covers content when scrolling
   ::ng-deep [above-quill-editor-toolbar].table-toolbar-row {
     display: flex;
     align-items: center;
-    padding: 6px 10px;
-    background: #fff;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
     flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: 11;
   }
 
   ::ng-deep .toolbar-btn.table-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 3px;
-    background: transparent;
-    color: #444;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    height: 28px;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    height: 32px;
     line-height: 1;
     box-sizing: border-box;
     mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
+      color: #6b7280;
     }
     &:hover {
-      background: rgba(0, 0, 0, 0.06);
-      color: #000;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #111827;
     }
   }
 }
@@ -211,31 +233,44 @@
   min-height: 0;
   width: 100%;
   overflow: hidden;
-  // Quill toolbar: sticky so it stays visible when content scrolls (below table row)
+
+  // Format toolbar: in flow above content so it never covers content when scrolling
   .ql-toolbar.ql-snow {
     border: none;
-    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e5e7eb;
     border-radius: 0;
     flex-shrink: 0;
-    position: sticky;
-    top: 40px;
-    z-index: 10;
-    background: #fff !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    background: #f8fafc;
+    padding: 6px 12px;
+    .ql-stroke { stroke: #94a3b8; }
+    .ql-fill { fill: #94a3b8; }
+    .ql-picker { color: #64748b; }
+    button:hover .ql-stroke,
+    .ql-picker-label:hover .ql-stroke { stroke: #475569; }
+    button:hover .ql-fill,
+    .ql-picker-label:hover .ql-fill { fill: #475569; }
   }
-  // Content area: only this part scrolls
+
+  // Content area: only this scrolls; contain scroll so Enter/typing doesn't scroll the page
   .ql-container {
     border: none;
-    border-top: 1px solid #e0e0e0;
-    font-size: 15px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    background: #fff;
+    font-size: 15px;
+    line-height: 1.6;
+    isolation: isolate; // contain scroll/cursor scroll-into-view to this block
   }
+
   .ql-editor {
     min-height: 100%;
     box-sizing: border-box;
+    padding: 20px 24px;
+    color: #1f2937;
   }
 }
 
