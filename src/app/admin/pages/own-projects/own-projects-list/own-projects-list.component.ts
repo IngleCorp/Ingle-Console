@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { take } from 'rxjs/operators';
 import { OwnProjectFormComponent, OwnProjectFormData } from '../own-project-form/own-project-form.component';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
@@ -81,7 +82,9 @@ export class OwnProjectsListComponent implements OnInit {
 
   editProject(projectId: string, event: Event): void {
     event.stopPropagation();
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(projectId).valueChanges().subscribe((projectData: any) => {
+    // Use take(1) so we only open the dialog once. valueChanges() emits on every doc change,
+    // so saving the form would trigger another emission and stack another dialog.
+    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(projectId).valueChanges().pipe(take(1)).subscribe((projectData: any) => {
       const dialogRef = this.dialog.open(OwnProjectFormComponent, {
         width: '800px',
         maxWidth: '95vw',

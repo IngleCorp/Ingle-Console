@@ -26,7 +26,16 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     font-weight: 700;
     color: $text;
     margin: 0;
-    .title-icon { color: $primary; font-size: 32px; width: 32px; height: 32px; }
+    .title-icon,
+    mat-icon.title-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 32px !important;
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 32px !important;
+      color: $primary;
+      display: inline-block;
+    }
   }
   .page-subtitle { color: $text-secondary; margin: 4px 0 0; font-size: 0.95rem; }
 }
@@ -44,6 +53,15 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   font-size: 0.95rem;
   &:hover { opacity: 0.9; }
+  mat-icon,
+  .mat-icon {
+    font-family: 'Material Icons' !important;
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    line-height: 20px !important;
+    display: inline-block;
+  }
 }
 
 .stats-section {
@@ -68,7 +86,16 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    mat-icon { color: #fff; font-size: 24px; width: 24px; height: 24px; }
+    mat-icon,
+    .mat-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 24px !important;
+      width: 24px !important;
+      height: 24px !important;
+      line-height: 24px !important;
+      color: #fff;
+      display: inline-block;
+    }
     &.active { background: #4caf50; }
     &.completed { background: #2196f3; }
     &.pending { background: #ff9800; }
@@ -106,7 +133,16 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    mat-icon { color: #fff; font-size: 28px; width: 28px; height: 28px; }
+    mat-icon,
+    .mat-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 28px !important;
+      width: 28px !important;
+      height: 28px !important;
+      line-height: 28px !important;
+      color: #fff;
+      display: inline-block;
+    }
     &.active { background: #4caf50; }
     &.completed { background: #2196f3; }
     &.pending { background: #ff9800; }
@@ -143,7 +179,16 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     flex-wrap: wrap;
     gap: 12px;
     .meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: $text-secondary; }
-    .meta-icon { font-size: 18px; width: 18px; height: 18px; }
+    .meta-icon,
+    mat-icon.meta-icon,
+    .mat-icon.meta-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+      line-height: 18px !important;
+      display: inline-block;
+    }
   }
   .card-footer {
     padding: 12px 16px;
@@ -171,7 +216,15 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    mat-icon,
+    .mat-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+      display: inline-block;
+    }
     &.edit-btn { background: #e3f2fd; color: #1976d2; }
     &.delete-btn { background: #ffebee; color: #d32f2f; }
     &:hover { opacity: 0.9; }
@@ -181,7 +234,18 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 .empty-state, .loading-state {
   text-align: center;
   padding: 48px 24px;
-  .empty-icon { font-size: 64px; width: 64px; height: 64px; color: #bdbdbd; margin-bottom: 16px; }
+  .empty-icon,
+  mat-icon.empty-icon,
+  .mat-icon.empty-icon {
+    font-family: 'Material Icons' !important;
+    font-size: 64px !important;
+    width: 64px !important;
+    height: 64px !important;
+    line-height: 64px !important;
+    color: #bdbdbd;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
   h3 { margin: 0 0 8px; color: $text; }
   p { color: $text-secondary; margin: 0 0 24px; }
   .empty-action-btn {
@@ -195,6 +259,15 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
+    mat-icon,
+    .mat-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+      display: inline-block;
+    }
   }
 }
 .loading-state mat-spinner { margin: 0 auto 16px; }
