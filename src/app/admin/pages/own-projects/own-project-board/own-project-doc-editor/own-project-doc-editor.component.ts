@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,6 +31,9 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   isExporting = false;
   /** True when cursor/selection is inside a table (e.g. for future use) */
   isTableSelected = false;
+  /** True when doc editor is in browser fullscreen */
+  isFullscreen = false;
+  @ViewChild('docEditorPage') docEditorPage?: ElementRef<HTMLElement>;
   private quillEditor: any;
   private docSub?: Subscription;
 
@@ -92,6 +95,46 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.docSub?.unsubscribe();
+  }
+
+  toggleFullscreen(): void {
+    if (this.isFullscreen) {
+      this.exitFullscreen();
+    } else {
+      this.enterFullscreen();
+    }
+  }
+
+  enterFullscreen(): void {
+    const elem = this.docEditorPage?.nativeElement;
+    if (!elem) return;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if ((elem as any).webkitRequestFullscreen) {
+      (elem as any).webkitRequestFullscreen();
+    } else if ((elem as any).msRequestFullscreen) {
+      (elem as any).msRequestFullscreen();
+    }
+  }
+
+  exitFullscreen(): void {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+    }
+  }
+
+  @HostListener('document:fullscreenchange')
+  @HostListener('document:webkitfullscreenchange')
+  @HostListener('document:msfullscreenchange')
+  onFullscreenChange(): void {
+    const fullscreenElement = document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).msFullscreenElement;
+    this.isFullscreen = !!fullscreenElement;
   }
 
   loadDoc(): void {

@@ -6,6 +6,23 @@
   height: 100%;
   min-height: 0;
   background: #fafafa;
+
+  &.fullscreen-mode {
+    height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+    background: #fafafa;
+  }
+}
+
+// Native fullscreen: root div is the fullscreen element
+.own-project-doc-editor-page:fullscreen,
+.own-project-doc-editor-page:-webkit-full-screen,
+.own-project-doc-editor-page:-moz-full-screen,
+.own-project-doc-editor-page:-ms-fullscreen {
+  height: 100vh;
+  min-height: 100vh;
+  border-radius: 0;
 }
 
 .editor-header {
@@ -31,14 +48,35 @@
     mat-icon { font-size: 20px; width: 20px; height: 20px; }
     &:hover { background: rgba(0, 0, 0, 0.06); }
   }
-  .header-title {
+  .header-title-wrap {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1d1d1f;
-    .title-icon { color: #3f51b5; font-size: 22px; width: 22px; height: 22px; }
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    margin: 0 8px;
+    .title-icon {
+      color: #3f51b5;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .header-doc-name {
+      flex: 1;
+      min-width: 0;
+      max-width: 420px;
+      margin: 0;
+      font-size: 0.95rem;
+      .mat-mdc-text-field-wrapper { background: transparent; }
+      .mat-mdc-form-field-flex { align-items: center; }
+      .mat-mdc-form-field-subscript-wrapper { display: none; }
+      .mat-mdc-input-element {
+        font-weight: 600;
+        color: #1d1d1f;
+        font-size: 1.05rem;
+      }
+    }
   }
   .header-actions {
     margin-left: auto;
@@ -98,14 +136,6 @@
   padding: 20px;
   position: relative;
   &.loading { pointer-events: none; opacity: 0.7; }
-}
-
-.doc-name-row {
-  margin-bottom: 16px;
-  .doc-name-field {
-    width: 100%;
-    max-width: 480px;
-  }
 }
 
 // Editor wrapper: Table button row (projected above toolbar) + Quill toolbar + editor

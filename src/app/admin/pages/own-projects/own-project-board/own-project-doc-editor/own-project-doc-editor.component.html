@@ -1,14 +1,27 @@
-<div class="own-project-doc-editor-page">
-  <div class="editor-header">
+<div class="own-project-doc-editor-page" #docEditorPage [class.fullscreen-mode]="isFullscreen">
+  <div class="editor-header" [formGroup]="form">
     <button type="button" class="back-btn" (click)="back()" matTooltip="Back to Docs">
       <mat-icon>arrow_back</mat-icon>
       <span>Docs</span>
     </button>
-    <div class="header-title">
+    <div class="header-title-wrap">
       <mat-icon class="title-icon">edit_note</mat-icon>
-      <span>{{ isNewDoc ? 'New Doc' : 'Edit Doc' }}</span>
+      <mat-form-field appearance="outline" class="header-doc-name">
+        <mat-label>Doc name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter doc name" maxlength="200" />
+        <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/200</mat-hint>
+        <mat-error>Name is required</mat-error>
+      </mat-form-field>
     </div>
     <div class="header-actions">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="toggleFullscreen()"
+        [matTooltip]="isFullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen'"
+      >
+        <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
       <button
         type="button"
         class="icon-btn"
@@ -55,16 +68,6 @@
   </div>
 
   <div class="editor-body" [class.loading]="isLoading" [formGroup]="form">
-    <div class="doc-name-row">
-      <mat-form-field appearance="outline" class="doc-name-field">
-        <mat-label>Doc name</mat-label>
-        <input matInput formControlName="name" placeholder="Enter doc name" maxlength="200" />
-        <mat-icon matSuffix>title</mat-icon>
-        <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/200</mat-hint>
-        <mat-error>Name is required</mat-error>
-      </mat-form-field>
-    </div>
-
     <div class="quill-wrapper">
       <quill-editor
         formControlName="content"
