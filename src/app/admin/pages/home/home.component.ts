@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
   clientsCount = 0;
   tasksCount = 0;
   financeTotal = 0;
+  todayEventsCount = 0;
   isLoading = false;
   recentActivity: ActivityItem[] = [];
   userName = localStorage.getItem('username') || 'Unknown';
@@ -36,6 +37,17 @@ export class HomeComponent implements OnInit {
     });
     this.afs.collection('moneytransactions').valueChanges().subscribe((txs: any[]) => {
       this.financeTotal = txs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+    });
+    // Today's events count (stable value to avoid ExpressionChangedAfterItHasBeenCheckedError)
+    this.afs.collection('calendar_events').valueChanges().subscribe((events: any[]) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      this.todayEventsCount = events.filter((e: any) => {
+        const d = e.startDate?.toDate ? e.startDate.toDate() : (e.startDate ? new Date(e.startDate) : null);
+        if (!d) return false;
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
+      }).length;
     });
     // Fetch recent activities
     this.afs.collection('activities', ref => ref.orderBy('createdAt', 'desc').limit(5))
@@ -106,9 +118,9 @@ export class HomeComponent implements OnInit {
     return Math.floor(Math.random() * 8) + 2; // Returns 2-9
   }
 
+  /** @deprecated Use todayEventsCount property instead (stable for change detection). */
   getTodayEvents(): number {
-    // Mock today's events - you can calculate this from actual calendar data
-    return Math.floor(Math.random() * 5) + 1; // Returns 1-5
+    return this.todayEventsCount;
   }
 
   getUpcomingEvents(): number {

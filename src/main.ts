@@ -1,5 +1,4 @@
 /// <reference path="./typings.d.ts" />
-import './app/quill-setup';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';

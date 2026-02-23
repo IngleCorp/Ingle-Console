@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, take, catchError } from 'rxjs/operators';
+import { map, take, catchError, timeoutWith } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+
+/** If Firebase auth state does not emit within this time, allow login page (avoids stuck white screen). */
+const AUTH_CHECK_TIMEOUT_MS = 6000;
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +20,12 @@ export class LoginRedirectGuard implements CanActivate {
   canActivate(): Observable<boolean> {
     return this.authService.user$.pipe(
       take(1),
+      timeoutWith(
+        AUTH_CHECK_TIMEOUT_MS,
+        of(null).pipe(
+          map(() => true) // Allow login page if auth check times out
+        )
+      ),
       map((user: any) => {
         // Check if user is logged in from auth service
         if (user) {

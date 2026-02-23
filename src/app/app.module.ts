@@ -7,8 +7,7 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
-import { environment } from '../environments/environment'; 
-import { AgGridModule } from 'ag-grid-angular';
+import { environment } from '../environments/environment';
 import { MatSpinnerComponent } from './core/elements/mat-spinner/mat-spinner.component'; 
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
@@ -24,7 +23,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     AngularFirestoreModule,
     AngularFireStorageModule,
     BrowserAnimationsModule,
-    AgGridModule,
     MatProgressSpinnerModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
   ],

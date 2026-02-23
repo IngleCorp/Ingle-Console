@@ -1,3 +1,4 @@
+import '../quill-setup';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClientDashboardComponent } from './client-dashboard/client-dashboard.component';

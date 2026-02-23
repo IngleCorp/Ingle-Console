@@ -6,8 +6,11 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, take, tap, timeoutWith } from 'rxjs/operators';
+
+/** Max wait for auth state before resolving guard (avoids stuck white screen). */
+const AUTH_GUARD_TIMEOUT_MS = 8000;
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +25,15 @@ export class RoleGuard implements CanActivate {
     const expectedRole = route.data['role'];
 
     return this.auth.user$.pipe(
+      take(1),
+      timeoutWith(
+        AUTH_GUARD_TIMEOUT_MS,
+        of(null).pipe(
+          tap(() => console.warn('RoleGuard: auth state timeout, redirecting to login'))
+        )
+      ),
       map((user) => {
         if (!user) {
-          // If no user, redirect to login
           this.router.navigate(['/login']);
           return false;
         }
