@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 
@@ -11,7 +12,7 @@ const OWN_PROJECTS_COLLECTION = 'ownProjects';
   templateUrl: './own-project-accounts.component.html',
   styleUrls: ['./own-project-accounts.component.scss']
 })
-export class OwnProjectAccountsComponent implements OnInit {
+export class OwnProjectAccountsComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   accounts: any[] = [];
   filteredAccounts: any[] = [];
@@ -20,6 +21,7 @@ export class OwnProjectAccountsComponent implements OnInit {
   showPasswords: Record<string, boolean> = {};
   accountForm: FormGroup;
   editingAccount: any = null;
+  private accountsSub?: Subscription;
 
   constructor(
     private afs: AngularFirestore,
@@ -37,13 +39,24 @@ export class OwnProjectAccountsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) this.getAccounts();
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.accountsSub?.unsubscribe();
+      if (this.projectId) this.getAccounts();
+      else {
+        this.accounts = [];
+        this.filteredAccounts = [];
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.accountsSub?.unsubscribe();
   }
 
   getAccounts(): void {
     if (!this.projectId) return;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('accounts')
+    this.accountsSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('accounts')
       .valueChanges({ idField: 'id' })
       .subscribe({
         next: (data: any) => {

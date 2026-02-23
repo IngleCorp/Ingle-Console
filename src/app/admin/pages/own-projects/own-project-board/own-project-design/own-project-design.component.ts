@@ -90,11 +90,17 @@ export class OwnProjectDesignComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) {
-      this.loadDesign();
-      this.loadMermaidScript();
-    }
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.designSub?.unsubscribe();
+      if (this.projectId) {
+        this.loadDesign();
+        this.loadMermaidScript();
+      } else {
+        this.canvas = { problem: '', solution: '', keyMetrics: '', uvp: '', unfairAdvantage: '', customerSegments: '', channels: '', costStructure: '', revenueStreams: '' };
+        this.flowDiagrams = [];
+      }
+    });
   }
 
   ngOnDestroy(): void {

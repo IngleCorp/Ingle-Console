@@ -20,7 +20,7 @@ interface SearchResult {
   id: string;
   title: string;
   subtitle: string;
-  type: 'project' | 'client' | 'task' | 'user';
+  type: 'project' | 'client' | 'task' | 'user' | 'own-project';
   icon: string;
   url: string;
 }
@@ -110,8 +110,10 @@ export class NavComponent implements OnInit, OnDestroy {
 
   projects: any[] = [];
   clients: any[] = [];
+  ownProjects: any[] = [];
   private projectsSub?: Subscription;
   private clientsSub?: Subscription;
+  private ownProjectsSub?: Subscription;
 
   constructor(private observer: BreakpointObserver, private router: Router, private auth: AngularFireAuth, private firestore: AngularFirestore, private authService: AuthService) {}
 
@@ -122,6 +124,9 @@ export class NavComponent implements OnInit, OnDestroy {
     
     this.clientsSub = this.firestore.collection('clients').valueChanges({ idField: 'id' }).subscribe((clients: any[]) => {
       this.clients = clients;
+    });
+    this.ownProjectsSub = this.firestore.collection('ownProjects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+      this.ownProjects = projects;
     });
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if(screenSize.matches){
@@ -143,6 +148,7 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.projectsSub?.unsubscribe();
     this.clientsSub?.unsubscribe();
+    this.ownProjectsSub?.unsubscribe();
   }
 
   toggleMenu() {
@@ -287,9 +293,24 @@ export class NavComponent implements OnInit, OnDestroy {
         icon: 'business',
         url: `/admin/clients/${client.id}`
       }));
-    
-    // Combine results with clients first, then projects
-    this.searchResults = [...clientResults, ...projectResults];
+
+    // Own projects search from Firestore
+    const ownProjectResults = this.ownProjects
+      .filter(project =>
+        (project.name && project.name.toLowerCase().includes(query)) ||
+        (project.description && project.description.toLowerCase().includes(query))
+      )
+      .map(project => ({
+        id: project.id,
+        title: project.name,
+        subtitle: project.description || 'Own project',
+        type: 'own-project' as const,
+        icon: 'rocket_launch',
+        url: `/admin/own-projects/${project.id}/tasks`
+      }));
+
+    // Combine results: clients first, then projects, then own projects
+    this.searchResults = [...clientResults, ...projectResults, ...ownProjectResults];
   }
 
   selectSearchResult(result: SearchResult): void {
@@ -303,8 +324,9 @@ export class NavComponent implements OnInit, OnDestroy {
         this.router.navigateByUrl(`/admin/projects/${result.id}`);
       }
     } else if (result.type === 'client') {
-      // Navigate to client homepage
       this.router.navigateByUrl(`/admin/clients/${result.id}`);
+    } else if (result.type === 'own-project') {
+      this.router.navigateByUrl(`/admin/own-projects/${result.id}/tasks`);
     } else {
       this.router.navigateByUrl(result.url);
     }

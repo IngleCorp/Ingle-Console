@@ -88,14 +88,19 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    this.docId = this.route.snapshot.paramMap.get('docId') ?? null;
-    this.isNewDoc = !this.docId || this.docId === 'new';
-    if (this.isNewDoc) {
-      this.form.patchValue({ name: 'Untitled Doc' });
-    } else if (this.projectId && this.docId) {
-      this.loadDoc();
-    }
+    const applyRoute = () => {
+      this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+      this.docId = this.route.snapshot.paramMap.get('docId') ?? null;
+      this.isNewDoc = !this.docId || this.docId === 'new';
+      this.docSub?.unsubscribe();
+      if (this.isNewDoc) {
+        this.form.patchValue({ name: 'Untitled Doc' });
+      } else if (this.projectId && this.docId) {
+        this.loadDoc();
+      }
+    };
+    this.route.parent?.paramMap?.subscribe(() => applyRoute());
+    this.route.paramMap.subscribe(() => applyRoute());
   }
 
   ngOnDestroy(): void {

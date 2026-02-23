@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 
@@ -17,7 +18,7 @@ export interface AssigneeOption {
   templateUrl: './own-project-task-detail.component.html',
   styleUrls: ['./own-project-task-detail.component.scss']
 })
-export class OwnProjectTaskDetailComponent implements OnInit {
+export class OwnProjectTaskDetailComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   taskId: string | null = null;
   taskForm: FormGroup;
@@ -25,6 +26,7 @@ export class OwnProjectTaskDetailComponent implements OnInit {
   users: AssigneeOption[] = [];
   isLoading = false;
   isSaving = false;
+  private taskSub?: Subscription;
 
   statuses = [
     { value: 'todo', label: 'To Do', icon: 'pending' },
@@ -61,15 +63,27 @@ export class OwnProjectTaskDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    this.taskId = this.route.snapshot.paramMap.get('taskId') ?? null;
+    const applyRoute = () => {
+      this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+      this.taskId = this.route.snapshot.paramMap.get('taskId') ?? null;
+      this.taskSub?.unsubscribe();
+      if (this.projectId && this.taskId) {
+        this.loadTask();
+      } else if (this.projectId) {
+        this.task = null;
+        this.backToList();
+      } else {
+        this.snackBar.open('Task not found', 'Close', { duration: 3000 });
+        this.backToList();
+      }
+    };
     this.loadUsers();
-    if (this.projectId && this.taskId) {
-      this.loadTask();
-    } else {
-      this.snackBar.open('Task not found', 'Close', { duration: 3000 });
-      this.backToList();
-    }
+    this.route.parent?.paramMap?.subscribe(() => applyRoute());
+    this.route.paramMap.subscribe(() => applyRoute());
+  }
+
+  ngOnDestroy(): void {
+    this.taskSub?.unsubscribe();
   }
 
   loadUsers(): void {
@@ -90,7 +104,7 @@ export class OwnProjectTaskDetailComponent implements OnInit {
   loadTask(): void {
     if (!this.projectId || !this.taskId) return;
     this.isLoading = true;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(this.taskId)
+    this.taskSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').doc(this.taskId)
       .valueChanges()
       .subscribe({
         next: (data: any) => {

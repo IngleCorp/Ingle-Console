@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const KANBAN_STATUSES = ['todo', 'in-progress', 'done', 'hold'] as const;
@@ -12,7 +13,7 @@ const KANBAN_STATUSES = ['todo', 'in-progress', 'done', 'hold'] as const;
   templateUrl: './own-project-tasks.component.html',
   styleUrls: ['./own-project-tasks.component.scss']
 })
-export class OwnProjectTasksComponent implements OnInit {
+export class OwnProjectTasksComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   taskText = '';
   taskdata: any[] = [];
@@ -22,6 +23,7 @@ export class OwnProjectTasksComponent implements OnInit {
   taskonhold: any[] = [];
   isLoading = false;
   viewMode: 'kanban' | 'list' = 'kanban';
+  private tasksSub?: Subscription;
 
   constructor(
     private afs: AngularFirestore,
@@ -31,14 +33,28 @@ export class OwnProjectTasksComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) this.getTasks();
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.tasksSub?.unsubscribe();
+      if (this.projectId) this.getTasks();
+      else {
+        this.taskdata = [];
+        this.tasktodo = [];
+        this.taskinprogress = [];
+        this.taskdone = [];
+        this.taskonhold = [];
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.tasksSub?.unsubscribe();
   }
 
   getTasks(): void {
     if (!this.projectId) return;
     this.isLoading = true;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks')
+    this.tasksSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks')
       .valueChanges({ idField: 'id' })
       .subscribe({
         next: (res: any) => {

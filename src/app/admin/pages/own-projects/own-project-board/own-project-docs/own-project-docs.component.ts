@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const DOCS_SUBCOLLECTION = 'docs';
@@ -11,10 +12,11 @@ const DOCS_SUBCOLLECTION = 'docs';
   templateUrl: './own-project-docs.component.html',
   styleUrls: ['./own-project-docs.component.scss']
 })
-export class OwnProjectDocsComponent implements OnInit {
+export class OwnProjectDocsComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   docs: { id: string; name: string; updatedAt?: any; createdAt?: any }[] = [];
   isLoading = false;
+  private docsSub?: Subscription;
 
   constructor(
     private afs: AngularFirestore,
@@ -24,14 +26,22 @@ export class OwnProjectDocsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) this.loadDocs();
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.docsSub?.unsubscribe();
+      if (this.projectId) this.loadDocs();
+      else this.docs = [];
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.docsSub?.unsubscribe();
   }
 
   loadDocs(): void {
     if (!this.projectId) return;
     this.isLoading = true;
-    this.afs
+    this.docsSub = this.afs
       .collection(OWN_PROJECTS_COLLECTION)
       .doc(this.projectId)
       .collection(DOCS_SUBCOLLECTION, (ref) => ref.orderBy('updatedAt', 'desc'))

@@ -27,7 +27,7 @@
               <mat-icon class="search-icon">search</mat-icon>
               <input 
                 type="text" 
-                placeholder="Search clients, projects, tasks..." 
+                placeholder="Search clients, projects, own projects, tasks..." 
                 class="search-input"
                 [(ngModel)]="searchQuery"
                 (input)="onSearchInput()"
@@ -60,7 +60,7 @@
                     <div class="result-title">{{result.title}}</div>
                     <div class="result-subtitle">{{result.subtitle}}</div>
                   </div>
-                  <div class="result-type-badge">{{result.type}}</div>
+                  <div class="result-type-badge">{{ result.type === 'own-project' ? 'Own project' : result.type }}</div>
                 </div>
               </div>
               <div class="search-results-footer">

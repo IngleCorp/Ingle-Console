@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 
@@ -9,10 +10,11 @@ const OWN_PROJECTS_COLLECTION = 'ownProjects';
   templateUrl: './own-project-board.component.html',
   styleUrls: ['./own-project-board.component.scss']
 })
-export class OwnProjectBoardComponent implements OnInit {
+export class OwnProjectBoardComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   projectInfo: any = null;
   isHeaderCollapsed = true;
+  private projectSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -21,14 +23,22 @@ export class OwnProjectBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      this.projectId = params.get('projectId');
+      const nextId = params.get('projectId');
+      if (nextId === this.projectId) return;
+      this.projectId = nextId;
+      this.projectInfo = null; // clear so UI doesn't show previous project
+      this.projectSub?.unsubscribe();
       if (this.projectId) this.loadProject();
     });
   }
 
+  ngOnDestroy(): void {
+    this.projectSub?.unsubscribe();
+  }
+
   loadProject(): void {
     if (!this.projectId) return;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId)
+    this.projectSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId)
       .valueChanges()
       .subscribe((res: any) => {
         this.projectInfo = res;

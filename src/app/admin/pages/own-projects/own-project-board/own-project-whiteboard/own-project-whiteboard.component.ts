@@ -178,7 +178,15 @@ export class OwnProjectWhiteboardComponent implements OnInit, AfterViewInit, OnD
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.boardsSub?.unsubscribe();
+      this.boards = [];
+      this.currentBoardId = null;
+      this.currentBoardName = '';
+      this.viewMode = 'grid';
+      if (this.projectId) this.loadBoardsList();
+    });
   }
 
   ngAfterViewInit(): void {

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 
@@ -10,7 +11,7 @@ const OWN_PROJECTS_COLLECTION = 'ownProjects';
   templateUrl: './own-project-info.component.html',
   styleUrls: ['./own-project-info.component.scss']
 })
-export class OwnProjectInfoComponent implements OnInit {
+export class OwnProjectInfoComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   infodata: any[] = [];
   filteredInfodata: any[] = [];
@@ -23,6 +24,7 @@ export class OwnProjectInfoComponent implements OnInit {
   label = '';
   type = '';
   value = '';
+  private infoSub?: Subscription;
 
   constructor(
     private afs: AngularFirestore,
@@ -31,13 +33,24 @@ export class OwnProjectInfoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) this.getInfos();
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.infoSub?.unsubscribe();
+      if (this.projectId) this.getInfos();
+      else {
+        this.infodata = [];
+        this.filteredInfodata = [];
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.infoSub?.unsubscribe();
   }
 
   getInfos(): void {
     if (!this.projectId) return;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('info')
+    this.infoSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('info')
       .valueChanges({ idField: 'id' })
       .subscribe((res: any) => {
         this.infodata = res || [];

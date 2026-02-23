@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const STORAGE_PREFIX = 'ownProjects';
@@ -13,7 +14,7 @@ const STORAGE_PREFIX = 'ownProjects';
   templateUrl: './own-project-files.component.html',
   styleUrls: ['./own-project-files.component.scss']
 })
-export class OwnProjectFilesComponent implements OnInit {
+export class OwnProjectFilesComponent implements OnInit, OnDestroy {
   projectId: string | null = null;
   projectFiles: any[] = [];
   filteredFiles: any[] = [];
@@ -21,6 +22,7 @@ export class OwnProjectFilesComponent implements OnInit {
   searchTerm = '';
   isLoading = false;
   dragOver = false;
+  private filesSub?: Subscription;
 
   fileTypes: Record<string, string[]> = {
     image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'],
@@ -41,14 +43,25 @@ export class OwnProjectFilesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectId = this.route.parent?.snapshot.paramMap.get('projectId') ?? null;
-    if (this.projectId) this.getFiles();
+    this.route.parent?.paramMap?.subscribe(params => {
+      this.projectId = params.get('projectId') ?? null;
+      this.filesSub?.unsubscribe();
+      if (this.projectId) this.getFiles();
+      else {
+        this.projectFiles = [];
+        this.filteredFiles = [];
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.filesSub?.unsubscribe();
   }
 
   getFiles(): void {
     if (!this.projectId) return;
     this.isLoading = true;
-    this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('files')
+    this.filesSub = this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('files')
       .valueChanges({ idField: 'id' })
       .subscribe({
         next: (data: any) => {
