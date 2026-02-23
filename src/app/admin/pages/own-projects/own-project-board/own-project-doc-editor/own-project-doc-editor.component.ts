@@ -64,7 +64,9 @@ export class OwnProjectDocEditorComponent implements OnInit, OnDestroy {
   };
 
   editorStyles = {
-    height: '400px',
+    height: '100%',
+    minHeight: '420px',
+    borderTop:'2px solid black',
     backgroundColor: '#ffffff'
   };
 

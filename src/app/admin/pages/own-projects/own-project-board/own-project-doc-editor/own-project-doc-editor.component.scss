@@ -33,6 +33,10 @@
   background: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
   .back-btn {
     display: inline-flex;
     align-items: center;
@@ -132,28 +136,39 @@
 
 .editor-body {
   flex: 1;
-  overflow: auto;
-  padding: 20px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
   position: relative;
+  width: 100%;
+  overflow: hidden;
   &.loading { pointer-events: none; opacity: 0.7; }
 }
 
-// Editor wrapper: Table button row (projected above toolbar) + Quill toolbar + editor
+// Editor wrapper: full width, fills height; toolbar fixed, content scrolls
 .quill-wrapper {
-  margin-bottom: 16px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  min-height: 420px;
+  display: flex;
+  flex-direction: column;
 
-  // Table button row: sits just above Quill toolbar header
+  // Table button row: sticky, stays visible when content scrolls (above Quill toolbar)
   ::ng-deep [above-quill-editor-toolbar].table-toolbar-row {
     display: flex;
     align-items: center;
     padding: 6px 10px;
     background: #fff;
     border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 11;
   }
 
   ::ng-deep .toolbar-btn.table-btn {
@@ -184,10 +199,38 @@
 }
 
 ::ng-deep .quill-editor {
-  display: block;
-  .ql-toolbar { border: none; border-radius: 0; }
-  .ql-container { border: none; border-top: 1px solid #e0e0e0; font-size: 15px; }
-  .ql-editor { min-height: 380px; }
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  // Quill toolbar: sticky so it stays visible when content scrolls (below table row)
+  .ql-toolbar.ql-snow {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    border-radius: 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 40px;
+    z-index: 10;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  // Content area: only this part scrolls
+  .ql-container {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    font-size: 15px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .ql-editor {
+    min-height: 100%;
+    box-sizing: border-box;
+  }
 }
 
 // Quill table module styles (basic)

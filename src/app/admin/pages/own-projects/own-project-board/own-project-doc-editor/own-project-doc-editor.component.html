@@ -5,11 +5,10 @@
       <span>Docs</span>
     </button>
     <div class="header-title-wrap">
-      <mat-icon class="title-icon">edit_note</mat-icon>
+     
       <mat-form-field appearance="outline" class="header-doc-name">
         <mat-label>Doc name</mat-label>
         <input matInput formControlName="name" placeholder="Enter doc name" maxlength="200" />
-        <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/200</mat-hint>
         <mat-error>Name is required</mat-error>
       </mat-form-field>
     </div>
