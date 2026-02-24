@@ -104,6 +104,8 @@ export class TasksComponent implements OnInit {
   searchTerm = '';
   isLoading = false;
   selectedAssignee = 'all';
+  /** View mode: 'kanban' (board) or 'list' */
+  viewMode: 'kanban' | 'list' = 'kanban';
 
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
@@ -258,6 +260,11 @@ export class TasksComponent implements OnInit {
   getTaskCategoryLabel(category: TaskCategory): string {
     const labels: Record<TaskCategory, string> = { general: 'General', clientProject: 'Client Project', ownProject: 'Own Project' };
     return labels[category] || category;
+  }
+
+  getStatusLabel(status: string): string {
+    const s = this.statuses.find(x => x.value === status);
+    return s ? s.label : status;
   }
 
   async loadProjects(): Promise<void> {
