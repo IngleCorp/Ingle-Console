@@ -118,6 +118,7 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
             createdBy,
             createdByName,
             isActive: true,
+            category: 'ownProject',
             source: 'ownProject',
             ownProjectId: this.projectId,
             ownProjectTaskId: docRef.id

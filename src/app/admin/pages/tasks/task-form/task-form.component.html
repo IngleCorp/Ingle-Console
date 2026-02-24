@@ -19,6 +19,16 @@
       Open in Own Project
     </a>
   </div>
+  <div *ngIf="isClientProjectTask && clientProjectTaskLink" class="own-project-link">
+    <a
+      [routerLink]="clientProjectTaskLink"
+      (click)="dialogRef.close(null)"
+      class="own-project-link-btn"
+    >
+      <mat-icon>open_in_new</mat-icon>
+      Open in Client Project
+    </a>
+  </div>
 
   <mat-dialog-content>
     <form [formGroup]="taskForm" class="task-form">

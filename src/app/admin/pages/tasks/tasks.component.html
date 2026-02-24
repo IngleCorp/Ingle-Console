@@ -106,8 +106,13 @@
           <div class="task-content">
             <div class="task-title-section">
               <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
-              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
-                {{ task.priority || 'medium' }}
+              <div class="task-badges">
+                <span class="task-category-badge" [class]="'category-' + getTaskCategory(task)">
+                  {{ getTaskCategoryLabel(getTaskCategory(task)) }}
+                </span>
+                <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                  {{ task.priority || 'medium' }}
+                </div>
               </div>
             </div>
             <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
@@ -194,8 +199,13 @@
           <div class="task-content">
             <div class="task-title-section">
               <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
-              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
-                {{ task.priority || 'medium' }}
+              <div class="task-badges">
+                <span class="task-category-badge" [class]="'category-' + getTaskCategory(task)">
+                  {{ getTaskCategoryLabel(getTaskCategory(task)) }}
+                </span>
+                <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                  {{ task.priority || 'medium' }}
+                </div>
               </div>
             </div>
             <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
@@ -272,8 +282,13 @@
           <div class="task-content">
             <div class="task-title-section">
               <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
-              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
-                {{ task.priority || 'medium' }}
+              <div class="task-badges">
+                <span class="task-category-badge" [class]="'category-' + getTaskCategory(task)">
+                  {{ getTaskCategoryLabel(getTaskCategory(task)) }}
+                </span>
+                <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                  {{ task.priority || 'medium' }}
+                </div>
               </div>
             </div>
             <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>
@@ -347,8 +362,13 @@
           <div class="task-content">
             <div class="task-title-section">
               <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
-              <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
-                {{ task.priority || 'medium' }}
+              <div class="task-badges">
+                <span class="task-category-badge" [class]="'category-' + getTaskCategory(task)">
+                  {{ getTaskCategoryLabel(getTaskCategory(task)) }}
+                </span>
+                <div class="task-priority-badge" [style.background-color]="getPriorityColor(task.priority)">
+                  {{ task.priority || 'medium' }}
+                </div>
               </div>
             </div>
             <div class="task-description" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></div>

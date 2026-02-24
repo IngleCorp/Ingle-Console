@@ -31,6 +31,7 @@ export class ProjectTasksComponent implements OnInit {
   taskdata: any;
   task: string = '';
   projectId: string | null = null;
+  clientId: string | null = null;
   projectname: string = '';
   tasktodo: any;
   taskdone: any;
@@ -71,13 +72,12 @@ export class ProjectTasksComponent implements OnInit {
     localStorage.setItem('pactivetab', 'tasks');
     this.route.parent?.paramMap.subscribe(params => {
       this.projectId = params.get('projectId');
-      console.log('Project ID:', this.projectId);
+      this.clientId = this.route.parent?.parent?.snapshot?.paramMap?.get('id') ?? null;
       this.getTasks();
       this.loadProjects();
       if (this.projectId) {
         this.afs.collection('projects').doc(this.projectId).valueChanges().subscribe((res: any) => {
           this.projectname = res?.name;
-          console.log('Project Name:', this.projectname);
         });
       }
     });
@@ -210,26 +210,26 @@ export class ProjectTasksComponent implements OnInit {
 
   addTask(): void {
     if (this.task.length > 0 && this.projectId) {
-
-      let data = {
+      const data: any = {
         task: this.task,
+        title: this.task,
         createdAt: new Date(),
         status: 'todo',
         createdby: localStorage.getItem('username'),
         createdbyid: localStorage.getItem('userid'),
+        createdBy: localStorage.getItem('userid'),
+        createdByName: localStorage.getItem('username'),
+        projectId: this.projectId,
         projecttaged: this.projectId,
         projectname: this.projectname,
-        assigns: []
+        projectName: this.projectname,
+        assigns: [],
+        category: 'clientProject',
       };
-
-      console.log('Adding task:', data);
-
+      if (this.clientId) data.clientId = this.clientId;
       this.afs.collection('tasks').add(data).then(() => {
         this.task = '';
-        // this.toastr.success('Task added', 'Action'); // Uncomment if available
       });
-    } else {
-      // this.toastr.warning('Please enter task'); // Uncomment if available
     }
   }
 
@@ -343,25 +343,31 @@ export class ProjectTasksComponent implements OnInit {
 
   private addTaskFromDialog(formData: any): void {
     if (this.projectId) {
-      const data = {
+      const data: any = {
         task: formData.title,
+        title: formData.title,
         description: formData.description || '',
         priority: formData.priority || 'medium',
         status: formData.status || 'todo',
         createdAt: new Date(),
         createdby: localStorage.getItem('username'),
         createdbyid: localStorage.getItem('userid'),
+        createdBy: localStorage.getItem('userid'),
+        createdByName: localStorage.getItem('username'),
+        projectId: this.projectId,
         projecttaged: this.projectId,
         projectname: this.projectname,
+        projectName: this.projectname,
         assigns: formData.assignees ? formData.assignees.map((id: string) => {
           const assignee = this.assignees.find(a => a.id === id);
           return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
         }) : [],
         estimatedHours: formData.estimatedHours,
         dueDate: formData.dueDate,
-        tags: formData.tags
+        tags: formData.tags,
+        category: 'clientProject',
       };
-
+      if (this.clientId) data.clientId = this.clientId;
       this.afs.collection('tasks').add(data);
     }
   }

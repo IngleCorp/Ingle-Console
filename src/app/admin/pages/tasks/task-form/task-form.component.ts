@@ -73,7 +73,7 @@ export class TaskFormComponent implements OnInit {
 
   get isOwnProjectTask(): boolean {
     const t: any = this.data.task;
-    return !!t && t.source === 'ownProject' && !!t.ownProjectId;
+    return !!t && (t.category === 'ownProject' || t.source === 'ownProject') && !!t.ownProjectId;
   }
 
   get ownProjectTaskLink(): string | null {
@@ -84,6 +84,21 @@ export class TaskFormComponent implements OnInit {
     return ownTaskId
       ? `/admin/own-projects/${projectId}/tasks/${ownTaskId}`
       : `/admin/own-projects/${projectId}/tasks`;
+  }
+
+  get isClientProjectTask(): boolean {
+    const t: any = this.data.task;
+    return !!t && (t.category === 'clientProject' || !!t.clientId) && !!t.clientId && !!(t.projectId || t.projecttaged);
+  }
+
+  get clientProjectTaskLink(): string | null {
+    if (!this.isClientProjectTask) return null;
+    const t: any = this.data.task;
+    const clientId = t.clientId;
+    const projectId = t.projectId || t.projecttaged;
+    return clientId && projectId
+      ? `/admin/clients/${clientId}/projects/${projectId}/tasks`
+      : null;
   }
 
   private _filterProjects(value: string): Project[] {

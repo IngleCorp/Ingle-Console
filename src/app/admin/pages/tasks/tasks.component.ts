@@ -11,6 +11,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { TaskFormComponent, TaskFormData } from './task-form/task-form.component';
 import { TaskViewComponent, TaskViewData } from './task-view/task-view.component';
 
+export type TaskCategory = 'general' | 'clientProject' | 'ownProject';
+
 export interface Task {
   // ✅ New Interface Fields
   id?: string;
@@ -22,12 +24,16 @@ export interface Task {
   assignees?: string[];
   projectId?: string | null;
   projectName?: string | null;
+  /** Task category: general (main Tasks), clientProject, or ownProject. */
+  category?: TaskCategory;
   /** Source of the task, e.g. 'ownProject' when synced from an own project board. */
   source?: string;
   /** When source === 'ownProject', id of the ownProjects document. */
   ownProjectId?: string | null;
   /** When source === 'ownProject', id of the subcollection task under the own project. */
   ownProjectTaskId?: string | null;
+  /** When category === 'clientProject', client id (clients collection). */
+  clientId?: string | null;
   dueDate?: Date;
   estimatedHours?: number;
   actualHours?: number;
@@ -227,6 +233,10 @@ export class TasksComponent implements OnInit {
       tags: task.tags || []
     };
 
+    // Infer category for legacy tasks
+    transformedTask.category = task.category || (task.source === 'ownProject' ? 'ownProject' : (task.clientId ? 'clientProject' : 'general'));
+    if (task.clientId) transformedTask.clientId = task.clientId;
+
     // Add legacy fields for backward compatibility
     if (task.req_id_name) transformedTask.req_id_name = task.req_id_name;
     if (task.req_task_id) transformedTask.req_task_id = task.req_task_id;
@@ -239,6 +249,15 @@ export class TasksComponent implements OnInit {
     if (task.assigns) transformedTask.assigns = task.assigns;
 
     return transformedTask;
+  }
+
+  getTaskCategory(task: Task): TaskCategory {
+    return task.category || (task.source === 'ownProject' ? 'ownProject' : (task.clientId ? 'clientProject' : 'general'));
+  }
+
+  getTaskCategoryLabel(category: TaskCategory): string {
+    const labels: Record<TaskCategory, string> = { general: 'General', clientProject: 'Client Project', ownProject: 'Own Project' };
+    return labels[category] || category;
   }
 
   async loadProjects(): Promise<void> {
@@ -354,6 +373,7 @@ export class TasksComponent implements OnInit {
           projectId: selectedProject?.id || null,
           projectName: selectedProject?.name || null,
           projecttaged: selectedProject?.id || null,
+          category: 'general',
         };
 
         const docRef = await this.firestore.collection('tasks').add(taskData);

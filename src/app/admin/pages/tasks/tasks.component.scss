@@ -639,6 +639,34 @@
                 flex: 1;
               }
 
+              .task-badges {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+              }
+
+              .task-category-badge {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 6px;
+                border-radius: 6px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                &.category-general {
+                  background: #e2e8f0;
+                  color: #475569;
+                }
+                &.category-clientProject {
+                  background: #dbeafe;
+                  color: #1d4ed8;
+                }
+                &.category-ownProject {
+                  background: #d1fae5;
+                  color: #047857;
+                }
+              }
+
               .task-priority-badge {
                 color: white;
                 font-size: 0.75rem;
@@ -647,7 +675,6 @@
                 border-radius: 8px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                flex-shrink: 0;
               }
             }
 
