@@ -250,8 +250,8 @@
     </div>
   </div>
 
-  <!-- List View -->
-  <div class="list-view" *ngIf="viewMode === 'list' && !isLoading && listViewData.length > 0">
+  <!-- List View (header always visible when in list mode; body shows rows or empty state) -->
+  <div class="list-view" *ngIf="viewMode === 'list' && !isLoading">
     <div class="list-table">
       <div class="list-head">
         <div class="list-th list-th--title">
@@ -395,57 +395,57 @@
         <div class="list-th list-th--actions"></div>
       </div>
       <div class="list-body">
-        <div
-          class="list-row"
-          *ngFor="let task of listViewData"
-          [class.list-row--urgent]="task.priority === 'high' || task.priority === 'urgent'"
-        >
-          <div class="list-cell list-cell--title">
-            <span class="list-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-            <span class="list-title" (click)="openTaskView(task)">{{ getTaskTitle(task) }}</span>
-          </div>
-          <div class="list-cell list-cell--category">
-            <span class="tag tag--category" [class]="'tag--' + getTaskCategory(task)">{{ getTaskCategoryLabel(getTaskCategory(task)) }}</span>
-          </div>
-          <div class="list-cell list-cell--priority">
-            <span class="tag tag--priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority || 'medium' }}</span>
-          </div>
-          <div class="list-cell list-cell--status">
-            <span class="status-pill" [class]="'status-pill--' + task.status">{{ getStatusLabel(task.status) }}</span>
-          </div>
-          <div class="list-cell list-cell--assignee">
-            <span class="meta" *ngIf="getTaskAssignees(task).length > 0">
-              {{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
-            </span>
-            <span class="meta meta--muted" *ngIf="getTaskAssignees(task).length === 0">—</span>
-          </div>
-          <div class="list-cell list-cell--project">
-            <span class="meta" *ngIf="getTaskProjectId(task)">
-              {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
-            </span>
-            <span class="meta meta--muted" *ngIf="!getTaskProjectId(task)">—</span>
-          </div>
-          <div class="list-cell list-cell--date">
-            <span *ngIf="task.dueDate">{{ task.dueDate | date:'shortDate' }}</span>
-            <span class="meta--muted" *ngIf="!task.dueDate">—</span>
-          </div>
-          <div class="list-cell list-cell--actions">
-            <div class="list-actions">
-              <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
-              <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+        <ng-container *ngIf="listViewData.length > 0">
+          <div
+            class="list-row"
+            *ngFor="let task of listViewData"
+            [class.list-row--urgent]="task.priority === 'high' || task.priority === 'urgent'"
+          >
+            <div class="list-cell list-cell--title">
+              <span class="list-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
+              <span class="list-title" (click)="openTaskView(task)">{{ getTaskTitle(task) }}</span>
+            </div>
+            <div class="list-cell list-cell--category">
+              <span class="tag tag--category" [class]="'tag--' + getTaskCategory(task)">{{ getTaskCategoryLabel(getTaskCategory(task)) }}</span>
+            </div>
+            <div class="list-cell list-cell--priority">
+              <span class="tag tag--priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority || 'medium' }}</span>
+            </div>
+            <div class="list-cell list-cell--status">
+              <span class="status-pill" [class]="'status-pill--' + task.status">{{ getStatusLabel(task.status) }}</span>
+            </div>
+            <div class="list-cell list-cell--assignee">
+              <span class="meta" *ngIf="getTaskAssignees(task).length > 0">
+                {{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
+              </span>
+              <span class="meta meta--muted" *ngIf="getTaskAssignees(task).length === 0">—</span>
+            </div>
+            <div class="list-cell list-cell--project">
+              <span class="meta" *ngIf="getTaskProjectId(task)">
+                {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+              </span>
+              <span class="meta meta--muted" *ngIf="!getTaskProjectId(task)">—</span>
+            </div>
+            <div class="list-cell list-cell--date">
+              <span *ngIf="task.dueDate">{{ task.dueDate | date:'shortDate' }}</span>
+              <span class="meta--muted" *ngIf="!task.dueDate">—</span>
+            </div>
+            <div class="list-cell list-cell--actions">
+              <div class="list-actions">
+                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+              </div>
             </div>
           </div>
+        </ng-container>
+        <div class="list-empty" *ngIf="listViewData.length === 0">
+          <mat-icon>filter_list</mat-icon>
+          <p class="list-empty-title">{{ tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters' }}</p>
+          <p class="list-empty-hint">{{ tasks.length === 0 ? 'Add your first task to get started.' : 'Try changing search or column filters to see more tasks.' }}</p>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- List view: no results (toolbar or column filters) -->
-  <div class="state state--empty state--filtered" *ngIf="viewMode === 'list' && !isLoading && tasks.length > 0 && listViewData.length === 0">
-    <mat-icon>filter_list</mat-icon>
-    <h3>No tasks match your filters</h3>
-    <p>Try changing search or filters to see more tasks.</p>
   </div>
 
   <!-- Loading -->
@@ -454,8 +454,8 @@
     <span>Loading tasks...</span>
   </div>
 
-  <!-- Empty (no tasks at all) -->
-  <div class="state state--empty" *ngIf="!isLoading && tasks.length === 0">
+  <!-- Empty (no tasks at all) — only when not in list view; list view shows its own empty state -->
+  <div class="state state--empty" *ngIf="!isLoading && tasks.length === 0 && viewMode !== 'list'">
     <mat-icon>assignment_outlined</mat-icon>
     <h3>No tasks yet</h3>
     <p>Add your first task to get started.</p>
