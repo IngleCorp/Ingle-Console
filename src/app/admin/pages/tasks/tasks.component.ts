@@ -117,7 +117,11 @@ export class TasksComponent implements OnInit {
   listFilterPriority = 'all';
   listFilterStatus = 'all';
   listFilterAssignee = 'all';
+  listFilterProject = 'all';
   listFilterDue = 'all';
+
+  /** List view: available project labels for project filter */
+  projectFilterLabels: string[] = [];
 
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
@@ -296,6 +300,7 @@ export class TasksComponent implements OnInit {
       case 'priority': this.listFilterPriority = value; break;
       case 'status': this.listFilterStatus = value; break;
       case 'assignee': this.listFilterAssignee = value; break;
+      case 'project': this.listFilterProject = value; break;
       case 'due': this.listFilterDue = value; break;
       default: break;
     }
@@ -316,7 +321,19 @@ export class TasksComponent implements OnInit {
       list = list.filter(t => t.status === this.listFilterStatus);
     }
     if (this.listFilterAssignee !== 'all') {
-      list = list.filter(t => (t.assignees || []).includes(this.listFilterAssignee));
+      list = list.filter(t => this.getTaskAssignees(t).includes(this.listFilterAssignee));
+    }
+    if (this.listFilterProject !== 'all') {
+      if (this.listFilterProject === 'none') {
+        list = list.filter(t => !this.getTaskProjectId(t));
+      } else {
+        list = list.filter(t => {
+          const label = t.source === 'ownProject'
+            ? (t.projectName || this.getTaskProjectId(t))
+            : this.getProjectName(this.getTaskProjectId(t));
+          return label === this.listFilterProject;
+        });
+      }
     }
     if (this.listFilterDue !== 'all') {
       const now = new Date();
@@ -361,6 +378,16 @@ export class TasksComponent implements OnInit {
             va = this.getTaskAssignees(a)[0] || '';
             vb = this.getTaskAssignees(b)[0] || '';
             return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
+          case 'project':
+            va = a.source === 'ownProject'
+              ? (a.projectName || this.getTaskProjectId(a))
+              : this.getProjectName(this.getTaskProjectId(a));
+            vb = b.source === 'ownProject'
+              ? (b.projectName || this.getTaskProjectId(b))
+              : this.getProjectName(this.getTaskProjectId(b));
+            va = (va || '').toLowerCase();
+            vb = (vb || '').toLowerCase();
+            return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
           case 'dueDate':
             const da = a.dueDate ? (a.dueDate instanceof Date ? a.dueDate.getTime() : new Date((a.dueDate as any)?.seconds ? (a.dueDate as any).seconds * 1000 : a.dueDate).getTime()) : 0;
             const db = b.dueDate ? (b.dueDate instanceof Date ? b.dueDate.getTime() : new Date((b.dueDate as any)?.seconds ? (b.dueDate as any).seconds * 1000 : b.dueDate).getTime()) : 0;
@@ -380,6 +407,7 @@ export class TasksComponent implements OnInit {
       case 'priority': return this.listFilterPriority !== 'all';
       case 'status': return this.listFilterStatus !== 'all';
       case 'assignee': return this.listFilterAssignee !== 'all';
+      case 'project': return this.listFilterProject !== 'all';
       case 'due': return this.listFilterDue !== 'all';
       default: return false;
     }
@@ -395,6 +423,7 @@ export class TasksComponent implements OnInit {
     try {
       this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any) => {
         this.projects = projects;
+        this.updateProjectFilterLabels();
       });
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -411,6 +440,7 @@ export class TasksComponent implements OnInit {
           ref.orderBy('createdAt', 'desc')
         ).valueChanges({ idField: 'id' }).subscribe((data: any) => {
           this.tasks = data.map((task: any) => this.transformLegacyTask(task));
+          this.updateProjectFilterLabels();
           this.applyFilter(); // Apply initial filter (which will also categorize)
           this.isLoading = false;
         });
@@ -688,12 +718,33 @@ export class TasksComponent implements OnInit {
     // Filter by assignee
     if (this.selectedAssignee !== 'all') {
       filteredTasks = filteredTasks.filter(task => 
-        (task.assignees || []).includes(this.selectedAssignee)
+        this.getTaskAssignees(task).includes(this.selectedAssignee)
       );
     }
 
     this.dataSource.data = filteredTasks;
     this.categorizeTasks(filteredTasks); // Re-categorize the filtered tasks for the Kanban board
+  }
+
+  /** Rebuild list of unique project labels used in tasks for the project column filter */
+  private updateProjectFilterLabels(): void {
+    const labels = new Set<string>();
+    this.tasks.forEach(task => {
+      const projectId = this.getTaskProjectId(task);
+      if (!projectId) {
+        return;
+      }
+      const label =
+        task.source === 'ownProject'
+          ? (task.projectName || projectId)
+          : this.getProjectName(projectId);
+      if (label) {
+        labels.add(label);
+      }
+    });
+    this.projectFilterLabels = Array.from(labels).sort((a, b) =>
+      a.localeCompare(b),
+    );
   }
 
   copyTaskList(): void {

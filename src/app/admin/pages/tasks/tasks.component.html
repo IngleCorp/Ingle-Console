@@ -50,7 +50,7 @@
         <mat-label>Assignee</mat-label>
         <mat-select [(ngModel)]="selectedAssignee" (selectionChange)="applyFilter()">
           <mat-option value="all">All</mat-option>
-          <mat-option *ngFor="let assignee of assignees" [value]="assignee.id">{{ assignee.name }}</mat-option>
+          <mat-option *ngFor="let assignee of assignees" [value]="assignee.name">{{ assignee.name }}</mat-option>
         </mat-select>
       </mat-form-field>
       <div class="view-toggle">
@@ -255,16 +255,30 @@
     <div class="list-table">
       <div class="list-head">
         <div class="list-th list-th--title">
-          <span class="list-th-label">Task</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('title')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'title'">
-            <mat-icon>{{ getListSortIcon('title') }}</mat-icon>
-          </button>
+            <div class="list-th-top">
+              <span class="list-th-label">Task</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('title')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'title'">
+                <mat-icon>{{ getListSortIcon('title') }}</mat-icon>
+              </button>
+            </div>
         </div>
         <div class="list-th list-th--category">
-          <span class="list-th-label">Category</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('category')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'category'">
-            <mat-icon>{{ getListSortIcon('category') }}</mat-icon>
-          </button>
+            <div class="list-th-top">
+              <span class="list-th-label">Category</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('category')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'category'">
+                <mat-icon>{{ getListSortIcon('category') }}</mat-icon>
+              </button>
+            </div>
           <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('category')">
             <mat-select [(ngModel)]="listFilterCategory" placeholder="All">
               <mat-option value="all">All</mat-option>
@@ -275,10 +289,17 @@
           </mat-form-field>
         </div>
         <div class="list-th list-th--priority">
-          <span class="list-th-label">Priority</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('priority')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'priority'">
-            <mat-icon>{{ getListSortIcon('priority') }}</mat-icon>
-          </button>
+            <div class="list-th-top">
+              <span class="list-th-label">Priority</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('priority')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'priority'">
+                <mat-icon>{{ getListSortIcon('priority') }}</mat-icon>
+              </button>
+            </div>
           <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('priority')">
             <mat-select [(ngModel)]="listFilterPriority" placeholder="All">
               <mat-option value="all">All</mat-option>
@@ -287,10 +308,17 @@
           </mat-form-field>
         </div>
         <div class="list-th list-th--status">
-          <span class="list-th-label">Status</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('status')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'status'">
-            <mat-icon>{{ getListSortIcon('status') }}</mat-icon>
-          </button>
+            <div class="list-th-top">
+              <span class="list-th-label">Status</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('status')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'status'">
+                <mat-icon>{{ getListSortIcon('status') }}</mat-icon>
+              </button>
+            </div>
           <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('status')">
             <mat-select [(ngModel)]="listFilterStatus" placeholder="All">
               <mat-option value="all">All</mat-option>
@@ -298,32 +326,72 @@
             </mat-select>
           </mat-form-field>
         </div>
-        <div class="list-th list-th--meta">
-          <span class="list-th-label">Assignee</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('assignee')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'assignee'">
-            <mat-icon>{{ getListSortIcon('assignee') }}</mat-icon>
-          </button>
+        <div class="list-th list-th--assignee">
+            <div class="list-th-top">
+              <span class="list-th-label">Assignee</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('assignee')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'assignee'">
+                <mat-icon>{{ getListSortIcon('assignee') }}</mat-icon>
+              </button>
+            </div>
           <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('assignee')">
-            <mat-select [(ngModel)]="listFilterAssignee" placeholder="All">
-              <mat-option value="all">All</mat-option>
-              <mat-option *ngFor="let a of assignees" [value]="a.id">{{ a.name }}</mat-option>
+              <mat-select [(ngModel)]="listFilterAssignee" placeholder="All">
+                <mat-option value="all">All</mat-option>
+                <mat-option *ngFor="let a of assignees" [value]="a.name">{{ a.name }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
+        <div class="list-th list-th--project">
+            <div class="list-th-top">
+              <span class="list-th-label">Project</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('project')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'project'">
+                <mat-icon>{{ getListSortIcon('project') }}</mat-icon>
+              </button>
+            </div>
+            <mat-form-field
+              appearance="outline"
+              class="list-th-filter"
+              [class.list-th-filter--active]="isListFilterActive('project')">
+              <mat-select [(ngModel)]="listFilterProject" placeholder="All">
+                <mat-option value="all">All</mat-option>
+                <mat-option value="none">No project</mat-option>
+                <mat-option *ngFor="let label of projectFilterLabels" [value]="label">{{ label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         <div class="list-th list-th--date">
-          <span class="list-th-label">Due</span>
-          <button type="button" class="list-th-sort" (click)="setListSort('dueDate')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'dueDate'">
-            <mat-icon>{{ getListSortIcon('dueDate') }}</mat-icon>
-          </button>
-          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('due')">
-            <mat-select [(ngModel)]="listFilterDue" placeholder="All">
-              <mat-option value="all">All</mat-option>
-              <mat-option value="overdue">Overdue</mat-option>
-              <mat-option value="thisWeek">This week</mat-option>
-              <mat-option value="noDate">No date</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+            <div class="list-th-top">
+              <span class="list-th-label">Due</span>
+              <button
+                type="button"
+                class="list-th-sort"
+                (click)="setListSort('dueDate')"
+                matTooltip="Sort"
+                [class.list-th-sort--active]="listSortColumn === 'dueDate'">
+                <mat-icon>{{ getListSortIcon('dueDate') }}</mat-icon>
+              </button>
+            </div>
+            <mat-form-field
+              appearance="outline"
+              class="list-th-filter"
+              [class.list-th-filter--active]="isListFilterActive('due')">
+              <mat-select [(ngModel)]="listFilterDue" placeholder="All">
+                <mat-option value="all">All</mat-option>
+                <mat-option value="overdue">Overdue</mat-option>
+                <mat-option value="thisWeek">This week</mat-option>
+                <mat-option value="noDate">No date</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         <div class="list-th list-th--actions"></div>
       </div>
       <div class="list-body">
@@ -345,11 +413,17 @@
           <div class="list-cell list-cell--status">
             <span class="status-pill" [class]="'status-pill--' + task.status">{{ getStatusLabel(task.status) }}</span>
           </div>
-          <div class="list-cell list-cell--meta">
-            <span class="meta" *ngIf="getTaskAssignees(task).length > 0">{{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}</span>
-            <span class="meta-sep" *ngIf="getTaskAssignees(task).length > 0 && getTaskProjectId(task)"> · </span>
-            <span class="meta" *ngIf="getTaskProjectId(task)">{{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}</span>
-            <span class="meta meta--muted" *ngIf="getTaskAssignees(task).length === 0 && !getTaskProjectId(task)">—</span>
+          <div class="list-cell list-cell--assignee">
+            <span class="meta" *ngIf="getTaskAssignees(task).length > 0">
+              {{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
+            </span>
+            <span class="meta meta--muted" *ngIf="getTaskAssignees(task).length === 0">—</span>
+          </div>
+          <div class="list-cell list-cell--project">
+            <span class="meta" *ngIf="getTaskProjectId(task)">
+              {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+            </span>
+            <span class="meta meta--muted" *ngIf="!getTaskProjectId(task)">—</span>
           </div>
           <div class="list-cell list-cell--date">
             <span *ngIf="task.dueDate">{{ task.dueDate | date:'shortDate' }}</span>
