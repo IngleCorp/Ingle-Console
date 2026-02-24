@@ -39,6 +39,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // Third-party modules
 import { AgGridModule } from 'ag-grid-angular';
@@ -139,6 +140,7 @@ import { TaskViewComponent } from './pages/tasks/task-view/task-view.component';
     MatTooltipModule,
     MatRadioModule,
     ClipboardModule,
+    DragDropModule,
   ],
 })
 export class AdminModule {}

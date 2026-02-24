@@ -80,7 +80,7 @@
 
   <!-- Kanban Board -->
   <div class="board-scroll" *ngIf="viewMode === 'kanban'">
-    <div class="kanban-board">
+    <div class="kanban-board" cdkDropListGroup>
       <!-- To Do -->
       <section class="column" data-status="todo">
         <div class="column-head">
@@ -88,10 +88,12 @@
           <h2 class="column-title">To Do</h2>
           <span class="column-count">{{ todoTasks.length }}</span>
         </div>
-        <div class="column-cards">
+        <div class="column-cards" cdkDropList [id]="'todo'" [cdkDropListData]="todoTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article
             class="card"
             *ngFor="let task of todoTasks"
+            cdkDrag
+            [cdkDragData]="task"
             [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'"
           >
             <div class="card-top">
@@ -135,8 +137,8 @@
           <h2 class="column-title">In Progress</h2>
           <span class="column-count">{{ inProgressTasks.length }}</span>
         </div>
-        <div class="column-cards">
-          <article class="card" *ngFor="let task of inProgressTasks">
+        <div class="column-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="inProgressTasks" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="card" *ngFor="let task of inProgressTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="progress-inline">
@@ -181,8 +183,8 @@
           <h2 class="column-title">Done</h2>
           <span class="column-count">{{ doneTasks.length }}</span>
         </div>
-        <div class="column-cards">
-          <article class="card" *ngFor="let task of doneTasks">
+        <div class="column-cards" cdkDropList [id]="'done'" [cdkDropListData]="doneTasks" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="card" *ngFor="let task of doneTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
@@ -215,8 +217,8 @@
           <h2 class="column-title">On Hold</h2>
           <span class="column-count">{{ holdTasks.length }}</span>
         </div>
-        <div class="column-cards">
-          <article class="card" *ngFor="let task of holdTasks">
+        <div class="column-cards" cdkDropList [id]="'hold'" [cdkDropListData]="holdTasks" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="card" *ngFor="let task of holdTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
@@ -249,21 +251,85 @@
   </div>
 
   <!-- List View -->
-  <div class="list-view" *ngIf="viewMode === 'list' && !isLoading && dataSource.data.length > 0">
+  <div class="list-view" *ngIf="viewMode === 'list' && !isLoading && listViewData.length > 0">
     <div class="list-table">
       <div class="list-head">
-        <span class="list-th list-th--title">Task</span>
-        <span class="list-th list-th--category">Category</span>
-        <span class="list-th list-th--priority">Priority</span>
-        <span class="list-th list-th--status">Status</span>
-        <span class="list-th list-th--meta">Assignee · Project</span>
-        <span class="list-th list-th--date">Due</span>
-        <span class="list-th list-th--actions"></span>
+        <div class="list-th list-th--title">
+          <span class="list-th-label">Task</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('title')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'title'">
+            <mat-icon>{{ getListSortIcon('title') }}</mat-icon>
+          </button>
+        </div>
+        <div class="list-th list-th--category">
+          <span class="list-th-label">Category</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('category')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'category'">
+            <mat-icon>{{ getListSortIcon('category') }}</mat-icon>
+          </button>
+          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('category')">
+            <mat-select [(ngModel)]="listFilterCategory" placeholder="All">
+              <mat-option value="all">All</mat-option>
+              <mat-option value="general">General</mat-option>
+              <mat-option value="clientProject">Client Project</mat-option>
+              <mat-option value="ownProject">Own Project</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="list-th list-th--priority">
+          <span class="list-th-label">Priority</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('priority')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'priority'">
+            <mat-icon>{{ getListSortIcon('priority') }}</mat-icon>
+          </button>
+          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('priority')">
+            <mat-select [(ngModel)]="listFilterPriority" placeholder="All">
+              <mat-option value="all">All</mat-option>
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="list-th list-th--status">
+          <span class="list-th-label">Status</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('status')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'status'">
+            <mat-icon>{{ getListSortIcon('status') }}</mat-icon>
+          </button>
+          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('status')">
+            <mat-select [(ngModel)]="listFilterStatus" placeholder="All">
+              <mat-option value="all">All</mat-option>
+              <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="list-th list-th--meta">
+          <span class="list-th-label">Assignee</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('assignee')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'assignee'">
+            <mat-icon>{{ getListSortIcon('assignee') }}</mat-icon>
+          </button>
+          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('assignee')">
+            <mat-select [(ngModel)]="listFilterAssignee" placeholder="All">
+              <mat-option value="all">All</mat-option>
+              <mat-option *ngFor="let a of assignees" [value]="a.id">{{ a.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="list-th list-th--date">
+          <span class="list-th-label">Due</span>
+          <button type="button" class="list-th-sort" (click)="setListSort('dueDate')" matTooltip="Sort" [class.list-th-sort--active]="listSortColumn === 'dueDate'">
+            <mat-icon>{{ getListSortIcon('dueDate') }}</mat-icon>
+          </button>
+          <mat-form-field appearance="outline" class="list-th-filter" [class.list-th-filter--active]="isListFilterActive('due')">
+            <mat-select [(ngModel)]="listFilterDue" placeholder="All">
+              <mat-option value="all">All</mat-option>
+              <mat-option value="overdue">Overdue</mat-option>
+              <mat-option value="thisWeek">This week</mat-option>
+              <mat-option value="noDate">No date</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="list-th list-th--actions"></div>
       </div>
       <div class="list-body">
         <div
           class="list-row"
-          *ngFor="let task of dataSource.data"
+          *ngFor="let task of listViewData"
           [class.list-row--urgent]="task.priority === 'high' || task.priority === 'urgent'"
         >
           <div class="list-cell list-cell--title">
@@ -301,8 +367,8 @@
     </div>
   </div>
 
-  <!-- List view: no results (filters) -->
-  <div class="state state--empty state--filtered" *ngIf="viewMode === 'list' && !isLoading && tasks.length > 0 && dataSource.data.length === 0">
+  <!-- List view: no results (toolbar or column filters) -->
+  <div class="state state--empty state--filtered" *ngIf="viewMode === 'list' && !isLoading && tasks.length > 0 && listViewData.length === 0">
     <mat-icon>filter_list</mat-icon>
     <h3>No tasks match your filters</h3>
     <p>Try changing search or filters to see more tasks.</p>

@@ -8,6 +8,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { TaskFormComponent, TaskFormData } from './task-form/task-form.component';
 import { TaskViewComponent, TaskViewData } from './task-view/task-view.component';
 
@@ -106,6 +107,17 @@ export class TasksComponent implements OnInit {
   selectedAssignee = 'all';
   /** View mode: 'kanban' (board) or 'list' */
   viewMode: 'kanban' | 'list' = 'kanban';
+
+  /** List view: sort */
+  listSortColumn: string | null = null;
+  listSortDirection: 'asc' | 'desc' = 'asc';
+
+  /** List view: column filters (applied on top of toolbar filters) */
+  listFilterCategory = 'all';
+  listFilterPriority = 'all';
+  listFilterStatus = 'all';
+  listFilterAssignee = 'all';
+  listFilterDue = 'all';
 
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
@@ -265,6 +277,118 @@ export class TasksComponent implements OnInit {
   getStatusLabel(status: string): string {
     const s = this.statuses.find(x => x.value === status);
     return s ? s.label : status;
+  }
+
+  /** List view: toggle sort for a column */
+  setListSort(column: string): void {
+    if (this.listSortColumn === column) {
+      this.listSortDirection = this.listSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.listSortColumn = column;
+      this.listSortDirection = 'asc';
+    }
+  }
+
+  /** List view: set column filter */
+  setListFilter(column: string, value: string): void {
+    switch (column) {
+      case 'category': this.listFilterCategory = value; break;
+      case 'priority': this.listFilterPriority = value; break;
+      case 'status': this.listFilterStatus = value; break;
+      case 'assignee': this.listFilterAssignee = value; break;
+      case 'due': this.listFilterDue = value; break;
+      default: break;
+    }
+  }
+
+  /** List view: filtered and sorted data for table */
+  get listViewData(): Task[] {
+    let list = [...this.dataSource.data];
+
+    // Column filters
+    if (this.listFilterCategory !== 'all') {
+      list = list.filter(t => this.getTaskCategory(t) === this.listFilterCategory);
+    }
+    if (this.listFilterPriority !== 'all') {
+      list = list.filter(t => (t.priority || 'medium') === this.listFilterPriority);
+    }
+    if (this.listFilterStatus !== 'all') {
+      list = list.filter(t => t.status === this.listFilterStatus);
+    }
+    if (this.listFilterAssignee !== 'all') {
+      list = list.filter(t => (t.assignees || []).includes(this.listFilterAssignee));
+    }
+    if (this.listFilterDue !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfWeek = new Date(today);
+      endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
+      list = list.filter(t => {
+        const d = t.dueDate ? (t.dueDate instanceof Date ? t.dueDate : new Date((t.dueDate as any)?.seconds ? (t.dueDate as any).seconds * 1000 : t.dueDate)) : null;
+        if (this.listFilterDue === 'noDate') return !d;
+        if (!d) return false;
+        if (this.listFilterDue === 'overdue') return d < today;
+        if (this.listFilterDue === 'thisWeek') return d >= today && d < endOfWeek;
+        return true;
+      });
+    }
+
+    // Sort
+    if (this.listSortColumn && this.listSortDirection) {
+      const dir = this.listSortDirection === 'asc' ? 1 : -1;
+      list.sort((a, b) => {
+        let va: any, vb: any;
+        switch (this.listSortColumn) {
+          case 'title':
+            va = this.getTaskTitle(a).toLowerCase();
+            vb = this.getTaskTitle(b).toLowerCase();
+            return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
+          case 'category':
+            va = this.getTaskCategoryLabel(this.getTaskCategory(a));
+            vb = this.getTaskCategoryLabel(this.getTaskCategory(b));
+            return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
+          case 'priority':
+            const order = { urgent: 4, high: 3, medium: 2, low: 1 };
+            va = order[(a.priority || 'medium') as keyof typeof order] ?? 2;
+            vb = order[(b.priority || 'medium') as keyof typeof order] ?? 2;
+            return (va - vb) * dir;
+          case 'status':
+            const statusOrder = { todo: 1, 'in-progress': 2, done: 3, hold: 4 };
+            va = statusOrder[a.status] ?? 0;
+            vb = statusOrder[b.status] ?? 0;
+            return (va - vb) * dir;
+          case 'assignee':
+            va = this.getTaskAssignees(a)[0] || '';
+            vb = this.getTaskAssignees(b)[0] || '';
+            return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
+          case 'dueDate':
+            const da = a.dueDate ? (a.dueDate instanceof Date ? a.dueDate.getTime() : new Date((a.dueDate as any)?.seconds ? (a.dueDate as any).seconds * 1000 : a.dueDate).getTime()) : 0;
+            const db = b.dueDate ? (b.dueDate instanceof Date ? b.dueDate.getTime() : new Date((b.dueDate as any)?.seconds ? (b.dueDate as any).seconds * 1000 : b.dueDate).getTime()) : 0;
+            return (da - db) * dir;
+          default:
+            return 0;
+        }
+      });
+    }
+    return list;
+  }
+
+  /** Whether a list column filter is active (not "all") */
+  isListFilterActive(column: string): boolean {
+    switch (column) {
+      case 'category': return this.listFilterCategory !== 'all';
+      case 'priority': return this.listFilterPriority !== 'all';
+      case 'status': return this.listFilterStatus !== 'all';
+      case 'assignee': return this.listFilterAssignee !== 'all';
+      case 'due': return this.listFilterDue !== 'all';
+      default: return false;
+    }
+  }
+
+  /** Sort icon for list column header */
+  getListSortIcon(column: string): string {
+    if (this.listSortColumn !== column) return 'unfold_more';
+    return this.listSortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   async loadProjects(): Promise<void> {
@@ -492,6 +616,31 @@ export class TasksComponent implements OnInit {
     } catch (error) {
       console.error('Error updating task status:', error);
       this.showNotification('Error updating task status', 'error');
+    }
+  }
+
+  /** Kanban: handle drag and drop between columns */
+  onTaskDrop(event: CdkDragDrop<Task[]>): void {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      return;
+    }
+    const newStatus = event.container.id as Task['status'];
+    const valid: Task['status'][] = ['todo', 'in-progress', 'done', 'hold'];
+    if (!valid.includes(newStatus)) return;
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+    const task = event.container.data[event.currentIndex];
+    if (task?.id) {
+      task.status = newStatus;
+      if (newStatus === 'done') task.progress = 100;
+      const inData = this.dataSource.data.find(t => t.id === task.id);
+      if (inData) inData.status = newStatus;
+      this.updateTaskStatus(task.id, newStatus);
     }
   }
 
