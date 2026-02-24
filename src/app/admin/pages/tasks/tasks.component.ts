@@ -748,14 +748,12 @@ export class TasksComponent implements OnInit {
   }
 
   copyTaskList(): void {
-    const taskList = this.tasks.map(task => {
+    const source = this.viewMode === 'list' ? this.listViewData : this.dataSource.data;
+    const taskList = source.map(task => {
       const title = this.getTaskTitle(task);
       const status = task.status || 'todo';
       const priority = task.priority || 'medium';
-      const assignees = this.getTaskAssignees(task).map(id => 
-        this.assignees.find(a => a.id === id)?.name || id
-      ).join(', ');
-      
+      const assignees = this.getTaskAssignees(task).join(', ');
       return `${title} - ${status} (${priority}) - ${assignees}`;
     }).join('\n');
 
