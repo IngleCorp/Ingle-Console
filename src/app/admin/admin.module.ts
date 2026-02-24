@@ -69,6 +69,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { ActivitiesComponent } from './pages/activities/activities.component';
 import { BugReportComponent } from './pages/bug-report/bug-report.component';
 import { TaskViewComponent } from './pages/tasks/task-view/task-view.component';
+import { TaskDetailsComponent } from './pages/tasks/task-details/task-details.component';
 
 @NgModule({
   declarations: [
@@ -99,6 +100,7 @@ import { TaskViewComponent } from './pages/tasks/task-view/task-view.component';
     ActivitiesComponent,
     BugReportComponent,
     TaskViewComponent,
+    TaskDetailsComponent,
   ],
   imports: [
     CommonModule,

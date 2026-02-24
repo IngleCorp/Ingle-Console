@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { Task, TaskAssignee, Project } from '../tasks.component';
 
 export interface TaskViewData {
@@ -19,7 +20,8 @@ export class TaskViewComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TaskViewComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: TaskViewData
+    @Inject(MAT_DIALOG_DATA) public data: TaskViewData,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +39,13 @@ export class TaskViewComponent implements OnInit {
   onDelete(): void {
     if (confirm('Are you sure you want to delete this task?')) {
       this.dialogRef.close({ action: 'delete', task: this.data.task });
+    }
+  }
+
+  onOpenInPage(): void {
+    if (this.data.task?.id) {
+      this.dialogRef.close();
+      this.router.navigate(['/admin/tasks', this.data.task.id]);
     }
   }
 

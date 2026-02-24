@@ -1,0 +1,203 @@
+<div class="task-details-page">
+  <!-- Loading -->
+  <div class="details-state details-state--loading" *ngIf="isLoading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading task...</p>
+  </div>
+
+  <!-- Not found -->
+  <div class="details-state details-state--empty" *ngIf="!isLoading && notFound">
+    <mat-icon>error_outline</mat-icon>
+    <h2>Task not found</h2>
+    <p>The task may have been deleted or the link is invalid.</p>
+    <button mat-raised-button color="primary" (click)="onBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Tasks
+    </button>
+  </div>
+
+  <!-- Task content -->
+  <div class="task-details-form" *ngIf="!isLoading && task && !notFound">
+    <!-- Top bar: back + delete -->
+    <header class="details-header">
+      <div class="details-header-inner">
+        <button mat-stroked-button class="back-btn" (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to Tasks</span>
+        </button>
+        <div class="header-actions">
+          <button mat-stroked-button class="delete-btn" (click)="onDelete()">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero: title (click to edit), priority, status -->
+    <section class="details-hero">
+      <div class="hero-badge hero-badge--priority" [style.background-color]="getPriorityInfo().color">
+        <mat-icon>priority_high</mat-icon>
+        {{ getPriorityInfo().label }}
+      </div>
+      <div class="hero-badge hero-badge--status" [style.background-color]="getStatusInfo().color">
+        <mat-icon>flag</mat-icon>
+        {{ getStatusInfo().label }}
+      </div>
+      <h1
+        class="details-title details-title--static"
+        *ngIf="editingField !== 'title'"
+        (click)="startEditTitle()"
+        tabindex="0"
+        role="button">
+        {{ getTaskTitle() }}
+      </h1>
+      <input
+        *ngIf="editingField === 'title'"
+        class="details-title details-title--input"
+        [(ngModel)]="editTitleValue"
+        (blur)="saveTitle()"
+        (keydown.enter)="blurTitleInput($event)"
+        placeholder="Task title"
+      />
+      <div class="hero-meta">
+        <span class="meta-item" *ngIf="task.id"><mat-icon>tag</mat-icon> {{ task.id }}</span>
+        <span class="meta-item" *ngIf="task.createdAt"><mat-icon>event</mat-icon> Created {{ task.createdAt | date:'mediumDate' }}</span>
+        <span class="meta-item category-tag">{{ getCategoryLabel() }}</span>
+      </div>
+    </section>
+
+    <div class="details-grid">
+      <!-- Description: click to edit, blur to save -->
+      <section class="details-card details-card--wide">
+        <div class="card-head">
+          <mat-icon>description</mat-icon>
+          <h2>Description</h2>
+        </div>
+        <div class="card-body">
+          <div
+            *ngIf="editingField !== 'description'"
+            class="task-description task-description--editable"
+            (click)="startEditDescription()"
+            tabindex="0"
+            role="button">
+            <div *ngIf="getTaskDescription(); else noDesc" [innerHTML]="getTaskDescription()"></div>
+            <ng-template #noDesc>
+              <p class="no-content"><mat-icon>info</mat-icon> Click to add description</p>
+            </ng-template>
+          </div>
+          <textarea
+            *ngIf="editingField === 'description'"
+            class="description-textarea"
+            [(ngModel)]="editDescValue"
+            (blur)="saveDescription()"
+            placeholder="Describe the task"
+            rows="6"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Assignment & Project -->
+      <section class="details-card">
+        <div class="card-head">
+          <mat-icon>group</mat-icon>
+          <h2>Assignment & Project</h2>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Assignees</label>
+            <div class="value value--chips" *ngIf="getTaskAssignees().length > 0; else noAssignees">
+              <span class="chip" *ngFor="let a of getTaskAssignees()"><mat-icon>person</mat-icon> {{ a }}</span>
+            </div>
+            <ng-template #noAssignees><p class="no-content"><mat-icon>person_off</mat-icon> Not assigned</p></ng-template>
+          </div>
+          <div class="field">
+            <label>Project</label>
+            <div class="value" *ngIf="getProjectName(); else noProject">
+              <mat-icon>folder</mat-icon> {{ getProjectName() }}
+            </div>
+            <ng-template #noProject><p class="no-content"><mat-icon>folder_off</mat-icon> No project</p></ng-template>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timeline & Progress -->
+      <section class="details-card">
+        <div class="card-head">
+          <mat-icon>schedule</mat-icon>
+          <h2>Timeline & Progress</h2>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Due date</label>
+            <div class="value" *ngIf="task.dueDate"><mat-icon>event</mat-icon> {{ task.dueDate | date:'fullDate' }}</div>
+            <p class="no-content" *ngIf="!task.dueDate"><mat-icon>event_busy</mat-icon> No due date</p>
+          </div>
+          <div class="field">
+            <label>Estimated hours</label>
+            <div class="value" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon> {{ task.estimatedHours }}h</div>
+            <p class="no-content" *ngIf="!task.estimatedHours">—</p>
+          </div>
+          <div class="field" *ngIf="task.status === 'in-progress' || task.status === 'done'">
+            <label>Progress</label>
+            <div class="progress-wrap">
+              <mat-progress-bar [value]="task.progress || 0" color="primary" mode="determinate"></mat-progress-bar>
+              <span class="progress-label">{{ task.progress || 0 }}%</span>
+            </div>
+          </div>
+          <div class="field" *ngIf="task.timeTaken != null">
+            <label>Time taken</label>
+            <div class="value"><mat-icon>timer</mat-icon> {{ task.timeTaken }}h</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Additional details -->
+      <section class="details-card">
+        <div class="card-head">
+          <mat-icon>info</mat-icon>
+          <h2>Details</h2>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Created by</label>
+            <div class="value">{{ task.createdByName || task.createdby || task.createdBy || '—' }}</div>
+          </div>
+          <div class="field" *ngIf="task.updatedAt">
+            <label>Last updated</label>
+            <div class="value">{{ task.updatedAt | date:'medium' }}</div>
+            <div class="value value--muted" *ngIf="task.updatedByName">by {{ task.updatedByName }}</div>
+          </div>
+          <div class="field" *ngIf="task.tags?.length">
+            <label>Tags</label>
+            <div class="value value--chips">
+              <span class="chip chip--tag" *ngFor="let tag of task.tags"><mat-icon>label</mat-icon> {{ tag }}</span>
+            </div>
+          </div>
+          <div class="field" *ngIf="task.isActive !== undefined">
+            <label>Active</label>
+            <div class="value" [class.value--success]="task.isActive" [class.value--muted]="!task.isActive">
+              <mat-icon>{{ task.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ task.isActive ? 'Yes' : 'No' }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Legacy (if any) -->
+      <section class="details-card details-card--wide" *ngIf="task?.req_id_name || task?.req_task_id || task?.packageName">
+        <div class="card-head">
+          <mat-icon>history</mat-icon>
+          <h2>Legacy</h2>
+        </div>
+        <div class="card-body legacy-grid">
+          <div class="field" *ngIf="task?.req_id_name"><label>Req ID name</label><div class="value">{{ task?.req_id_name }}</div></div>
+          <div class="field" *ngIf="task?.req_task_id"><label>Req task ID</label><div class="value">{{ task?.req_task_id }}</div></div>
+          <div class="field" *ngIf="task?.packageName"><label>Package</label><div class="value">{{ task?.packageName }}</div></div>
+          <div class="field" *ngIf="task?.section"><label>Section</label><div class="value">{{ task?.section }}</div></div>
+          <div class="field" *ngIf="task?.milestone"><label>Milestone</label><div class="value">{{ task?.milestone }}</div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import { TypesformComponent } from './pages/types/typesform/typesform.component'
 import { TodoComponent } from './pages/todo/todo.component';
 import { InvoiceComponent } from './pages/invoice/invoice.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
+import { TaskDetailsComponent } from './pages/tasks/task-details/task-details.component';
 import { CalendarComponent } from './pages/calendar/calendar.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -38,7 +39,8 @@ const routes: Routes = [
       { path: 'todo', component: TodoComponent },
       { path: 'invoice', component: InvoiceComponent },
       {path:'cred-vault',component:CredVaultComponent},
-      {path: 'tasks', component: TasksComponent},
+      { path: 'tasks', component: TasksComponent },
+      { path: 'tasks/:id', component: TaskDetailsComponent },
       {path: 'calendar', component: CalendarComponent},
       {path: 'home', component: HomeComponent},
       { path: 'profile', component: ProfileComponent },
