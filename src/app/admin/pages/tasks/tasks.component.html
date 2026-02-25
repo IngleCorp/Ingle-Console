@@ -7,11 +7,11 @@
         <p class="page-subtitle">Organize and track work</p>
       </div>
       <div class="header-actions">
-        <button mat-stroked-button class="btn-ghost" (click)="copyTaskList()" matTooltip="Copy task list">
+        <button class="btn-ghost" (click)="copyTaskList()" matTooltip="Copy task list">
           <mat-icon>content_copy</mat-icon>
           <span class="btn-label">Copy</span>
         </button>
-        <button mat-raised-button color="primary" class="btn-primary" (click)="openTaskDialog(false)">
+        <button class="btn-primary" (click)="openTaskDialog(false)">
           <mat-icon>add</mat-icon>
           <span class="btn-label">Add Task</span>
         </button>
@@ -81,26 +81,53 @@
   <!-- Kanban Board -->
   <div class="board-scroll" *ngIf="viewMode === 'kanban'">
     <div class="kanban-board" cdkDropListGroup>
-      <!-- To Do -->
+
+      <!-- ── To Do ── -->
       <section class="column" data-status="todo">
         <div class="column-head">
           <span class="column-dot column-dot--todo"></span>
           <h2 class="column-title">To Do</h2>
           <span class="column-count">{{ todoTasks.length }}</span>
+          <button class="col-head-add" (click)="openQuickAdd('todo')" *ngIf="quickAddColumn !== 'todo'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="col-head-add col-head-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'todo'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
+        <!-- Quick-add card — top of column -->
+        <div class="quick-add-card" *ngIf="quickAddColumn === 'todo'">
+          <input
+            class="qa-input"
+            [(ngModel)]="quickAddTitle"
+            placeholder="Task Name..."
+            autofocus
+            (keydown.enter)="saveQuickAdd()"
+            (keydown.escape)="cancelQuickAdd()">
+          <button class="qa-save-btn" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon>
+            Save
+          </button>
+          <div class="qa-meta-row">
+            <span class="qa-meta-item"><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span class="qa-meta-item"><mat-icon>calendar_today</mat-icon> Date</span>
+            <span class="qa-meta-item"><mat-icon>flag_outlined</mat-icon> Priority</span>
+            <span class="qa-meta-item"><mat-icon>label_outline</mat-icon> Tag</span>
+          </div>
+        </div>
+
         <div class="column-cards" cdkDropList [id]="'todo'" [cdkDropListData]="todoTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article
             class="card"
             *ngFor="let task of todoTasks"
             cdkDrag
             [cdkDragData]="task"
-            [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'"
-          >
+            [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -116,14 +143,12 @@
               <p class="card-desc" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></p>
               <div class="card-meta">
                 <span class="meta" *ngIf="getTaskAssignees(task).length > 0">
-                  <mat-icon>person_outline</mat-icon>
-                  {{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
+                  <mat-icon>person</mat-icon>{{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
                 </span>
                 <span class="meta" *ngIf="getTaskProjectId(task)">
-                  <mat-icon>folder_outlined</mat-icon>
-                  {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  <mat-icon>folder</mat-icon>{{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
                 </span>
-                <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'shortDate' }}</span>
+                <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon>{{ task.estimatedHours }}h</span>
               </div>
             </div>
@@ -131,13 +156,40 @@
         </div>
       </section>
 
-      <!-- In Progress -->
+      <!-- ── In Progress ── -->
       <section class="column" data-status="progress">
         <div class="column-head">
           <span class="column-dot column-dot--progress"></span>
           <h2 class="column-title">In Progress</h2>
           <span class="column-count">{{ inProgressTasks.length }}</span>
+          <button class="col-head-add" (click)="openQuickAdd('in-progress')" *ngIf="quickAddColumn !== 'in-progress'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="col-head-add col-head-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'in-progress'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
+        <!-- Quick-add card — top of column -->
+        <div class="quick-add-card" *ngIf="quickAddColumn === 'in-progress'">
+          <input
+            class="qa-input"
+            [(ngModel)]="quickAddTitle"
+            placeholder="Task Name..."
+            autofocus
+            (keydown.enter)="saveQuickAdd()"
+            (keydown.escape)="cancelQuickAdd()">
+          <button class="qa-save-btn" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon>
+            Save
+          </button>
+          <div class="qa-meta-row">
+            <span class="qa-meta-item"><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span class="qa-meta-item"><mat-icon>calendar_today</mat-icon> Date</span>
+            <span class="qa-meta-item"><mat-icon>flag_outlined</mat-icon> Priority</span>
+            <span class="qa-meta-item"><mat-icon>label_outline</mat-icon> Tag</span>
+          </div>
+        </div>
+
         <div class="column-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="inProgressTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of inProgressTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
@@ -148,7 +200,7 @@
               </div>
               <div class="card-actions">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -163,14 +215,12 @@
               <p class="card-desc" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></p>
               <div class="card-meta">
                 <span class="meta" *ngIf="getTaskAssignees(task).length > 0">
-                  <mat-icon>person_outline</mat-icon>
-                  {{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
+                  <mat-icon>person</mat-icon>{{ getTaskAssignees(task)[0] }}{{ getTaskAssignees(task).length > 1 ? ' +' + (getTaskAssignees(task).length - 1) : '' }}
                 </span>
                 <span class="meta" *ngIf="getTaskProjectId(task)">
-                  <mat-icon>folder_outlined</mat-icon>
-                  {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  <mat-icon>folder</mat-icon>{{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
                 </span>
-                <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'shortDate' }}</span>
+                <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon>{{ task.estimatedHours }}h</span>
               </div>
             </div>
@@ -178,20 +228,47 @@
         </div>
       </section>
 
-      <!-- Done -->
+      <!-- ── Done ── -->
       <section class="column" data-status="done">
         <div class="column-head">
           <span class="column-dot column-dot--done"></span>
           <h2 class="column-title">Done</h2>
           <span class="column-count">{{ doneTasks.length }}</span>
+          <button class="col-head-add" (click)="openQuickAdd('done')" *ngIf="quickAddColumn !== 'done'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="col-head-add col-head-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'done'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
+        <!-- Quick-add card — top of column -->
+        <div class="quick-add-card" *ngIf="quickAddColumn === 'done'">
+          <input
+            class="qa-input"
+            [(ngModel)]="quickAddTitle"
+            placeholder="Task Name..."
+            autofocus
+            (keydown.enter)="saveQuickAdd()"
+            (keydown.escape)="cancelQuickAdd()">
+          <button class="qa-save-btn" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon>
+            Save
+          </button>
+          <div class="qa-meta-row">
+            <span class="qa-meta-item"><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span class="qa-meta-item"><mat-icon>calendar_today</mat-icon> Date</span>
+            <span class="qa-meta-item"><mat-icon>flag_outlined</mat-icon> Priority</span>
+            <span class="qa-meta-item"><mat-icon>label_outline</mat-icon> Tag</span>
+          </div>
+        </div>
+
         <div class="column-cards" cdkDropList [id]="'done'" [cdkDropListData]="doneTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of doneTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
                 <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
@@ -205,7 +282,7 @@
               </div>
               <p class="card-desc" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></p>
               <div class="card-meta">
-                <span class="meta" *ngIf="task.updatedAt"><mat-icon>check_circle</mat-icon>Done {{ task.updatedAt | date:'shortDate' }}</span>
+                <span class="meta" *ngIf="task.updatedAt"><mat-icon>check_circle</mat-icon>{{ task.updatedAt | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.timeTaken"><mat-icon>timer</mat-icon>{{ task.timeTaken }}h</span>
               </div>
             </div>
@@ -213,20 +290,47 @@
         </div>
       </section>
 
-      <!-- On Hold -->
+      <!-- ── On Hold ── -->
       <section class="column" data-status="hold">
         <div class="column-head">
           <span class="column-dot column-dot--hold"></span>
           <h2 class="column-title">On Hold</h2>
           <span class="column-count">{{ holdTasks.length }}</span>
+          <button class="col-head-add" (click)="openQuickAdd('hold')" *ngIf="quickAddColumn !== 'hold'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="col-head-add col-head-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'hold'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
+        <!-- Quick-add card — top of column -->
+        <div class="quick-add-card" *ngIf="quickAddColumn === 'hold'">
+          <input
+            class="qa-input"
+            [(ngModel)]="quickAddTitle"
+            placeholder="Task Name..."
+            autofocus
+            (keydown.enter)="saveQuickAdd()"
+            (keydown.escape)="cancelQuickAdd()">
+          <button class="qa-save-btn" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon>
+            Save
+          </button>
+          <div class="qa-meta-row">
+            <span class="qa-meta-item"><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span class="qa-meta-item"><mat-icon>calendar_today</mat-icon> Date</span>
+            <span class="qa-meta-item"><mat-icon>flag_outlined</mat-icon> Priority</span>
+            <span class="qa-meta-item"><mat-icon>label_outline</mat-icon> Tag</span>
+          </div>
+        </div>
+
         <div class="column-cards" cdkDropList [id]="'hold'" [cdkDropListData]="holdTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of holdTasks" cdkDrag [cdkDragData]="task">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Resume"><mat-icon>play_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -242,15 +346,15 @@
               <p class="card-desc" *ngIf="getTaskDescription(task)" [innerHTML]="getTaskDescription(task)"></p>
               <div class="card-meta">
                 <span class="meta" *ngIf="getTaskProjectId(task)">
-                  <mat-icon>folder_outlined</mat-icon>
-                  {{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
+                  <mat-icon>folder</mat-icon>{{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
                 </span>
-                <span class="meta" *ngIf="task.updatedAt"><mat-icon>schedule</mat-icon>Hold {{ task.updatedAt | date:'shortDate' }}</span>
+                <span class="meta" *ngIf="task.updatedAt"><mat-icon>schedule</mat-icon>{{ task.updatedAt | date:'MMM d' }}</span>
               </div>
             </div>
           </article>
         </div>
       </section>
+
     </div>
   </div>
 

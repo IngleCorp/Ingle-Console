@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -93,6 +93,18 @@ export class TasksComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  // Close quick-add on outside click — only when the input is still empty
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.quickAddColumn) return;
+    const target = event.target as HTMLElement;
+    // Always keep open if the click is inside the card or its trigger button
+    if (target.closest('.quick-add-card') || target.closest('.col-head-add')) return;
+    // Only auto-close when nothing has been typed yet
+    if (this.quickAddTitle.trim()) return;
+    this.cancelQuickAdd();
+  }
+
   tasks: Task[] = [];
   todoTasks: Task[] = [];
   inProgressTasks: Task[] = [];
@@ -124,6 +136,14 @@ export class TasksComponent implements OnInit {
 
   /** List view: available project labels for project filter */
   projectFilterLabels: string[] = [];
+
+  // ── Quick-add inline card ──────────────────────────────────────
+  /** Which column has the quick-add card open: null = none */
+  quickAddColumn: Task['status'] | null = null;
+  /** Quick-add input value */
+  quickAddTitle = '';
+  /** Saving indicator for quick-add */
+  quickAddSaving = false;
 
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
@@ -460,6 +480,47 @@ export class TasksComponent implements OnInit {
     this.inProgressTasks = tasksToCategorize.filter(task => task.status === 'in-progress');
     this.doneTasks = tasksToCategorize.filter(task => task.status === 'done');
     this.holdTasks = tasksToCategorize.filter(task => task.status === 'hold');
+  }
+
+  // ── Quick-add ────────────────────────────────────────────────────
+  openQuickAdd(status: Task['status']): void {
+    this.quickAddColumn = status;
+    this.quickAddTitle = '';
+  }
+
+  cancelQuickAdd(): void {
+    this.quickAddColumn = null;
+    this.quickAddTitle = '';
+  }
+
+  async saveQuickAdd(): Promise<void> {
+    const title = this.quickAddTitle.trim();
+    if (!title || this.quickAddSaving) return;
+    this.quickAddSaving = true;
+    try {
+      const user = await this.auth.currentUser;
+      const now = new Date();
+      await this.firestore.collection('tasks').add({
+        title,
+        task: title,
+        status: this.quickAddColumn!,
+        priority: 'medium',
+        assignees: [],
+        category: 'general',
+        isActive: true,
+        progress: 0,
+        createdAt: now,
+        createdBy: user?.uid || '',
+        createdByName: user?.displayName || user?.email || 'Unknown',
+        updatedAt: now,
+      });
+      this.showNotification('Task added', 'success');
+      this.cancelQuickAdd();
+    } catch {
+      this.showNotification('Error adding task', 'error');
+    } finally {
+      this.quickAddSaving = false;
+    }
   }
 
   openTaskDialog(isEditing: boolean, task?: Task): void {

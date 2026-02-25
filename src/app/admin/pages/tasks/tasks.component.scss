@@ -1,677 +1,717 @@
-// ——— Tasks: Apple-inspired, modern, responsive ———
-$bg: #f5f5f7;
-$surface: #ffffff;
-$text: #1d1d1f;
-$text2: #6e6e73;
-$border: rgba(0, 0, 0, 0.08);
-$radius: 12px;
-$radius-sm: 8px;
-$shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
-$blue: #0071e3;
-$green: #34c759;
-$orange: #ff9f0a;
-$red: #ff3b30;
-$gray: #8e8e93;
+// ClickUp-inspired board – clean, flat, minimal
+$bg:       #f3f3f3;
+$surface:  #ffffff;
+$border:   #e3e3e5;
+$text:     #1c1c1f;
+$text2:    #6b6b7b;
+$text3:    #a0a0b0;
+$blue:     #7b68ee;
+$green:    #6bc17a;
+$orange:   #f59e0b;
+$red:      #ef4444;
+$gray:     #9ca3af;
+$radius:   6px;
+$hdr-h:    44px;
 
+// ─── Container ────────────────────────────────────────────────────
 .tasks-container {
   background: $bg;
   min-height: 100vh;
-  padding: 20px 24px 32px;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
-
-  @media (max-width: 768px) {
-    padding: 12px 16px 24px;
-  }
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.875rem;
+  color: $text;
 }
 
-// ——— Header ———
+// ─── Page header ──────────────────────────────────────────────────
 .page-header {
-  margin-bottom: 20px;
+  padding: 12px 20px 0;
+  flex-shrink: 0;
+
   .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    gap: 12px;
   }
+
   .header-left {
     .page-title {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.125rem;
       font-weight: 600;
       color: $text;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
+      line-height: 1.3;
     }
     .page-subtitle {
-      margin: 4px 0 0 0;
-      font-size: 0.9375rem;
+      margin: 2px 0 0;
+      font-size: 0.8125rem;
       color: $text2;
-      font-weight: 400;
     }
   }
+
   .header-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    .btn-ghost,
-    .btn-primary {
-      border-radius: $radius-sm;
+    gap: 8px;
+
+    .btn-ghost {
+      height: 32px;
+      border-radius: $radius;
+      border: 1px solid $border;
+      background: $surface;
+      color: $text2;
+      font-size: 0.8125rem;
       font-weight: 500;
-      font-size: 0.875rem;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+      gap: 5px;
+      padding: 0 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      mat-icon { font-size: 16px; width: 16px; height: 16px; }
+      &:hover { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.14); }
     }
-    .btn-ghost {
-      border-color: $border;
-      color: $text2;
-      &:hover {
-        background: rgba(0, 0, 0, 0.04);
-        border-color: rgba(0, 0, 0, 0.12);
-      }
-    }
+
     .btn-primary {
+      height: 32px;
+      border-radius: $radius;
       background: $blue;
       color: #fff;
-      &:hover {
-        background: #0077ed;
-        box-shadow: 0 4px 12px rgba(0, 113, 227, 0.35);
-      }
+      font-size: 0.8125rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 14px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      mat-icon { font-size: 16px; width: 16px; height: 16px; }
+      &:hover { background: darken(#7b68ee, 8%); }
     }
-    @media (max-width: 480px) {
-      .btn-label { display: none; }
-    }
+
+    @media (max-width: 480px) { .btn-label { display: none; } }
   }
 }
 
-// ——— Toolbar (search + filters) ———
+// ─── Toolbar ──────────────────────────────────────────────────────
 .toolbar {
   display: flex;
-  align-items: stretch;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 10px 14px;
-  border-radius: $radius;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 245, 247, 0.9));
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  flex-shrink: 0;
   flex-wrap: wrap;
-  backdrop-filter: blur(18px);
+
   .search-wrap {
-    flex: 1.3;
-    min-width: 220px;
-    max-width: 420px;
     position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+
     .search-icon {
       position: absolute;
-      left: 12px;
+      left: 10px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      color: $text2;
+      font-size: 16px !important;
+      width: 16px !important;
+      height: 16px !important;
+      color: $text3;
       pointer-events: none;
     }
+
     .search-input {
       width: 100%;
-      height: 42px;
-      padding: 0 12px 0 40px;
+      height: 32px;
+      padding: 0 10px 0 34px;
       border: 1px solid $border;
-      border-radius: $radius-sm;
+      border-radius: $radius;
       background: $surface;
-      font-size: 0.9375rem;
+      font-size: 0.8125rem;
       color: $text;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      &::placeholder {
-        color: $text2;
-      }
+      transition: border-color 0.15s, box-shadow 0.15s;
+      &::placeholder { color: $text3; }
       &:focus {
         border-color: $blue;
-        box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.18);
+        box-shadow: 0 0 0 2px rgba(123,104,238,0.15);
       }
     }
   }
+
   .filters-wrap {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    flex: 2;
+    gap: 8px;
     flex-wrap: wrap;
+
     .filter-field {
-      width: 150px;
-      font-size: 0.875rem;
+      width: 130px;
       ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
       ::ng-deep .mat-mdc-text-field-wrapper {
-        padding: 0 12px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: $radius-sm;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        padding: 0 10px;
+        background: $surface;
+        border-radius: $radius;
+        border: 1px solid $border;
       }
-      ::ng-deep .mat-mdc-form-field-flex { height: 42px; align-items: center; }
-      ::ng-deep .mat-mdc-select-value { font-size: 0.875rem; }
-      &:hover {
-        ::ng-deep .mat-mdc-text-field-wrapper {
-          border-color: rgba(0, 0, 0, 0.12);
-        }
-      }
+      ::ng-deep .mat-mdc-form-field-flex { height: 32px; align-items: center; }
+      ::ng-deep .mat-mdc-select-value { font-size: 0.8125rem; color: $text2; }
+      ::ng-deep .mat-mdc-floating-label { font-size: 0.8125rem; }
     }
+
     .view-toggle {
       display: flex;
       align-items: center;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 999px;
+      border: 1px solid $border;
+      border-radius: $radius;
       overflow: hidden;
       background: $surface;
+      margin-left: 4px;
+
       .view-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 0 14px;
-        height: 40px;
+        gap: 5px;
+        padding: 0 12px;
+        height: 32px;
         border: none;
         background: transparent;
         color: $text2;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         font-weight: 500;
         cursor: pointer;
-        transition: background 0.2s, color 0.2s;
+        transition: background 0.15s, color 0.15s;
+
         mat-icon {
-          display: inline-flex;
+          font-size: 18px !important;
+          width: 18px !important;
+          height: 18px !important;
+          display: inline-flex !important;
           align-items: center;
-          justify-content: center;
-          font-size: 22px !important;
-          width: 22px !important;
-          height: 22px !important;
-          line-height: 1;
-          color: inherit;
-          flex-shrink: 0;
-          ::ng-deep svg {
-            width: 22px;
-            height: 22px;
-          }
+          line-height: 1 !important;
         }
-        &:hover {
-          background: rgba(0, 0, 0, 0.04);
-          color: $text;
-        }
+
+        &:hover { background: rgba(0,0,0,0.04); color: $text; }
+
         &.view-btn--active {
-          background: rgba(0, 113, 227, 0.16);
+          background: rgba(123,104,238,0.12);
           color: $blue;
-          mat-icon {
-            color: inherit;
-          }
         }
+
         .view-label {
           @media (max-width: 600px) { display: none; }
         }
       }
     }
   }
-  @media (max-width: 768px) {
-    padding: 10px 12px;
-    .search-wrap {
-      max-width: none;
-      flex-basis: 100%;
-    }
-    .filters-wrap {
-      justify-content: flex-start;
-    }
-    .filters-wrap .filter-field {
-      width: 135px;
-    }
-  }
-  @media (max-width: 480px) {
-    gap: 10px;
-    .filters-wrap {
-      gap: 8px;
-    }
-    .filters-wrap .filter-field {
-      width: 100%;
-      max-width: none;
-    }
-  }
 }
 
-// ——— Board (horizontal scroll on small) ———
+// ─── Board scroll wrapper ──────────────────────────────────────────
 .board-scroll {
+  flex: 1;
   overflow-x: auto;
-  overflow-y: visible;
-  margin: 0 -24px;
-  padding: 0 24px;
+  overflow-y: hidden;
+  padding: 0 20px 20px;
   -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar { height: 8px; }
+
+  &::-webkit-scrollbar { height: 6px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 4px; }
-  @media (max-width: 768px) {
-    margin: 0 -16px;
-    padding: 0 16px;
-  }
+  &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 }
 
+// ─── Kanban board grid ────────────────────────────────────────────
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(4, minmax(280px, 1fr));
-  gap: 20px;
-  min-width: min(100%, 1280px);
-  margin: 0 auto;
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
+  gap: 12px;
+  min-width: min(100%, 1120px);
+  height: calc(100vh - 160px);
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    height: auto;
   }
-  @media (max-width: 640px) {
-    grid-template-columns: minmax(280px, 1fr);
-    gap: 16px;
+  @media (max-width: 600px) {
+    grid-template-columns: minmax(260px, 1fr);
+    gap: 10px;
   }
 }
 
-// ——— Column ———
+// ─── Column ───────────────────────────────────────────────────────
 .column {
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  min-height: 400px;
-  background: $surface;
-  border-radius: $radius;
-  box-shadow: $shadow;
-  border: 1px solid $border;
+  background: #ebebec;
+  border-radius: 8px;
   overflow: hidden;
+  min-height: 0;
+
   .column-head {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    border-bottom: 1px solid $border;
+    gap: 6px;
+    padding: 9px 10px 9px 12px;
     flex-shrink: 0;
+    background: transparent;
   }
+
   .column-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
-    &--todo { background: $gray; }
+    &--todo     { background: $gray; }
     &--progress { background: $blue; }
-    &--done { background: $green; }
-    &--hold { background: $orange; }
+    &--done     { background: $green; }
+    &--hold     { background: $orange; }
   }
+
   .column-title {
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: $text;
     flex: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
   }
+
   .column-count {
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: $text2;
-    background: rgba(0, 0, 0, 0.06);
-    padding: 2px 8px;
+    background: rgba(0,0,0,0.08);
+    padding: 1px 7px;
     border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
   }
+
+  // + / × button pinned to the right of the column header
+  .col-head-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: $text2;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+    overflow: hidden;
+
+    // Pierce any inherited Material icon styles
+    ::ng-deep mat-icon,
+    mat-icon {
+      font-size: 16px !important;
+      width: 16px !important;
+      height: 16px !important;
+      line-height: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      color: inherit !important;
+    }
+
+    &:hover {
+      background: rgba(123,104,238,0.12);
+      color: $blue;
+    }
+
+    &--cancel {
+      color: $red;
+      &:hover {
+        background: rgba(239,68,68,0.1);
+        color: darken(#ef4444, 8%);
+      }
+    }
+  }
+
   .column-cards {
     flex: 1;
-    padding: 12px;
     overflow-y: auto;
-    max-height: calc(100vh - 280px);
-    min-height: 200px;
-    &::-webkit-scrollbar { width: 6px; }
-    &::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.12); border-radius: 3px; }
+    padding: 4px 8px 6px;
+    min-height: 60px;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
   }
 }
 
-// ——— Card (Kanban, draggable) ———
+// ─── Card ─────────────────────────────────────────────────────────
 .card {
   background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-sm;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  transition: box-shadow 0.2s, border-color 0.2s;
-  break-inside: avoid;
+  border-radius: 6px;
+  padding: 10px 12px 8px;
+  margin-bottom: 6px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
   cursor: grab;
+  position: relative;
+
   &:last-child { margin-bottom: 0; }
+
   &:hover {
-    box-shadow: $shadow-hover;
-    border-color: rgba(0, 0, 0, 0.1);
-    .card-actions { opacity: 1; }
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    .card-actions { opacity: 1; pointer-events: auto; }
   }
+
   &.card--urgent {
-    border-left: 3px solid $red;
+    border-left: 3px solid $red !important;
   }
+
+  // ── Top row: priority bar + progress + actions ──
   .card-top {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 6px;
+    min-height: 22px;
   }
+
   .card-priority {
     width: 3px;
-    height: 18px;
+    height: 14px;
     border-radius: 2px;
     flex-shrink: 0;
   }
+
   .progress-inline {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
-    ::ng-deep .mat-mdc-progress-bar { height: 6px; border-radius: 3px; }
+    ::ng-deep .mat-mdc-progress-bar {
+      height: 4px;
+      border-radius: 2px;
+      flex: 1;
+    }
     .progress-num {
-      font-size: 0.75rem;
-      font-weight: 500;
+      font-size: 0.6875rem;
+      font-weight: 600;
       color: $text2;
       flex-shrink: 0;
     }
   }
+
+  // Actions: hidden until hover, right-aligned
   .card-actions {
     display: flex;
-    gap: 2px;
+    gap: 1px;
     margin-left: auto;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+
     button {
-      width: 32px !important;
-      height: 32px !important;
-      min-width: 32px !important;
+      width: 26px !important;
+      height: 26px !important;
+      min-width: 26px !important;
       padding: 0 !important;
-      border-radius: 6px !important;
+      border-radius: 4px !important;
+      color: $text2 !important;
+
       mat-icon {
-        font-size: 18px !important;
-        width: 18px !important;
-        height: 18px !important;
+        font-size: 15px !important;
+        width: 15px !important;
+        height: 15px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1 !important;
+      }
+
+      &:hover {
+        background: rgba(0,0,0,0.06) !important;
+        color: $text !important;
       }
     }
-    @media (hover: none) { opacity: 1; }
+
+    @media (hover: none) { opacity: 1; pointer-events: auto; }
   }
+
+  // ── Body ──
   .card-body {
     .card-title {
-      margin: 0 0 6px 0;
-      font-size: 0.9375rem;
-      font-weight: 600;
+      margin: 0 0 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
       color: $text;
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .tag {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      &.tag--category {
-        &.tag--general { background: #e5e5ea; color: #6e6e73; }
-        &.tag--clientProject { background: #e5f0ff; color: #0071e3; }
-        &.tag--ownProject { background: #e5f9ed; color: #248a3d; }
-      }
-      &.tag--priority {
-        color: #fff;
-      }
-    }
-    .card-desc {
-      margin: 0 0 8px 0;
-      font-size: 0.8125rem;
-      color: $text2;
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      ::ng-deep p { margin: 0 0 4px 0; }
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 7px;
+    }
+
+    .card-desc {
+      margin: 0 0 7px;
+      font-size: 0.75rem;
+      color: $text2;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      ::ng-deep p { margin: 0 0 2px; }
       ::ng-deep p:last-child { margin: 0; }
     }
+
     .card-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px 14px;
+      align-items: center;
+      gap: 6px 10px;
+      padding-top: 5px;
+      border-top: 1px solid $border;
+
       .meta {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        font-size: 0.75rem;
+        gap: 3px;
+        font-size: 0.6875rem;
         color: $text2;
+
         mat-icon {
-          font-size: 14px;
-          width: 14px;
-          height: 14px;
+          font-size: 13px !important;
+          width: 13px !important;
+          height: 13px !important;
+          display: inline-flex !important;
+          align-items: center;
+          line-height: 1 !important;
         }
       }
     }
   }
 }
 
-// Kanban drag and drop (CDK)
+// ── Tags ──────────────────────────────────────────────────────────
+.tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  &.tag--category {
+    &.tag--general       { background: #f0f0f0;   color: #6b6b7b; }
+    &.tag--clientProject { background: #ede9ff;   color: #5b46e0; }
+    &.tag--ownProject    { background: #e6f7ec;   color: #1d7a3e; }
+  }
+  &.tag--priority { color: #fff; }
+}
+
+// ── CDK drag-drop ─────────────────────────────────────────────────
 .column-cards {
   .cdk-drag-preview {
-    box-shadow: $shadow-hover;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
     opacity: 0.95;
     cursor: grabbing;
-    border-radius: $radius-sm;
+    border-radius: 6px;
     background: $surface;
   }
   .cdk-drag-placeholder {
-    opacity: 0.4;
-    border: 2px dashed $border;
-    border-radius: $radius-sm;
-    margin-bottom: 10px;
-    min-height: 60px;
+    opacity: 0;
+    min-height: 48px;
+    margin-bottom: 6px;
+    background: rgba(123,104,238,0.06);
+    border: 2px dashed rgba(123,104,238,0.3);
+    border-radius: 6px;
   }
-  .cdk-drag-animating {
-    transition: transform 0.2s ease;
-  }
+  .cdk-drag-animating { transition: transform 0.18s ease; }
 }
-.card.cdk-drag-dragging {
-  cursor: grabbing;
-}
+.card.cdk-drag-dragging { cursor: grabbing; }
 
-// ——— List View ———
+// ─── List View ────────────────────────────────────────────────────
 .list-view {
+  margin: 0 20px 20px;
   background: $surface;
-  border-radius: $radius;
+  border-radius: 8px;
   border: 1px solid $border;
-  box-shadow: $shadow;
   overflow: hidden;
 }
-.list-table {
-  min-width: 0;
-}
+
+.list-table { min-width: 0; }
+
 .list-head {
   display: grid;
   grid-template-columns:
-    minmax(220px, 2fr)      // Task
-    minmax(120px, 1fr)      // Category
-    minmax(110px, 1fr)      // Priority
-    minmax(120px, 1fr)      // Status
-    minmax(140px, 1.1fr)    // Assignee
-    minmax(160px, 1.2fr)    // Project
-    minmax(110px, 1fr)      // Due
-    minmax(90px, 0.7fr);    // Actions
-  gap: 12px 16px;
-  padding: 10px 16px 8px;
-  background: radial-gradient(circle at top left, rgba(0, 113, 227, 0.07), transparent 55%), rgba(0, 0, 0, 0.02);
+    minmax(200px, 2fr)
+    minmax(110px, 1fr)
+    minmax(100px, 1fr)
+    minmax(110px, 1fr)
+    minmax(130px, 1.1fr)
+    minmax(140px, 1.2fr)
+    minmax(100px, 1fr)
+    minmax(80px, 0.65fr);
+  gap: 8px 12px;
+  padding: 8px 14px 6px;
+  background: #f9f9fb;
   border-bottom: 1px solid $border;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   color: $text2;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   align-items: center;
-  .list-th {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-    min-width: 0;
-  }
+
+  .list-th { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
   .list-th-top {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
-    flex-wrap: nowrap;
   }
-  .list-th-label {
-    flex-shrink: 0;
-  }
+
+  .list-th-label { flex-shrink: 0; }
+
   .list-th-sort {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     padding: 0;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     background: transparent;
-    color: $text2;
+    color: $text3;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-      color: $text;
-    }
-    &.list-th-sort--active {
-      color: $blue;
-      background: rgba(0, 113, 227, 0.1);
-    }
+    transition: background 0.15s, color 0.15s;
+    mat-icon { font-size: 14px !important; width: 14px !important; height: 14px !important; }
+    &:hover { background: rgba(0,0,0,0.06); color: $text; }
+    &.list-th-sort--active { color: $blue; background: rgba(123,104,238,0.1); }
   }
+
   .list-th-filter {
     flex: 1;
-    min-width: 70px;
-    font-size: 0.75rem;
+    min-width: 60px;
     width: 100%;
     ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
     ::ng-deep .mat-mdc-text-field-wrapper {
-      padding: 0 8px;
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 6px;
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 0 6px;
+      background: $surface;
+      border-radius: 4px;
+      border: 1px solid $border;
     }
-    ::ng-deep .mat-mdc-form-field-flex { height: 32px; align-items: center; }
-    ::ng-deep .mat-mdc-select-value { font-size: 0.75rem; }
-    ::ng-deep .mat-mdc-select-arrow { width: 20px; }
+    ::ng-deep .mat-mdc-form-field-flex { height: 26px; align-items: center; }
+    ::ng-deep .mat-mdc-select-value { font-size: 0.6875rem; }
     &.list-th-filter--active {
       ::ng-deep .mat-mdc-text-field-wrapper {
         border-color: $blue;
-        background: rgba(0, 113, 227, 0.08);
-        box-shadow: 0 0 0 1px rgba(0, 113, 227, 0.16);
+        background: rgba(123,104,238,0.06);
       }
     }
   }
+
   @media (max-width: 1024px) {
-    grid-template-columns: 1.3fr 110px 90px 110px 140px 90px;
+    grid-template-columns: 1.4fr 100px 85px 100px 130px 80px;
     .list-th--project { display: none; }
     .list-th--date { display: none; }
   }
   @media (max-width: 640px) {
-    grid-template-columns: 1.4fr 90px 80px;
-    .list-th--category { display: none; }
-    .list-th--priority { display: none; }
-    .list-th--project { display: none; }
+    grid-template-columns: 1.4fr 80px 75px;
+    .list-th--category, .list-th--priority, .list-th--project { display: none; }
   }
 }
-.list-body {
-  overflow-x: auto;
-}
+
+.list-body { overflow-x: auto; }
+
 .list-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 48px 24px;
   text-align: center;
   color: $text2;
-  border-bottom: 1px solid $border;
+
   mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
+    font-size: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
     margin-bottom: 12px;
-    opacity: 0.6;
+    opacity: 0.4;
   }
+
   .list-empty-title {
-    margin: 0 0 4px 0;
-    font-size: 1rem;
+    margin: 0 0 4px;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: $text;
   }
   .list-empty-hint {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: $text2;
   }
 }
+
 .list-row {
   display: grid;
   grid-template-columns:
-    minmax(220px, 2fr)
-    minmax(120px, 1fr)
+    minmax(200px, 2fr)
     minmax(110px, 1fr)
-    minmax(120px, 1fr)
-    minmax(140px, 1.1fr)
-    minmax(160px, 1.2fr)
+    minmax(100px, 1fr)
     minmax(110px, 1fr)
-    minmax(90px, 0.7fr);
-  gap: 12px 16px;
-  padding: 12px 16px;
+    minmax(130px, 1.1fr)
+    minmax(140px, 1.2fr)
+    minmax(100px, 1fr)
+    minmax(80px, 0.65fr);
+  gap: 8px 12px;
+  padding: 9px 14px;
   align-items: center;
   border-bottom: 1px solid $border;
-  transition: background 0.15s;
-  font-size: 0.875rem;
+  transition: background 0.12s;
+  font-size: 0.8125rem;
+
   &:last-child { border-bottom: none; }
-  &:hover {
-    background: rgba(0, 0, 0, 0.02);
-  }
-  &.list-row--urgent {
-    border-left: 3px solid $red;
-  }
+  &:hover { background: rgba(0,0,0,0.018); .list-actions { opacity: 1; } }
+  &.list-row--urgent { border-left: 3px solid $red; }
+
   @media (max-width: 1024px) {
-    grid-template-columns: 1.3fr 110px 90px 110px 140px 90px;
-    .list-cell--project { display: none; }
-    .list-cell--date { display: none; }
+    grid-template-columns: 1.4fr 100px 85px 100px 130px 80px;
+    .list-cell--project, .list-cell--date { display: none; }
   }
   @media (max-width: 640px) {
-    grid-template-columns: 1.4fr 90px 80px;
-    .list-cell--category { display: none; }
-    .list-cell--priority { display: none; }
-    .list-cell--project { display: none; }
+    grid-template-columns: 1.4fr 80px 75px;
+    .list-cell--category, .list-cell--priority, .list-cell--project { display: none; }
   }
 }
+
 .list-cell {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+
   &.list-cell--title {
     .list-priority {
       width: 3px;
-      height: 16px;
+      height: 14px;
       border-radius: 2px;
       flex-shrink: 0;
     }
@@ -685,91 +725,188 @@ $gray: #8e8e93;
       &:hover { color: $blue; }
     }
   }
-  &.list-cell--actions {
-    justify-content: flex-end;
-  }
+
+  &.list-cell--actions { justify-content: flex-end; }
 }
+
 .list-actions {
   display: flex;
-  gap: 2px;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+
   button {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
+    color: $text2 !important;
+
     mat-icon {
-      font-size: 18px !important;
-      width: 18px !important;
-      height: 18px !important;
+      font-size: 15px !important;
+      width: 15px !important;
+      height: 15px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      line-height: 1 !important;
     }
+
+    &:hover { background: rgba(0,0,0,0.06) !important; color: $text !important; }
   }
+
+  @media (hover: none) { opacity: 1; }
 }
+
 .status-pill {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 10px;
   white-space: nowrap;
-  &.status-pill--todo { background: #e5e5ea; color: #6e6e73; }
-  &.status-pill--in-progress { background: #e5f0ff; color: #0071e3; }
-  &.status-pill--done { background: #e5f9ed; color: #248a3d; }
-  &.status-pill--hold { background: #fff3e0; color: #c93400; }
+  &--todo        { background: #f0f0f0; color: #6b6b7b; }
+  &--in-progress { background: #ede9ff; color: #5b46e0; }
+  &--done        { background: #e6f7ec; color: #1d7a3e; }
+  &--hold        { background: #fff7e6; color: #b45309; }
 }
-.meta-sep { color: $text2; }
-.meta--muted { color: $text2; font-size: 0.8125rem; }
 
-// ——— States ———
+.meta--muted { color: $text3; font-size: 0.75rem; }
+.meta-sep    { color: $text3; }
+
+// ─── Loading / Empty states ────────────────────────────────────────
 .state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 60px 24px;
   text-align: center;
   color: $text2;
+
   &--loading {
     flex-direction: row;
     gap: 12px;
-    span { font-size: 0.9375rem; }
+    span { font-size: 0.9rem; }
   }
+
   &--empty {
     mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
+      font-size: 48px !important;
+      width: 48px !important;
+      height: 48px !important;
       margin-bottom: 12px;
-      opacity: 0.5;
+      opacity: 0.35;
     }
-    h3 {
-      margin: 0 0 4px 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: $text;
-    }
-    p {
-      margin: 0 0 20px 0;
-      font-size: 0.9375rem;
-    }
+    h3 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 600; color: $text; }
+    p  { margin: 0 0 20px; font-size: 0.875rem; }
     button {
-      border-radius: $radius-sm;
+      border-radius: $radius;
       font-weight: 500;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-    }
-    &.state--filtered {
-      mat-icon { font-size: 40px; width: 40px; height: 40px; }
-      h3 { font-size: 1.125rem; }
-      p { margin-bottom: 0; }
+      gap: 5px;
     }
   }
 }
 
-// ——— Task view dialog (global) ———
+// ─── Quick-add card ───────────────────────────────────────────────
+@keyframes qa-appear {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.quick-add-card {
+  margin: 6px 8px 4px;   // sits just below the header, above the card list
+  background: $surface;
+  border: 2px solid $blue;
+  border-radius: 8px;
+  padding: 10px 12px;
+  animation: qa-appear 0.15s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  // Input takes the first full row
+  .qa-input {
+    flex: 1 1 100%;
+    border: none;
+    outline: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: $text;
+    background: transparent;
+    font-family: inherit;
+    line-height: 1.4;
+    &::placeholder { color: $text3; font-weight: 400; }
+  }
+
+  // Save button aligns to the right on a second row alongside meta
+  .qa-save-btn {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 6px;
+    background: $blue;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+
+    mat-icon {
+      font-size: 14px !important;
+      width: 14px !important;
+      height: 14px !important;
+      display: inline-flex !important;
+      align-items: center;
+      line-height: 1 !important;
+    }
+
+    &:hover:not(:disabled) { background: darken(#7b68ee, 8%); }
+    &:disabled { opacity: 0.42; cursor: default; }
+  }
+
+  // Meta items row
+  .qa-meta-row {
+    flex: 1 1 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+}
+
+.qa-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  color: $text3;
+  cursor: pointer;
+  transition: color 0.12s;
+  user-select: none;
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    display: inline-flex !important;
+    align-items: center;
+    line-height: 1 !important;
+  }
+
+  &:hover { color: $blue; }
+}
+
+
+// ─── Task-view dialog ─────────────────────────────────────────────
 ::ng-deep .task-view-dialog-container .mat-dialog-container {
   padding: 0;
-  border-radius: $radius;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.14);
 }
