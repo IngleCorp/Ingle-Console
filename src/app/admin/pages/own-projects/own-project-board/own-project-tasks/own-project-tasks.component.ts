@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -25,7 +25,29 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
   taskonhold: any[] = [];
   isLoading = false;
   viewMode: 'kanban' | 'list' = 'kanban';
+
+  /** Quick-add state */
+  quickAddColumn: string | null = null;
+  quickAddTitle = '';
+  quickAddSaving = false;
+
   private tasksSub?: Subscription;
+
+  private readonly priorityColors: Record<string, string> = {
+    low: '#10b981',
+    medium: '#f59e0b',
+    high: '#ef4444',
+    urgent: '#dc2626'
+  };
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.quickAddColumn) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('.opt-quick-add') || target.closest('.opt-col-add')) return;
+    if (this.quickAddTitle.trim()) return;
+    this.cancelQuickAdd();
+  }
 
   constructor(
     private afs: AngularFirestore,
@@ -216,9 +238,80 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
       .catch(() => this.snackBar.open('Delete failed', 'Close', { duration: 3000 }));
   }
 
-  goToTaskDetail(taskId: string): void {
+  async goToTaskDetail(ownTaskId: string): Promise<void> {
     if (!this.projectId) return;
-    this.router.navigate(['tasks', taskId], { relativeTo: this.route.parent });
+
+    // Find the task in memory first
+    const task = this.taskdata.find(t => t.id === ownTaskId);
+
+    const navExtras = { queryParams: { source: 'ownProject', projectId: this.projectId } };
+
+    // If rootTaskId already exists, navigate straight to the shared task-details page
+    if (task?.rootTaskId) {
+      this.router.navigate(['/admin/tasks', task.rootTaskId], navExtras);
+      return;
+    }
+
+    // No rootTaskId — fetch the doc to be sure (handles stale in-memory data)
+    try {
+      const snap = await this.afs
+        .collection(OWN_PROJECTS_COLLECTION).doc(this.projectId)
+        .collection('tasks').doc(ownTaskId).get().toPromise();
+      const data = snap?.data() as any;
+
+      if (data?.rootTaskId) {
+        // Update in-memory cache
+        if (task) task.rootTaskId = data.rootTaskId;
+        this.router.navigate(['/admin/tasks', data.rootTaskId], navExtras);
+        return;
+      }
+
+      // Still no rootTaskId — create the root task doc now and link it
+      const projectSnap = await this.afs
+        .collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).get().toPromise();
+      const projectName = (projectSnap?.data() as any)?.name || 'Own Project';
+      const createdBy  = localStorage.getItem('userid')   || '';
+      const createdByName = localStorage.getItem('username') || 'Unknown';
+
+      const rootPayload = {
+        task:           data?.title || '',
+        title:          data?.title || '',
+        description:    data?.description || '',
+        status:         data?.status || 'todo',
+        priority:       data?.priority || 'medium',
+        progress:       data?.progress ?? 0,
+        assignees:      (data?.assigns || []).map((a: any) => a.uid),
+        assigns:        data?.assigns || [],
+        projectId:      this.projectId,
+        projectName,
+        projecttaged:   this.projectId,
+        createdAt:      data?.createdAt || new Date(),
+        createdBy:      data?.createdBy  || createdBy,
+        createdByName:  data?.createdByName || createdByName,
+        updatedAt:      new Date(),
+        isActive:       true,
+        category:       'ownProject',
+        source:         'ownProject',
+        ownProjectId:   this.projectId,
+        ownProjectTaskId: ownTaskId,
+        tags:           data?.tags || []
+      };
+
+      const rootRef = await this.afs.collection(ROOT_TASKS_COLLECTION).add(rootPayload);
+
+      // Write rootTaskId back to the own-project task
+      await this.afs
+        .collection(OWN_PROJECTS_COLLECTION).doc(this.projectId)
+        .collection('tasks').doc(ownTaskId)
+        .update({ rootTaskId: rootRef.id });
+
+      if (task) task.rootTaskId = rootRef.id;
+      this.router.navigate(['/admin/tasks', rootRef.id], navExtras);
+
+    } catch (e) {
+      console.error('Could not open task detail', e);
+      this.snackBar.open('Could not open task', 'Close', { duration: 3000 });
+    }
   }
 
   getAssigneesDisplay(task: any): string {
@@ -235,6 +328,65 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
   getStatusLabel(status: string): string {
     const map: Record<string, string> = { todo: 'To Do', 'in-progress': 'In Progress', done: 'Done', hold: 'On Hold' };
     return map[status] || status || 'To Do';
+  }
+
+  openQuickAdd(status: string): void {
+    this.quickAddColumn = status;
+    this.quickAddTitle = '';
+  }
+
+  cancelQuickAdd(): void {
+    this.quickAddColumn = null;
+    this.quickAddTitle = '';
+  }
+
+  async saveQuickAdd(): Promise<void> {
+    const title = this.quickAddTitle.trim();
+    if (!title || this.quickAddSaving || !this.projectId) return;
+    this.quickAddSaving = true;
+    const createdBy = localStorage.getItem('userid') || '';
+    const createdByName = localStorage.getItem('username') || 'Unknown';
+    const now = new Date();
+    const payload = {
+      title,
+      description: '',
+      status: this.quickAddColumn!,
+      priority: 'medium',
+      progress: 0,
+      assigns: [],
+      dueDate: null,
+      estimatedHours: null,
+      createdAt: now,
+      createdBy,
+      createdByName
+    };
+    try {
+      const docRef = await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId).collection('tasks').add(payload);
+      // Sync to root tasks collection
+      try {
+        const projectSnap = await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).get().toPromise();
+        const projectName = (projectSnap?.data() as any)?.name || 'Own Project';
+        const rootTaskData = {
+          task: title, title, description: '', status: this.quickAddColumn!, priority: 'medium',
+          progress: 0, assignees: [], assigns: [], projectId: this.projectId, projectName,
+          projecttaged: this.projectId, createdAt: now, createdBy, createdByName,
+          isActive: true, category: 'ownProject', source: 'ownProject',
+          ownProjectId: this.projectId, ownProjectTaskId: docRef.id
+        };
+        const rootRef = await this.afs.collection(ROOT_TASKS_COLLECTION).add(rootTaskData);
+        await this.afs.collection(OWN_PROJECTS_COLLECTION).doc(this.projectId!).collection('tasks').doc(docRef.id).update({ rootTaskId: rootRef.id });
+      } catch (e) { console.warn('Could not sync to main tasks', e); }
+      this.snackBar.open('Task added', 'Close', { duration: 2000 });
+      this.cancelQuickAdd();
+    } catch {
+      this.snackBar.open('Failed to add task', 'Close', { duration: 3000 });
+    } finally {
+      this.quickAddSaving = false;
+    }
+  }
+
+  getPriorityColor(priority: string): string {
+    return this.priorityColors[priority] || '#f59e0b';
   }
 
   trackByTask(_: number, task: any): string {

@@ -22,10 +22,10 @@
     <!-- ╔══ Top breadcrumb bar ══╗ -->
     <div class="tdp-topbar">
       <div class="tdp-breadcrumb">
-        <button mat-icon-button class="tdp-back-btn" (click)="onBack()" matTooltip="Back to Tasks">
+        <button mat-icon-button class="tdp-back-btn" (click)="onBack()" [matTooltip]="'Back to ' + sourceBreadcrumbLabel">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <span class="tdp-bc-item tdp-bc-item--muted">Tasks</span>
+        <span class="tdp-bc-item tdp-bc-item--muted">{{ sourceBreadcrumbLabel }}</span>
         <mat-icon class="tdp-bc-sep">chevron_right</mat-icon>
         <span class="tdp-bc-item tdp-bc-id">{{ task.id }}</span>
       </div>
@@ -218,15 +218,24 @@
               Category
             </div>
             <div class="tdp-prop-value">
-              <button class="tdp-prop-btn" [matMenuTriggerFor]="catMenu">
-                {{ getCategoryLabel() }}
-                <mat-icon class="tdp-chevron">expand_more</mat-icon>
-              </button>
-              <mat-menu #catMenu="matMenu">
-                <button mat-menu-item *ngFor="let c of categories" (click)="saveCategory(c.value)">
-                  {{ c.label }}
+              <!-- Read-only when opened from own/client project -->
+              <ng-container *ngIf="isExternalSource; else editableCat">
+                <span class="tdp-prop-btn tdp-prop-btn--readonly" matTooltip="Category is fixed for this task source">
+                  {{ getCategoryLabel() }}
+                  <mat-icon class="tdp-lock-icon">lock_outline</mat-icon>
+                </span>
+              </ng-container>
+              <ng-template #editableCat>
+                <button class="tdp-prop-btn" [matMenuTriggerFor]="catMenu">
+                  {{ getCategoryLabel() }}
+                  <mat-icon class="tdp-chevron">expand_more</mat-icon>
                 </button>
-              </mat-menu>
+                <mat-menu #catMenu="matMenu">
+                  <button mat-menu-item *ngFor="let c of categories" (click)="saveCategory(c.value)">
+                    {{ c.label }}
+                  </button>
+                </mat-menu>
+              </ng-template>
             </div>
           </div>
 
@@ -237,57 +246,67 @@
               Project
             </div>
             <div class="tdp-prop-value tdp-project-value">
-              <button class="tdp-prop-btn" [matMenuTriggerFor]="projMenu">
-                <mat-icon>folder</mat-icon>
-                {{ getProjectName() || 'Empty' }}
-                <mat-icon class="tdp-chevron">expand_more</mat-icon>
-              </button>
+              <!-- Read-only when opened from own/client project -->
+              <ng-container *ngIf="isExternalSource; else editableProj">
+                <span class="tdp-prop-btn tdp-prop-btn--readonly" matTooltip="Project is fixed for this task source">
+                  <mat-icon>folder</mat-icon>
+                  {{ getProjectName() || 'Linked project' }}
+                  <mat-icon class="tdp-lock-icon">lock_outline</mat-icon>
+                </span>
+              </ng-container>
+              <ng-template #editableProj>
+                <button class="tdp-prop-btn" [matMenuTriggerFor]="projMenu">
+                  <mat-icon>folder</mat-icon>
+                  {{ getProjectName() || 'Empty' }}
+                  <mat-icon class="tdp-chevron">expand_more</mat-icon>
+                </button>
 
-              <!-- Open-in-page button — only shown when a project is selected -->
+                <!-- Single adaptive project menu — content switches based on category -->
+                <mat-menu #projMenu="matMenu">
+                  <div class="tdp-menu-search" (click)="$event.stopPropagation()">
+                    <mat-icon>search</mat-icon>
+                    <input [formControl]="projectSearchCtrl"
+                      [placeholder]="getTaskCategory() === 'clientProject' ? 'Search client projects…' : getTaskCategory() === 'ownProject' ? 'Search own projects…' : 'Search projects…'">
+                  </div>
+
+                  <!-- Clear -->
+                  <button mat-menu-item (click)="saveProjectSelection(null)">
+                    <mat-icon>clear</mat-icon> No project
+                  </button>
+
+                  <!-- General projects -->
+                  <ng-container *ngIf="getTaskCategory() === 'general'">
+                    <button mat-menu-item *ngFor="let p of filteredProjects | async"
+                      (click)="saveProjectSelection(p.id)">
+                      <mat-icon>folder</mat-icon> {{ p.name }}
+                    </button>
+                  </ng-container>
+
+                  <!-- Client projects -->
+                  <ng-container *ngIf="getTaskCategory() === 'clientProject'">
+                    <button mat-menu-item *ngFor="let p of filteredClientProjects | async"
+                      (click)="saveProjectSelection(p.id, { clientId: p.clientid })">
+                      <mat-icon>work_outline</mat-icon> {{ p.name }}
+                    </button>
+                  </ng-container>
+
+                  <!-- Own projects -->
+                  <ng-container *ngIf="getTaskCategory() === 'ownProject'">
+                    <button mat-menu-item *ngFor="let p of filteredOwnProjects | async"
+                      (click)="saveProjectSelection(p.id, { ownProjectId: p.id })">
+                      <mat-icon>rocket_launch</mat-icon> {{ p.name }}
+                    </button>
+                  </ng-container>
+                </mat-menu>
+              </ng-template>
+
+              <!-- Open-in-page button — shown whenever a project is selected -->
               <button class="tdp-open-proj-btn"
                 *ngIf="getProjectName()"
                 (click)="openProjectPage()"
                 matTooltip="Open project page">
                 <mat-icon>open_in_new</mat-icon>
               </button>
-
-              <!-- Single adaptive project menu — content switches based on category -->
-              <mat-menu #projMenu="matMenu">
-                <div class="tdp-menu-search" (click)="$event.stopPropagation()">
-                  <mat-icon>search</mat-icon>
-                  <input [formControl]="projectSearchCtrl"
-                    [placeholder]="getTaskCategory() === 'clientProject' ? 'Search client projects…' : getTaskCategory() === 'ownProject' ? 'Search own projects…' : 'Search projects…'">
-                </div>
-
-                <!-- Clear -->
-                <button mat-menu-item (click)="saveProjectSelection(null)">
-                  <mat-icon>clear</mat-icon> No project
-                </button>
-
-                <!-- General projects -->
-                <ng-container *ngIf="getTaskCategory() === 'general'">
-                  <button mat-menu-item *ngFor="let p of filteredProjects | async"
-                    (click)="saveProjectSelection(p.id)">
-                    <mat-icon>folder</mat-icon> {{ p.name }}
-                  </button>
-                </ng-container>
-
-                <!-- Client projects -->
-                <ng-container *ngIf="getTaskCategory() === 'clientProject'">
-                  <button mat-menu-item *ngFor="let p of filteredClientProjects | async"
-                    (click)="saveProjectSelection(p.id, { clientId: p.clientid })">
-                    <mat-icon>work_outline</mat-icon> {{ p.name }}
-                  </button>
-                </ng-container>
-
-                <!-- Own projects -->
-                <ng-container *ngIf="getTaskCategory() === 'ownProject'">
-                  <button mat-menu-item *ngFor="let p of filteredOwnProjects | async"
-                    (click)="saveProjectSelection(p.id, { ownProjectId: p.id })">
-                    <mat-icon>rocket_launch</mat-icon> {{ p.name }}
-                  </button>
-                </ng-container>
-              </mat-menu>
             </div>
           </div>
 

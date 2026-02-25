@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TimetakenComponent } from './timetaken/timetaken.component';
 // Import the project-specific task components
 import { ProjectTaskFormComponent, ProjectTaskFormData } from './project-task-form/project-task-form.component';
@@ -63,9 +63,8 @@ export class ProjectTasksComponent implements OnInit {
   constructor(
     private dialog: MatDialog,
     private afs: AngularFirestore,
-    // private service: GeneralService, // Uncomment if needed
     private route: ActivatedRoute,
-    // private toastr: ToastrService // Uncomment if available
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -252,6 +251,17 @@ export class ProjectTasksComponent implements OnInit {
     }
     const date = new Date(createdAt.seconds * 1000);
     return date.toLocaleString();
+  }
+
+  openTaskDetails(taskId: string): void {
+    if (!taskId) return;
+    this.router.navigate(['/admin', 'tasks', taskId], {
+      queryParams: {
+        source: 'clientProject',
+        projectId: this.projectId,
+        clientId: this.clientId
+      }
+    });
   }
 
   getCreatedDateDisplay(createdAt: any): string {

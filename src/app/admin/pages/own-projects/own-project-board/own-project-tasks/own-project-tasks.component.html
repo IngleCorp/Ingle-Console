@@ -1,188 +1,329 @@
-<div class="tasks-page">
-  <header class="tasks-header">
-    <div class="header-top">
-      <div class="header-title">
-        <h1 class="title">Tasks</h1>
-        <span class="subtitle">Manage tasks</span>
+<div class="opt-page">
+
+  <!-- ── Header ── -->
+  <div class="opt-toolbar">
+    <div class="opt-toolbar-left">
+      <span class="opt-title">Tasks</span>
+      <span class="opt-count-pill opt-count-pill--todo">{{ tasktodo.length }} To Do</span>
+      <span class="opt-count-pill opt-count-pill--progress">{{ taskinprogress.length }} In Progress</span>
+      <span class="opt-count-pill opt-count-pill--done">{{ taskdone.length }} Done</span>
+      <span class="opt-count-pill opt-count-pill--hold">{{ taskonhold.length }} On Hold</span>
+    </div>
+    <div class="opt-toolbar-right">
+      <div class="opt-view-switcher">
+        <button type="button" class="opt-view-btn" [class.opt-view-btn--active]="viewMode === 'kanban'" (click)="viewMode = 'kanban'" matTooltip="Board view">
+          <mat-icon>view_module</mat-icon>
+          <span>Board</span>
+        </button>
+        <button type="button" class="opt-view-btn" [class.opt-view-btn--active]="viewMode === 'list'" (click)="viewMode = 'list'" matTooltip="List view">
+          <mat-icon>view_list</mat-icon>
+          <span>List</span>
+        </button>
       </div>
-      <div class="header-actions">
-        <div class="view-switcher" role="group" aria-label="View mode">
-          <button type="button" class="switch-btn" [class.active]="viewMode === 'kanban'" (click)="viewMode = 'kanban'" title="Board view">
-            <mat-icon>view_kanban</mat-icon>
-            <span>Board</span>
+    </div>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="opt-loading" *ngIf="isLoading && !taskdata.length">
+    <mat-spinner diameter="28"></mat-spinner>
+  </div>
+
+  <!-- ══════════════════ KANBAN VIEW ══════════════════ -->
+  <div class="opt-board-scroll" *ngIf="viewMode === 'kanban' && (!isLoading || taskdata.length)">
+    <div class="opt-kanban-board" cdkDropListGroup>
+
+      <!-- ── To Do ── -->
+      <section class="opt-column">
+        <div class="opt-col-head">
+          <span class="opt-col-dot opt-col-dot--todo"></span>
+          <h2 class="opt-col-title">To Do</h2>
+          <span class="opt-col-count">{{ tasktodo.length }}</span>
+          <button class="opt-col-add" (click)="openQuickAdd('todo')" *ngIf="quickAddColumn !== 'todo'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
           </button>
-          <button type="button" class="switch-btn" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="List view">
-            <mat-icon>view_list</mat-icon>
-            <span>List</span>
+          <button class="opt-col-add opt-col-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'todo'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
           </button>
         </div>
-      </div>
-    </div>
-    <div class="header-stats">
-      <div class="stat todo"><span class="stat-num">{{ tasktodo.length || 0 }}</span><span class="stat-lbl">To Do</span></div>
-      <div class="stat inprogress"><span class="stat-num">{{ taskinprogress.length || 0 }}</span><span class="stat-lbl">In Progress</span></div>
-      <div class="stat done"><span class="stat-num">{{ taskdone.length || 0 }}</span><span class="stat-lbl">Done</span></div>
-      <div class="stat hold"><span class="stat-num">{{ taskonhold.length || 0 }}</span><span class="stat-lbl">On Hold</span></div>
-    </div>
-  </header>
 
-  <div class="add-bar">
-    <mat-form-field appearance="outline" class="add-field">
-      <mat-label>New task</mat-label>
-      <input matInput [(ngModel)]="taskText" (keyup.enter)="addTask()" placeholder="Add a task...">
-    </mat-form-field>
-    <button mat-flat-button color="primary" class="add-btn" (click)="addTask()" [disabled]="!taskText.trim() || isLoading">
-      <mat-icon>add</mat-icon>
-      Add
-    </button>
-  </div>
-
-  <div class="loading-state" *ngIf="isLoading && !taskdata.length">
-    <mat-spinner diameter="32"></mat-spinner>
-  </div>
-
-  <!-- Kanban view (drag & drop between columns to change status) -->
-  <div class="kanban-view" *ngIf="viewMode === 'kanban' && (!isLoading || taskdata.length)">
-    <div class="kanban-board" cdkDropListGroup>
-      <div class="col todo-col">
-        <div class="col-head">
-          <mat-icon>pending</mat-icon>
-          <span>To Do</span>
-          <span class="count">{{ tasktodo.length || 0 }}</span>
+        <!-- Quick-add -->
+        <div class="opt-quick-add" *ngIf="quickAddColumn === 'todo'">
+          <input class="opt-qa-input" [(ngModel)]="quickAddTitle" placeholder="Task name…" autofocus
+            (keydown.enter)="saveQuickAdd()" (keydown.escape)="cancelQuickAdd()">
+          <button class="opt-qa-save" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon> Save
+          </button>
+          <div class="opt-qa-hints">
+            <span><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span><mat-icon>calendar_today</mat-icon> Date</span>
+            <span><mat-icon>flag_outlined</mat-icon> Priority</span>
+          </div>
         </div>
-        <div class="col-cards" cdkDropList [id]="'todo'" [cdkDropListData]="tasktodo" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="task-card" *ngFor="let task of tasktodo; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
-            <div class="task-card-accent todo"></div>
-            <div class="task-card-body">
-              <h3 class="task-card-title">{{ task.title }}</h3>
-              <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
-                <mat-icon>person_outline</mat-icon>
-                <span>{{ getAssigneesDisplay(task) }}</span>
+
+        <div class="opt-col-cards" cdkDropList [id]="'todo'" [cdkDropListData]="tasktodo" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="opt-card" *ngFor="let task of tasktodo; trackBy: trackByTask"
+            cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
+            (click)="goToTaskDetail(task.id)">
+            <div class="opt-card-body">
+              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-meta">
+                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
+                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
+                </span>
+                <span class="opt-meta" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
+                </span>
+                <span class="opt-meta" *ngIf="task.priority">
+                  <mat-icon>flag</mat-icon>{{ getPriorityLabel(task.priority) }}
+                </span>
               </div>
-              <div class="task-card-pills-row">
-                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
-                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
-                  <mat-icon>delete_outline</mat-icon>
-                </button>
+              <div class="opt-card-creator">
+                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+              </div>
+            </div>
+            <div class="opt-card-footer" (click)="$event.stopPropagation()">
+              <div class="opt-card-actions">
+                <button class="opt-ca-btn" (click)="goToTaskDetail(task.id)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
+                <button class="opt-ca-btn opt-ca-btn--danger" (click)="deleteTask(task.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
         </div>
-      </div>
-      <div class="col inprogress-col">
-        <div class="col-head">
-          <mat-icon>progress_activity</mat-icon>
-          <span>In Progress</span>
-          <span class="count">{{ taskinprogress.length || 0 }}</span>
+      </section>
+
+      <!-- ── In Progress ── -->
+      <section class="opt-column">
+        <div class="opt-col-head">
+          <span class="opt-col-dot opt-col-dot--progress"></span>
+          <h2 class="opt-col-title">In Progress</h2>
+          <span class="opt-col-count">{{ taskinprogress.length }}</span>
+          <button class="opt-col-add" (click)="openQuickAdd('in-progress')" *ngIf="quickAddColumn !== 'in-progress'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="opt-col-add opt-col-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'in-progress'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <div class="col-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="taskinprogress" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="task-card" *ngFor="let task of taskinprogress; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
-            <div class="task-card-accent inprogress"></div>
-            <div class="task-card-body">
-              <h3 class="task-card-title">{{ task.title }}</h3>
-              <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-progress" *ngIf="task.progress != null">
-                <div class="progress-bar"><div class="progress-fill" [style.width.%]="task.progress"></div></div>
-                <span class="progress-label">{{ task.progress }}%</span>
+
+        <!-- Quick-add -->
+        <div class="opt-quick-add" *ngIf="quickAddColumn === 'in-progress'">
+          <input class="opt-qa-input" [(ngModel)]="quickAddTitle" placeholder="Task name…" autofocus
+            (keydown.enter)="saveQuickAdd()" (keydown.escape)="cancelQuickAdd()">
+          <button class="opt-qa-save" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon> Save
+          </button>
+          <div class="opt-qa-hints">
+            <span><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span><mat-icon>calendar_today</mat-icon> Date</span>
+            <span><mat-icon>flag_outlined</mat-icon> Priority</span>
+          </div>
+        </div>
+
+        <div class="opt-col-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="taskinprogress" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="opt-card" *ngFor="let task of taskinprogress; trackBy: trackByTask"
+            cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
+            (click)="goToTaskDetail(task.id)">
+            <div class="opt-card-body">
+              <!-- Progress bar -->
+              <div class="opt-card-progress" *ngIf="task.progress != null">
+                <div class="opt-prog-track">
+                  <div class="opt-prog-fill" [style.width.%]="task.progress"></div>
+                </div>
+                <span class="opt-prog-pct">{{ task.progress }}%</span>
               </div>
-              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
-                <mat-icon>person_outline</mat-icon>
-                <span>{{ getAssigneesDisplay(task) }}</span>
+              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-meta">
+                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
+                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
+                </span>
+                <span class="opt-meta" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
+                </span>
+                <span class="opt-meta" *ngIf="task.priority">
+                  <mat-icon>flag</mat-icon>{{ getPriorityLabel(task.priority) }}
+                </span>
               </div>
-              <div class="task-card-pills-row">
-                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
-                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
-                  <mat-icon>delete_outline</mat-icon>
-                </button>
+              <div class="opt-card-creator">
+                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+              </div>
+            </div>
+            <div class="opt-card-footer" (click)="$event.stopPropagation()">
+              <div class="opt-card-actions">
+                <button class="opt-ca-btn" (click)="goToTaskDetail(task.id)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="opt-ca-btn opt-ca-btn--success" (click)="updateTaskStatus(task.id, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
+                <button class="opt-ca-btn opt-ca-btn--danger" (click)="deleteTask(task.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
         </div>
-      </div>
-      <div class="col done-col">
-        <div class="col-head">
-          <mat-icon>check_circle</mat-icon>
-          <span>Done</span>
-          <span class="count">{{ taskdone.length || 0 }}</span>
+      </section>
+
+      <!-- ── Done ── -->
+      <section class="opt-column">
+        <div class="opt-col-head">
+          <span class="opt-col-dot opt-col-dot--done"></span>
+          <h2 class="opt-col-title">Done</h2>
+          <span class="opt-col-count">{{ taskdone.length }}</span>
+          <button class="opt-col-add" (click)="openQuickAdd('done')" *ngIf="quickAddColumn !== 'done'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="opt-col-add opt-col-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'done'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <div class="col-cards" cdkDropList [id]="'done'" [cdkDropListData]="taskdone" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="task-card done" *ngFor="let task of taskdone; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
-            <div class="task-card-accent done"></div>
-            <div class="task-card-body">
-              <h3 class="task-card-title">{{ task.title }}</h3>
-              <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
-                <mat-icon>person_outline</mat-icon>
-                <span>{{ getAssigneesDisplay(task) }}</span>
+
+        <!-- Quick-add -->
+        <div class="opt-quick-add" *ngIf="quickAddColumn === 'done'">
+          <input class="opt-qa-input" [(ngModel)]="quickAddTitle" placeholder="Task name…" autofocus
+            (keydown.enter)="saveQuickAdd()" (keydown.escape)="cancelQuickAdd()">
+          <button class="opt-qa-save" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon> Save
+          </button>
+          <div class="opt-qa-hints">
+            <span><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span><mat-icon>calendar_today</mat-icon> Date</span>
+            <span><mat-icon>flag_outlined</mat-icon> Priority</span>
+          </div>
+        </div>
+
+        <div class="opt-col-cards" cdkDropList [id]="'done'" [cdkDropListData]="taskdone" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="opt-card" *ngFor="let task of taskdone; trackBy: trackByTask"
+            cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
+            (click)="goToTaskDetail(task.id)">
+            <div class="opt-card-body">
+              <h3 class="opt-card-title opt-card-title--done">{{ task.title }}</h3>
+              <div class="opt-card-meta">
+                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
+                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
+                </span>
+                <span class="opt-meta" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
+                </span>
               </div>
-              <div class="task-card-pills-row">
-                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
-                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
-                  <mat-icon>delete_outline</mat-icon>
-                </button>
+              <div class="opt-card-creator">
+                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+              </div>
+            </div>
+            <div class="opt-card-footer" (click)="$event.stopPropagation()">
+              <div class="opt-card-actions">
+                <button class="opt-ca-btn" (click)="goToTaskDetail(task.id)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
+                <button class="opt-ca-btn opt-ca-btn--danger" (click)="deleteTask(task.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
         </div>
-      </div>
-      <div class="col hold-col">
-        <div class="col-head">
-          <mat-icon>pause_circle</mat-icon>
-          <span>On Hold</span>
-          <span class="count">{{ taskonhold.length || 0 }}</span>
+      </section>
+
+      <!-- ── On Hold ── -->
+      <section class="opt-column">
+        <div class="opt-col-head">
+          <span class="opt-col-dot opt-col-dot--hold"></span>
+          <h2 class="opt-col-title">On Hold</h2>
+          <span class="opt-col-count">{{ taskonhold.length }}</span>
+          <button class="opt-col-add" (click)="openQuickAdd('hold')" *ngIf="quickAddColumn !== 'hold'" matTooltip="Add task">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="opt-col-add opt-col-add--cancel" (click)="cancelQuickAdd()" *ngIf="quickAddColumn === 'hold'" matTooltip="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <div class="col-cards" cdkDropList [id]="'hold'" [cdkDropListData]="taskonhold" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="task-card hold" *ngFor="let task of taskonhold; trackBy: trackByTask" cdkDrag [cdkDragData]="task" (click)="goToTaskDetail(task.id)">
-            <div class="task-card-accent hold"></div>
-            <div class="task-card-body">
-              <h3 class="task-card-title">{{ task.title }}</h3>
-              <p class="task-card-desc" *ngIf="task.description">{{ task.description }}</p>
-              <div class="task-card-assignees-row" *ngIf="getAssigneesDisplay(task)">
-                <mat-icon>person_outline</mat-icon>
-                <span>{{ getAssigneesDisplay(task) }}</span>
+
+        <!-- Quick-add -->
+        <div class="opt-quick-add" *ngIf="quickAddColumn === 'hold'">
+          <input class="opt-qa-input" [(ngModel)]="quickAddTitle" placeholder="Task name…" autofocus
+            (keydown.enter)="saveQuickAdd()" (keydown.escape)="cancelQuickAdd()">
+          <button class="opt-qa-save" (click)="saveQuickAdd()" [disabled]="!quickAddTitle.trim() || quickAddSaving">
+            <mat-icon>keyboard_return</mat-icon> Save
+          </button>
+          <div class="opt-qa-hints">
+            <span><mat-icon>person_outline</mat-icon> Assignee</span>
+            <span><mat-icon>calendar_today</mat-icon> Date</span>
+            <span><mat-icon>flag_outlined</mat-icon> Priority</span>
+          </div>
+        </div>
+
+        <div class="opt-col-cards" cdkDropList [id]="'hold'" [cdkDropListData]="taskonhold" (cdkDropListDropped)="onTaskDrop($event)">
+          <article class="opt-card" *ngFor="let task of taskonhold; trackBy: trackByTask"
+            cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
+            (click)="goToTaskDetail(task.id)">
+            <div class="opt-card-body">
+              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-meta">
+                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
+                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
+                </span>
+                <span class="opt-meta" *ngIf="task.dueDate">
+                  <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
+                </span>
               </div>
-              <div class="task-card-pills-row">
-                <span class="pill priority" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
-                <button type="button" class="pill pill-delete" matTooltip="Delete" (click)="$event.stopPropagation(); deleteTask(task.id)">
-                  <mat-icon>delete_outline</mat-icon>
-                </button>
+              <div class="opt-card-creator">
+                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+              </div>
+            </div>
+            <div class="opt-card-footer" (click)="$event.stopPropagation()">
+              <div class="opt-card-actions">
+                <button class="opt-ca-btn" (click)="goToTaskDetail(task.id)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
+                <button class="opt-ca-btn" (click)="updateTaskStatus(task.id, 'in-progress')" matTooltip="Resume"><mat-icon>play_circle</mat-icon></button>
+                <button class="opt-ca-btn opt-ca-btn--danger" (click)="deleteTask(task.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
         </div>
-      </div>
+      </section>
+
     </div>
   </div>
 
-  <!-- List view -->
-  <div class="list-view" *ngIf="viewMode === 'list' && (!isLoading || taskdata.length)">
-    <div class="list-toolbar">
-      <span class="list-total">{{ taskdata.length || 0 }} task{{ (taskdata.length || 0) === 1 ? '' : 's' }}</span>
+  <!-- ══════════════════ LIST VIEW ══════════════════ -->
+  <div class="opt-list-view" *ngIf="viewMode === 'list' && (!isLoading || taskdata.length)">
+    <div class="opt-list-header">
+      <span class="opt-list-col opt-list-col--status">Status</span>
+      <span class="opt-list-col opt-list-col--title">Task</span>
+      <span class="opt-list-col opt-list-col--assignee">Assignee</span>
+      <span class="opt-list-col opt-list-col--priority">Priority</span>
+      <span class="opt-list-col opt-list-col--date">Due</span>
+      <span class="opt-list-col opt-list-col--actions"></span>
     </div>
-    <div class="list-body">
-      <div class="list-row" *ngFor="let task of taskdata; trackBy: trackByTask" (click)="goToTaskDetail(task.id)">
-        <span class="row-status pill" [class]="(task.status || 'todo')">{{ getStatusLabel(task.status || 'todo') }}</span>
-        <span class="row-title">{{ task.title }}</span>
-        <span class="row-meta" *ngIf="getAssigneesDisplay(task)">{{ getAssigneesDisplay(task) }}</span>
-        <span class="row-priority pill" *ngIf="task.priority" [class]="task.priority">{{ getPriorityLabel(task.priority) }}</span>
-        <div class="row-actions" (click)="$event.stopPropagation()">
-          <button mat-icon-button [matMenuTriggerFor]="rowMenu" matTooltip="Actions"><mat-icon>more_horiz</mat-icon></button>
-          <mat-menu #rowMenu="matMenu" xPosition="before">
-            <button mat-menu-item (click)="updateTaskStatus(task.id, 'todo')"><mat-icon>pending</mat-icon><span>To Do</span></button>
-            <button mat-menu-item (click)="updateTaskStatus(task.id, 'in-progress')"><mat-icon>progress_activity</mat-icon><span>In Progress</span></button>
-            <button mat-menu-item (click)="updateTaskStatus(task.id, 'done')"><mat-icon>check_circle</mat-icon><span>Done</span></button>
-            <button mat-menu-item (click)="updateTaskStatus(task.id, 'hold')"><mat-icon>pause_circle</mat-icon><span>On Hold</span></button>
-            <button mat-menu-item (click)="deleteTask(task.id)"><mat-icon>delete</mat-icon><span>Delete</span></button>
-          </mat-menu>
-        </div>
+    <div class="opt-list-row" *ngFor="let task of taskdata; trackBy: trackByTask"
+      [style.border-left-color]="getPriorityColor(task.priority)"
+      (click)="goToTaskDetail(task.id)">
+      <span class="opt-list-col opt-list-col--status">
+        <span class="opt-status-pill opt-status-pill--{{ task.status || 'todo' }}">{{ getStatusLabel(task.status || 'todo') }}</span>
+      </span>
+      <span class="opt-list-col opt-list-col--title">{{ task.title }}</span>
+      <span class="opt-list-col opt-list-col--assignee">{{ getAssigneesDisplay(task) || '—' }}</span>
+      <span class="opt-list-col opt-list-col--priority">
+        <span class="opt-priority-pill opt-priority-pill--{{ task.priority || 'medium' }}">{{ getPriorityLabel(task.priority || 'medium') }}</span>
+      </span>
+      <span class="opt-list-col opt-list-col--date">
+        <span *ngIf="task.dueDate">{{ task.dueDate | date:'MMM d' }}</span>
+        <span class="opt-muted" *ngIf="!task.dueDate">—</span>
+      </span>
+      <div class="opt-list-col opt-list-col--actions" (click)="$event.stopPropagation()">
+        <button class="opt-ca-btn" (click)="goToTaskDetail(task.id)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+        <button class="opt-ca-btn opt-ca-btn--danger" (click)="deleteTask(task.id)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
       </div>
     </div>
+    <div class="opt-list-empty" *ngIf="!taskdata.length">No tasks yet</div>
   </div>
 
-  <div class="empty-state" *ngIf="!isLoading && !taskdata.length">
-    <mat-icon class="empty-icon">assignment</mat-icon>
-    <p class="empty-title">No tasks yet</p>
-    <p class="empty-desc">Add a task above or open one to set assignees and details.</p>
+  <!-- ── Empty state ── -->
+  <div class="opt-empty" *ngIf="!isLoading && !taskdata.length">
+    <mat-icon>assignment</mat-icon>
+    <p>No tasks yet</p>
+    <span>Click <strong>+</strong> in any column header to add one.</span>
   </div>
+
 </div>

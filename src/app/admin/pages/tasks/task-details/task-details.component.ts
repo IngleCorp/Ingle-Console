@@ -47,6 +47,22 @@ export class TaskDetailsComponent implements OnInit {
   isLoading = true;
   notFound = false;
 
+  /** Source context – set from query params when navigating from another page */
+  taskSource: 'tasks' | 'ownProject' | 'clientProject' = 'tasks';
+  sourceProjectId: string | null = null;
+  sourceClientId: string | null = null;
+
+  /** When true, category and project fields are read-only */
+  get isExternalSource(): boolean {
+    return this.taskSource === 'ownProject' || this.taskSource === 'clientProject';
+  }
+
+  get sourceBreadcrumbLabel(): string {
+    if (this.taskSource === 'ownProject') return 'Own Project Tasks';
+    if (this.taskSource === 'clientProject') return 'Client Project Tasks';
+    return 'Tasks';
+  }
+
   /** Tab state */
   activeTab: 'description' | 'attachments' | 'details' = 'description';
   activityTab: 'comments' | 'history' = 'comments';
@@ -181,6 +197,16 @@ export class TaskDetailsComponent implements OnInit {
       this.isLoading = false;
       return;
     }
+
+    // Read source context from query params
+    const qp = this.route.snapshot.queryParamMap;
+    const src = qp.get('source');
+    if (src === 'ownProject' || src === 'clientProject') {
+      this.taskSource = src;
+    }
+    this.sourceProjectId = qp.get('projectId');
+    this.sourceClientId  = qp.get('clientId');
+
     this.loadProjects();
     this.loadClientProjects();
     this.loadOwnProjects();
@@ -845,7 +871,7 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   onBack(): void {
-    this.router.navigate(['/admin', 'tasks']);
+    this.navigateToSource();
   }
 
   onDelete(): void {
@@ -853,8 +879,27 @@ export class TaskDetailsComponent implements OnInit {
     if (!confirm('Are you sure you want to delete this task?')) return;
     this.firestore.collection('tasks').doc(this.task.id).delete().then(() => {
       this.showNotification('Task deleted!', 'success');
-      this.router.navigate(['/admin', 'tasks']);
+      this.navigateToSource();
     }).catch(() => this.showNotification('Error deleting task', 'error'));
+  }
+
+  private navigateToSource(): void {
+    if (this.taskSource === 'ownProject' && this.sourceProjectId) {
+      // Route: /admin/own-projects/:projectId/tasks
+      this.router.navigate(['/admin', 'own-projects', this.sourceProjectId, 'tasks']);
+    } else if (this.taskSource === 'clientProject') {
+      // Prefer query-param values; fall back to values stored on the task document
+      const clientId  = this.sourceClientId  || (this.task as any)?.clientId;
+      const projectId = this.sourceProjectId || (this.task as any)?.projectId || (this.task as any)?.projecttaged;
+      if (clientId && projectId) {
+        // Route: /admin/clients/:id/projects/:projectId/tasks
+        this.router.navigate(['/admin', 'clients', clientId, 'projects', projectId, 'tasks']);
+      } else {
+        this.router.navigate(['/admin', 'tasks']);
+      }
+    } else {
+      this.router.navigate(['/admin', 'tasks']);
+    }
   }
 
   private showNotification(message: string, type: 'success' | 'error'): void {

@@ -185,8 +185,8 @@
                                     </button>
                                     <button 
                                         class="details-btn" 
-                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
-                                        matTooltip="View details">
+                                        (click)="openTaskDetails(task.id)" 
+                                        matTooltip="Open full task details">
                                         <mat-icon>launch</mat-icon>
                                     </button>
                                 </div>
@@ -273,8 +273,8 @@
                                 <div class="task-actions-footer">
                                     <button 
                                         class="details-btn" 
-                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
-                                        matTooltip="View details">
+                                        (click)="openTaskDetails(task.id)" 
+                                        matTooltip="Open full task details">
                                         <mat-icon>launch</mat-icon>
                                     </button>
                                 </div>
@@ -361,8 +361,8 @@
                                 <div class="task-actions-footer">
                                     <button 
                                         class="details-btn" 
-                                        [routerLink]="task.id ? ['tasksdetail', task.id] : []" 
-                                        matTooltip="View details">
+                                        (click)="openTaskDetails(task.id)" 
+                                        matTooltip="Open full task details">
                                         <mat-icon>launch</mat-icon>
                                     </button>
                                 </div>
