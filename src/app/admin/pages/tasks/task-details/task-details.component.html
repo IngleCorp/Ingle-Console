@@ -1,203 +1,541 @@
-<div class="task-details-page">
-  <!-- Loading -->
-  <div class="details-state details-state--loading" *ngIf="isLoading">
-    <mat-spinner diameter="48"></mat-spinner>
-    <p>Loading task...</p>
+<div class="tdp-page">
+
+  <!-- ── Loading ── -->
+  <div class="tdp-state tdp-state--loading" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading task…</p>
   </div>
 
-  <!-- Not found -->
-  <div class="details-state details-state--empty" *ngIf="!isLoading && notFound">
+  <!-- ── Not found ── -->
+  <div class="tdp-state tdp-state--empty" *ngIf="!isLoading && notFound">
     <mat-icon>error_outline</mat-icon>
     <h2>Task not found</h2>
-    <p>The task may have been deleted or the link is invalid.</p>
+    <p>This task may have been deleted or the link is invalid.</p>
     <button mat-raised-button color="primary" (click)="onBack()">
-      <mat-icon>arrow_back</mat-icon>
-      Back to Tasks
+      <mat-icon>arrow_back</mat-icon> Back to Tasks
     </button>
   </div>
 
-  <!-- Task content -->
-  <div class="task-details-form" *ngIf="!isLoading && task && !notFound">
-    <!-- Top bar: back + delete -->
-    <header class="details-header">
-      <div class="details-header-inner">
-        <button mat-stroked-button class="back-btn" (click)="onBack()">
+  <!-- ── Main content ── -->
+  <div class="tdp-root" *ngIf="!isLoading && task && !notFound">
+
+    <!-- ╔══ Top breadcrumb bar ══╗ -->
+    <div class="tdp-topbar">
+      <div class="tdp-breadcrumb">
+        <button mat-icon-button class="tdp-back-btn" (click)="onBack()" matTooltip="Back to Tasks">
           <mat-icon>arrow_back</mat-icon>
-          <span>Back to Tasks</span>
         </button>
-        <div class="header-actions">
-          <button mat-stroked-button class="delete-btn" (click)="onDelete()">
-            <mat-icon>delete</mat-icon>
-            Delete
-          </button>
-        </div>
+        <span class="tdp-bc-item tdp-bc-item--muted">Tasks</span>
+        <mat-icon class="tdp-bc-sep">chevron_right</mat-icon>
+        <span class="tdp-bc-item tdp-bc-id">{{ task.id }}</span>
       </div>
-    </header>
+      <div class="tdp-topbar-actions">
+        <button mat-icon-button matTooltip="Delete task" class="tdp-danger-btn" (click)="onDelete()">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
 
-    <!-- Hero: title (click to edit), priority, status -->
-    <section class="details-hero">
-      <div class="hero-badge hero-badge--priority" [style.background-color]="getPriorityInfo().color">
-        <mat-icon>priority_high</mat-icon>
-        {{ getPriorityInfo().label }}
-      </div>
-      <div class="hero-badge hero-badge--status" [style.background-color]="getStatusInfo().color">
-        <mat-icon>flag</mat-icon>
-        {{ getStatusInfo().label }}
-      </div>
-      <h1
-        class="details-title details-title--static"
-        *ngIf="editingField !== 'title'"
-        (click)="startEditTitle()"
-        tabindex="0"
-        role="button">
-        {{ getTaskTitle() }}
-      </h1>
-      <input
-        *ngIf="editingField === 'title'"
-        class="details-title details-title--input"
-        [(ngModel)]="editTitleValue"
-        (blur)="saveTitle()"
-        (keydown.enter)="blurTitleInput($event)"
-        placeholder="Task title"
-      />
-      <div class="hero-meta">
-        <span class="meta-item" *ngIf="task.id"><mat-icon>tag</mat-icon> {{ task.id }}</span>
-        <span class="meta-item" *ngIf="task.createdAt"><mat-icon>event</mat-icon> Created {{ task.createdAt | date:'mediumDate' }}</span>
-        <span class="meta-item category-tag">{{ getCategoryLabel() }}</span>
-      </div>
-    </section>
+    <!-- ╔══ Two-pane body ══╗ -->
+    <div class="tdp-body">
 
-    <div class="details-grid">
-      <!-- Description: click to edit, blur to save -->
-      <section class="details-card details-card--wide">
-        <div class="card-head">
-          <mat-icon>description</mat-icon>
-          <h2>Description</h2>
-        </div>
-        <div class="card-body">
-          <div
-            *ngIf="editingField !== 'description'"
-            class="task-description task-description--editable"
-            (click)="startEditDescription()"
+      <!-- ══ LEFT: main pane ══ -->
+      <div class="tdp-main">
+
+        <!-- Title -->
+        <div class="tdp-title-wrap">
+          <h1
+            class="tdp-title tdp-title--static"
+            *ngIf="editingField !== 'title'"
+            (click)="startEditTitle()"
             tabindex="0"
             role="button">
-            <div *ngIf="getTaskDescription(); else noDesc" [innerHTML]="getTaskDescription()"></div>
-            <ng-template #noDesc>
-              <p class="no-content"><mat-icon>info</mat-icon> Click to add description</p>
-            </ng-template>
-          </div>
-          <textarea
-            *ngIf="editingField === 'description'"
-            class="description-textarea"
-            [(ngModel)]="editDescValue"
-            (blur)="saveDescription()"
-            placeholder="Describe the task"
-            rows="6"
-          ></textarea>
+            {{ getTaskTitle() }}
+          </h1>
+          <input
+            *ngIf="editingField === 'title'"
+            class="tdp-title tdp-title--input"
+            [(ngModel)]="editTitleValue"
+            (blur)="saveTitle()"
+            (keydown.enter)="blurTitleInput($event)"
+            placeholder="Task title"
+            autofocus
+          />
         </div>
-      </section>
 
-      <!-- Assignment & Project -->
-      <section class="details-card">
-        <div class="card-head">
-          <mat-icon>group</mat-icon>
-          <h2>Assignment & Project</h2>
-        </div>
-        <div class="card-body">
-          <div class="field">
-            <label>Assignees</label>
-            <div class="value value--chips" *ngIf="getTaskAssignees().length > 0; else noAssignees">
-              <span class="chip" *ngFor="let a of getTaskAssignees()"><mat-icon>person</mat-icon> {{ a }}</span>
-            </div>
-            <ng-template #noAssignees><p class="no-content"><mat-icon>person_off</mat-icon> Not assigned</p></ng-template>
-          </div>
-          <div class="field">
-            <label>Project</label>
-            <div class="value" *ngIf="getProjectName(); else noProject">
-              <mat-icon>folder</mat-icon> {{ getProjectName() }}
-            </div>
-            <ng-template #noProject><p class="no-content"><mat-icon>folder_off</mat-icon> No project</p></ng-template>
-          </div>
-        </div>
-      </section>
+        <!-- ── Properties table ── -->
+        <div class="tdp-props">
 
-      <!-- Timeline & Progress -->
-      <section class="details-card">
-        <div class="card-head">
-          <mat-icon>schedule</mat-icon>
-          <h2>Timeline & Progress</h2>
-        </div>
-        <div class="card-body">
-          <div class="field">
-            <label>Due date</label>
-            <div class="value" *ngIf="task.dueDate"><mat-icon>event</mat-icon> {{ task.dueDate | date:'fullDate' }}</div>
-            <p class="no-content" *ngIf="!task.dueDate"><mat-icon>event_busy</mat-icon> No due date</p>
-          </div>
-          <div class="field">
-            <label>Estimated hours</label>
-            <div class="value" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon> {{ task.estimatedHours }}h</div>
-            <p class="no-content" *ngIf="!task.estimatedHours">—</p>
-          </div>
-          <div class="field" *ngIf="task.status === 'in-progress' || task.status === 'done'">
-            <label>Progress</label>
-            <div class="progress-wrap">
-              <mat-progress-bar [value]="task.progress || 0" color="primary" mode="determinate"></mat-progress-bar>
-              <span class="progress-label">{{ task.progress || 0 }}%</span>
+          <!-- Status -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>radio_button_checked</mat-icon>
+              Status
+            </div>
+            <div class="tdp-prop-value">
+              <button class="tdp-status-btn" [style.--sc]="getStatusInfo().color"
+                [matMenuTriggerFor]="statusMenu">
+                <span class="tdp-status-dot" [style.background]="getStatusInfo().color"></span>
+                {{ getStatusInfo().label }}
+                <mat-icon class="tdp-chevron">expand_more</mat-icon>
+              </button>
+              <mat-menu #statusMenu="matMenu">
+                <button mat-menu-item *ngFor="let s of statuses" (click)="saveField('status', s.value)">
+                  <span class="menu-dot" [style.background]="s.color"></span>
+                  {{ s.label }}
+                </button>
+              </mat-menu>
             </div>
           </div>
-          <div class="field" *ngIf="task.timeTaken != null">
-            <label>Time taken</label>
-            <div class="value"><mat-icon>timer</mat-icon> {{ task.timeTaken }}h</div>
-          </div>
-        </div>
-      </section>
 
-      <!-- Additional details -->
-      <section class="details-card">
-        <div class="card-head">
-          <mat-icon>info</mat-icon>
-          <h2>Details</h2>
-        </div>
-        <div class="card-body">
-          <div class="field">
-            <label>Created by</label>
-            <div class="value">{{ task.createdByName || task.createdby || task.createdBy || '—' }}</div>
-          </div>
-          <div class="field" *ngIf="task.updatedAt">
-            <label>Last updated</label>
-            <div class="value">{{ task.updatedAt | date:'medium' }}</div>
-            <div class="value value--muted" *ngIf="task.updatedByName">by {{ task.updatedByName }}</div>
-          </div>
-          <div class="field" *ngIf="task.tags?.length">
-            <label>Tags</label>
-            <div class="value value--chips">
-              <span class="chip chip--tag" *ngFor="let tag of task.tags"><mat-icon>label</mat-icon> {{ tag }}</span>
+          <!-- Dates: start → due -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>calendar_today</mat-icon>
+              Dates
             </div>
-          </div>
-          <div class="field" *ngIf="task.isActive !== undefined">
-            <label>Active</label>
-            <div class="value" [class.value--success]="task.isActive" [class.value--muted]="!task.isActive">
-              <mat-icon>{{ task.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
-              {{ task.isActive ? 'Yes' : 'No' }}
-            </div>
-          </div>
-        </div>
-      </section>
+            <div class="tdp-prop-value tdp-dates-row">
 
-      <!-- Legacy (if any) -->
-      <section class="details-card details-card--wide" *ngIf="task?.req_id_name || task?.req_task_id || task?.packageName">
-        <div class="card-head">
-          <mat-icon>history</mat-icon>
-          <h2>Legacy</h2>
+              <!-- Start date pill -->
+              <div class="tdp-date-pill" [class.tdp-date-pill--set]="task.startDate">
+                <input matInput [matDatepicker]="startPicker"
+                  [value]="task.startDate || null"
+                  (dateChange)="saveStartDate($event.value)"
+                  class="tdp-date-hidden-input">
+                <mat-datepicker #startPicker></mat-datepicker>
+                <button class="tdp-date-btn" (click)="startPicker.open()" [class.tdp-date-btn--set]="task.startDate">
+                  <mat-icon>calendar_today</mat-icon>
+                  <span>{{ task.startDate ? (task.startDate | date:'MMM d') : 'Start' }}</span>
+                </button>
+                <button *ngIf="task.startDate" class="tdp-date-clear" (click)="clearStartDate()" matTooltip="Clear start date">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <mat-icon class="tdp-arrow">arrow_forward</mat-icon>
+
+              <!-- Due date pill -->
+              <div class="tdp-date-pill" [class.tdp-date-pill--set]="task.dueDate">
+                <input matInput [matDatepicker]="duePicker"
+                  [value]="task.dueDate || null"
+                  (dateChange)="saveDueDate($event.value)"
+                  class="tdp-date-hidden-input">
+                <mat-datepicker #duePicker></mat-datepicker>
+                <button class="tdp-date-btn" (click)="duePicker.open()" [class.tdp-date-btn--set]="task.dueDate">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ task.dueDate ? (task.dueDate | date:'MMM d') : 'Due' }}</span>
+                </button>
+                <button *ngIf="task.dueDate" class="tdp-date-clear" (click)="clearDueDate()" matTooltip="Clear due date">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Time estimate -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>schedule</mat-icon>
+              Time Estimate
+            </div>
+            <div class="tdp-prop-value">
+              <div class="tdp-inline-num">
+                <input
+                  class="tdp-num-input"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  [value]="task.estimatedHours || ''"
+                  placeholder="Empty"
+                  (change)="saveField('estimatedHours', +$any($event.target).value)">
+                <span class="tdp-num-suffix" *ngIf="task.estimatedHours">h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignees -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>person_outline</mat-icon>
+              Assignees
+            </div>
+            <div class="tdp-prop-value tdp-assignees-row">
+              <!-- Avatar chips -->
+              <ng-container *ngIf="getTaskAssigneeNames().length > 0; else noAssignee">
+                <span class="tdp-avatar" *ngFor="let name of getTaskAssigneeNames()"
+                  [matTooltip]="name">
+                  {{ name.charAt(0).toUpperCase() }}
+                </span>
+              </ng-container>
+              <ng-template #noAssignee>
+                <span class="tdp-empty-val">Empty</span>
+              </ng-template>
+              <!-- Multi-select trigger -->
+              <button class="tdp-add-person-btn" [matMenuTriggerFor]="assigneeMenu" matTooltip="Add assignee">
+                <mat-icon>add</mat-icon>
+              </button>
+              <mat-menu #assigneeMenu="matMenu" class="tdp-assignee-menu">
+                <button mat-menu-item *ngFor="let a of assignees"
+                  (click)="toggleAssignee(a.id)">
+                  <span class="menu-avatar">{{ a.name.charAt(0) }}</span>
+                  {{ a.name }}
+                  <mat-icon *ngIf="isAssigned(a.id)" class="menu-check">check</mat-icon>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>flag_outlined</mat-icon>
+              Priority
+            </div>
+            <div class="tdp-prop-value">
+              <button class="tdp-priority-btn" [matMenuTriggerFor]="priorityMenu">
+                <span class="tdp-priority-flag" [style.color]="getPriorityInfo().color">
+                  <mat-icon>flag</mat-icon>
+                </span>
+                <span [style.color]="task.priority && task.priority !== 'medium' ? getPriorityInfo().color : ''">
+                  {{ task.priority ? getPriorityInfo().label : 'Empty' }}
+                </span>
+                <mat-icon class="tdp-chevron">expand_more</mat-icon>
+              </button>
+              <mat-menu #priorityMenu="matMenu">
+                <button mat-menu-item *ngFor="let p of priorities" (click)="saveField('priority', p.value)">
+                  <mat-icon [style.color]="p.color">flag</mat-icon>
+                  {{ p.label }}
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>category</mat-icon>
+              Category
+            </div>
+            <div class="tdp-prop-value">
+              <button class="tdp-prop-btn" [matMenuTriggerFor]="catMenu">
+                {{ getCategoryLabel() }}
+                <mat-icon class="tdp-chevron">expand_more</mat-icon>
+              </button>
+              <mat-menu #catMenu="matMenu">
+                <button mat-menu-item *ngFor="let c of categories" (click)="saveField('category', c.value)">
+                  {{ c.label }}
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Project -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>folder_outlined</mat-icon>
+              Project
+            </div>
+            <div class="tdp-prop-value">
+              <button class="tdp-prop-btn" [matMenuTriggerFor]="projMenu">
+                <mat-icon>folder</mat-icon>
+                {{ getProjectName() || 'Empty' }}
+                <mat-icon class="tdp-chevron">expand_more</mat-icon>
+              </button>
+              <mat-menu #projMenu="matMenu">
+                <div class="tdp-menu-search" (click)="$event.stopPropagation()">
+                  <mat-icon>search</mat-icon>
+                  <input [formControl]="projectSearchCtrl" placeholder="Search projects…">
+                </div>
+                <button mat-menu-item (click)="saveField('projectId', null)">
+                  <mat-icon>clear</mat-icon> No project
+                </button>
+                <button mat-menu-item *ngFor="let p of filteredProjects | async"
+                  (click)="saveField('projectId', p.id)">
+                  <mat-icon>folder</mat-icon> {{ p.name }}
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>label_outline</mat-icon>
+              Tags
+            </div>
+            <div class="tdp-prop-value tdp-tags-row">
+              <span class="tdp-tag" *ngFor="let tag of (task.tags || [])">{{ tag }}</span>
+              <span class="tdp-empty-val" *ngIf="!task.tags?.length">Empty</span>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="tdp-prop-row" *ngIf="task.status === 'in-progress' || task.status === 'done'">
+            <div class="tdp-prop-label">
+              <mat-icon>donut_large</mat-icon>
+              Progress
+            </div>
+            <div class="tdp-prop-value tdp-progress-row">
+              <mat-progress-bar [value]="task.progress || 0" mode="determinate" color="primary"></mat-progress-bar>
+              <span class="tdp-progress-pct">{{ task.progress || 0 }}%</span>
+            </div>
+          </div>
+
+          <!-- Created by -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>person</mat-icon>
+              Created by
+            </div>
+            <div class="tdp-prop-value">
+              <span class="tdp-avatar tdp-avatar--sm">
+                {{ (task.createdByName || task.createdby || 'U').charAt(0).toUpperCase() }}
+              </span>
+              <span class="tdp-creator-name">{{ task.createdByName || task.createdby || '—' }}</span>
+            </div>
+          </div>
+
+          <!-- Active toggle -->
+          <div class="tdp-prop-row">
+            <div class="tdp-prop-label">
+              <mat-icon>toggle_on</mat-icon>
+              Active
+            </div>
+            <div class="tdp-prop-value">
+              <mat-slide-toggle
+                [checked]="task.isActive !== false"
+                (change)="saveField('isActive', $event.checked)">
+              </mat-slide-toggle>
+            </div>
+          </div>
+
         </div>
-        <div class="card-body legacy-grid">
-          <div class="field" *ngIf="task?.req_id_name"><label>Req ID name</label><div class="value">{{ task?.req_id_name }}</div></div>
-          <div class="field" *ngIf="task?.req_task_id"><label>Req task ID</label><div class="value">{{ task?.req_task_id }}</div></div>
-          <div class="field" *ngIf="task?.packageName"><label>Package</label><div class="value">{{ task?.packageName }}</div></div>
-          <div class="field" *ngIf="task?.section"><label>Section</label><div class="value">{{ task?.section }}</div></div>
-          <div class="field" *ngIf="task?.milestone"><label>Milestone</label><div class="value">{{ task?.milestone }}</div></div>
+        <!-- /tdp-props -->
+
+        <!-- Hidden file input -->
+        <input
+          #fileInput
+          type="file"
+          multiple
+          style="display:none"
+          (change)="onFileSelected($event)">
+
+        <!-- ── Tabs: Description / Attachments / Details ── -->
+        <div class="tdp-tabs-wrap">
+          <div class="tdp-tabs">
+            <button class="tdp-tab" [class.tdp-tab--active]="activeTab === 'description'" (click)="activeTab = 'description'">Description</button>
+            <button class="tdp-tab" [class.tdp-tab--active]="activeTab === 'attachments'" (click)="activeTab = 'attachments'">
+              Attachments
+              <span class="tdp-tab-badge" *ngIf="attachments.length > 0">{{ attachments.length }}</span>
+            </button>
+            <button class="tdp-tab" [class.tdp-tab--active]="activeTab === 'details'" (click)="activeTab = 'details'">Details</button>
+          </div>
+
+          <!-- Description tab -->
+          <div class="tdp-tab-panel" *ngIf="activeTab === 'description'">
+            <!-- Display -->
+            <div
+              *ngIf="editingField !== 'description'"
+              class="tdp-desc-display"
+              (click)="startEditDescription()"
+              tabindex="0"
+              role="button">
+              <div *ngIf="getTaskDescription(); else noDesc" [innerHTML]="getTaskDescription()"></div>
+              <ng-template #noDesc>
+                <span class="tdp-desc-placeholder">
+                  <mat-icon>add</mat-icon> Add description
+                </span>
+              </ng-template>
+            </div>
+            <!-- Quill editor -->
+            <div *ngIf="editingField === 'description'" class="tdp-quill-wrap">
+              <quill-editor
+                [(ngModel)]="editDescValue"
+                [modules]="quillModules"
+                [styles]="quillStyles"
+                placeholder="Describe the task…">
+              </quill-editor>
+              <div class="tdp-quill-actions">
+                <button mat-stroked-button (click)="editingField = null">Cancel</button>
+                <button mat-raised-button color="primary" (click)="saveDescription()">
+                  <mat-icon>save</mat-icon> Save
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments tab -->
+          <div class="tdp-tab-panel" *ngIf="activeTab === 'attachments'">
+
+            <!-- Drop zone -->
+            <div
+              class="tdp-dropzone"
+              [class.tdp-dropzone--over]="isDragOver"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              (click)="triggerFileInput()">
+              <mat-icon>cloud_upload</mat-icon>
+              <p class="tdp-dz-text">Drop files here or <span class="tdp-dz-link">browse</span></p>
+              <p class="tdp-dz-hint">Max 20 MB per file · Any format</p>
+            </div>
+
+            <!-- Upload progress -->
+            <div class="tdp-upload-progress" *ngIf="isUploading">
+              <mat-icon class="tdp-up-icon">upload</mat-icon>
+              <div class="tdp-up-bar-wrap">
+                <div class="tdp-up-bar" [style.width.%]="uploadProgress"></div>
+              </div>
+              <span class="tdp-up-pct">{{ uploadProgress }}%</span>
+            </div>
+
+            <!-- File list -->
+            <div class="tdp-att-list" *ngIf="attachments.length > 0">
+              <div class="tdp-att-item" *ngFor="let att of attachments">
+                <!-- Thumbnail for images, icon for others -->
+                <div class="tdp-att-thumb" [style.background]="isImageFile(att.format) ? 'transparent' : getFileIconColor(att.format) + '18'">
+                  <img *ngIf="isImageFile(att.format)" [src]="att.url" [alt]="att.name" class="tdp-att-img">
+                  <mat-icon *ngIf="!isImageFile(att.format)" [style.color]="getFileIconColor(att.format)">
+                    {{ getFileIcon(att.format) }}
+                  </mat-icon>
+                </div>
+
+                <div class="tdp-att-info">
+                  <span class="tdp-att-name" [title]="att.name">{{ att.name }}</span>
+                  <span class="tdp-att-meta">
+                    {{ att.size }} · {{ att.format.toUpperCase() }} · {{ att.createdAt | date:'MMM d, y' }}
+                  </span>
+                  <span class="tdp-att-by">Uploaded by {{ att.uploadedByName }}</span>
+                </div>
+
+                <div class="tdp-att-actions">
+                  <button mat-icon-button matTooltip="Open" (click)="downloadAttachment(att)">
+                    <mat-icon>open_in_new</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" class="tdp-att-del" (click)="deleteAttachment(att)">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty state (no files yet, not uploading) -->
+            <div class="tdp-att-empty" *ngIf="attachments.length === 0 && !isUploading">
+              <mat-icon>attach_file</mat-icon>
+              <p>No attachments yet</p>
+            </div>
+
+          </div>
+
+          <!-- Details tab -->
+          <div class="tdp-tab-panel" *ngIf="activeTab === 'details'">
+            <div class="tdp-detail-row" *ngIf="task.createdAt">
+              <span class="tdp-detail-label">Created</span>
+              <span class="tdp-detail-val">{{ task.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="tdp-detail-row" *ngIf="task.updatedAt">
+              <span class="tdp-detail-label">Last updated</span>
+              <span class="tdp-detail-val">{{ task.updatedAt | date:'medium' }}</span>
+            </div>
+            <div class="tdp-detail-row" *ngIf="task.timeTaken != null">
+              <span class="tdp-detail-label">Time taken</span>
+              <span class="tdp-detail-val">{{ task.timeTaken }}h</span>
+            </div>
+            <!-- Legacy -->
+            <ng-container *ngIf="task.req_id_name || task.req_task_id || task.packageName">
+              <div class="tdp-detail-divider">Legacy</div>
+              <div class="tdp-detail-row" *ngIf="task.req_id_name">
+                <span class="tdp-detail-label">Req ID</span>
+                <span class="tdp-detail-val">{{ task.req_id_name }}</span>
+              </div>
+              <div class="tdp-detail-row" *ngIf="task.req_task_id">
+                <span class="tdp-detail-label">Task ID</span>
+                <span class="tdp-detail-val">{{ task.req_task_id }}</span>
+              </div>
+              <div class="tdp-detail-row" *ngIf="task.packageName">
+                <span class="tdp-detail-label">Package</span>
+                <span class="tdp-detail-val">{{ task.packageName }}</span>
+              </div>
+              <div class="tdp-detail-row" *ngIf="task.section">
+                <span class="tdp-detail-label">Section</span>
+                <span class="tdp-detail-val">{{ task.section }}</span>
+              </div>
+              <div class="tdp-detail-row" *ngIf="task.milestone">
+                <span class="tdp-detail-label">Milestone</span>
+                <span class="tdp-detail-val">{{ task.milestone }}</span>
+              </div>
+            </ng-container>
+          </div>
         </div>
-      </section>
+
+      </div>
+      <!-- /tdp-main -->
+
+      <!-- ══ RIGHT: activity panel ══ -->
+      <div class="tdp-activity-panel">
+        <div class="tdp-activity-header">
+          <span class="tdp-activity-title">Activity</span>
+          <div class="tdp-activity-tabs">
+            <button class="tdp-act-tab" [class.active]="activityTab === 'comments'" (click)="activityTab = 'comments'">Comments</button>
+            <button class="tdp-act-tab" [class.active]="activityTab === 'history'" (click)="activityTab = 'history'">History</button>
+          </div>
+        </div>
+
+        <!-- Comments list -->
+        <div class="tdp-comments-list" *ngIf="activityTab === 'comments'">
+          <div class="tdp-comment" *ngFor="let c of comments">
+            <span class="tdp-comment-avatar">{{ c.authorName.charAt(0).toUpperCase() }}</span>
+            <div class="tdp-comment-body">
+              <div class="tdp-comment-header">
+                <strong>{{ c.authorName }}</strong>
+                <span class="tdp-comment-time">{{ c.createdAt | date:'MMM d, h:mm a' }}</span>
+              </div>
+              <p class="tdp-comment-text">{{ c.text }}</p>
+            </div>
+          </div>
+          <div class="tdp-no-comments" *ngIf="comments.length === 0">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>No comments yet</p>
+          </div>
+        </div>
+
+        <!-- History list -->
+        <div class="tdp-history-list" *ngIf="activityTab === 'history'">
+          <div class="tdp-history-item" *ngFor="let h of history">
+            <span class="tdp-history-dot"></span>
+            <div class="tdp-history-body">
+              <span class="tdp-history-who">{{ h.who }}</span>
+              <span class="tdp-history-action"> {{ h.action }}</span>
+              <span class="tdp-history-time">{{ h.time | date:'MMM d, h:mm a' }}</span>
+            </div>
+          </div>
+          <div class="tdp-no-comments" *ngIf="history.length === 0">
+            <mat-icon>history</mat-icon>
+            <p>No history yet</p>
+          </div>
+        </div>
+
+        <!-- Comment input -->
+        <div class="tdp-comment-input-wrap">
+          <span class="tdp-comment-avatar tdp-comment-avatar--me">Y</span>
+          <div class="tdp-comment-input-box">
+            <input
+              class="tdp-comment-input"
+              [(ngModel)]="newComment"
+              placeholder="Write a comment…"
+              (keydown.enter)="postComment()">
+            <button class="tdp-comment-send" (click)="postComment()" [disabled]="!newComment.trim()">
+              <mat-icon>send</mat-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <!-- /tdp-activity-panel -->
+
     </div>
+    <!-- /tdp-body -->
   </div>
+  <!-- /tdp-root -->
 </div>

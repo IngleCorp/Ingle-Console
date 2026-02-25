@@ -1,8 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { startWith, map, finalize } from 'rxjs/operators';
 import { Task, TaskAssignee, Project } from '../tasks.component';
+
+export interface TaskAttachment {
+  id?: string;
+  name: string;
+  url: string;
+  fileref: string;
+  format: string;
+  size: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  createdAt: Date;
+}
+
+export interface TaskComment {
+  id?: string;
+  authorName: string;
+  authorId: string;
+  text: string;
+  createdAt: Date;
+}
+
+export interface TaskHistoryEntry {
+  who: string;
+  action: string;
+  time: Date;
+}
 
 @Component({
   selector: 'app-task-details',
@@ -10,14 +40,33 @@ import { Task, TaskAssignee, Project } from '../tasks.component';
   styleUrls: ['./task-details.component.scss']
 })
 export class TaskDetailsComponent implements OnInit {
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+
   task: Task | null = null;
   isLoading = true;
   notFound = false;
 
-  /** Which field is currently being edited (click + focus); blur saves */
+  /** Tab state */
+  activeTab: 'description' | 'attachments' | 'details' = 'description';
+  activityTab: 'comments' | 'history' = 'comments';
+
+  /** Attachments */
+  attachments: TaskAttachment[] = [];
+  isUploading = false;
+  uploadProgress = 0;
+  isDragOver = false;
+
+  /** Inline editing */
   editingField: 'title' | 'description' | null = null;
   editTitleValue = '';
   editDescValue = '';
+
+  /** Comments */
+  comments: TaskComment[] = [];
+  newComment = '';
+
+  /** History (local log for this session) */
+  history: TaskHistoryEntry[] = [];
 
   assignees: TaskAssignee[] = [
     { id: '1', name: 'Jasmal', email: 'jasmal@example.com' },
@@ -25,6 +74,7 @@ export class TaskDetailsComponent implements OnInit {
     { id: '3', name: 'Ajmal', email: 'ajmal@example.com' }
   ];
   projects: Project[] = [];
+
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
     { value: 'medium', label: 'Medium', color: '#f59e0b' },
@@ -37,13 +87,44 @@ export class TaskDetailsComponent implements OnInit {
     { value: 'done', label: 'Done', color: '#10b981' },
     { value: 'hold', label: 'On Hold', color: '#f59e0b' }
   ];
+  categories = [
+    { value: 'general', label: 'General' },
+    { value: 'clientProject', label: 'Client Project' },
+    { value: 'ownProject', label: 'Own Project' }
+  ];
+
+  projectSearchCtrl = new FormControl('');
+  filteredProjects: Observable<Project[]>;
+
+  quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ color: [] }, { background: [] }],
+      [{ align: [] }],
+      ['clean'],
+      ['link', 'image']
+    ]
+  };
+
+  quillStyles = { height: '200px' };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private firestore: AngularFirestore,
+    private storage: AngularFireStorage,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.filteredProjects = this.projectSearchCtrl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterProjects(value || ''))
+    );
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -54,6 +135,14 @@ export class TaskDetailsComponent implements OnInit {
     }
     this.loadProjects();
     this.loadTask(id);
+    this.loadComments(id);
+    this.loadAttachments(id);
+  }
+
+  // ——— Loaders ———
+  private filterProjects(value: string): Project[] {
+    const q = value.toLowerCase();
+    return this.projects.filter(p => p.name.toLowerCase().includes(q));
   }
 
   private loadProjects(): void {
@@ -62,7 +151,18 @@ export class TaskDetailsComponent implements OnInit {
     });
   }
 
-  private loadTask(id: string): void {
+  private reloadTask(id: string): void {
+    this.firestore.collection('tasks').doc(id).get().subscribe({
+      next: (doc) => {
+        if (doc.exists) {
+          const raw = (doc.data() || {}) as any;
+          this.task = this.transformLegacyTask({ id: doc.id, ...raw });
+        }
+      }
+    });
+  }
+
+  loadTask(id: string): void {
     this.isLoading = true;
     this.notFound = false;
     this.firestore.collection('tasks').doc(id).get().subscribe({
@@ -83,6 +183,35 @@ export class TaskDetailsComponent implements OnInit {
         this.showNotification('Error loading task', 'error');
       }
     });
+  }
+
+  private loadComments(taskId: string): void {
+    this.firestore
+      .collection('tasks').doc(taskId)
+      .collection('comments', ref => ref.orderBy('createdAt', 'asc'))
+      .valueChanges({ idField: 'id' })
+      .subscribe((docs: any[]) => {
+        this.comments = docs.map(d => ({
+          id: d.id,
+          authorName: d.authorName || 'Unknown',
+          authorId: d.authorId || '',
+          text: d.text || '',
+          createdAt: d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now())
+        }));
+      });
+  }
+
+  postComment(): void {
+    const text = this.newComment.trim();
+    if (!text || !this.task?.id) return;
+    this.newComment = '';
+    this.firestore.collection('tasks').doc(this.task.id)
+      .collection('comments').add({
+        text,
+        authorName: 'You',
+        authorId: 'current-user',
+        createdAt: new Date()
+      });
   }
 
   private convertTimestampToDate(timestamp: any): Date | null {
@@ -115,6 +244,7 @@ export class TaskDetailsComponent implements OnInit {
       isActive: task.isActive !== false,
       createdAt: this.convertTimestampToDate(task.createdAt) || new Date(),
       updatedAt: this.convertTimestampToDate(task.updatedAt) ?? undefined,
+      startDate: this.convertTimestampToDate(task.startDate) ?? undefined,
       dueDate: this.convertTimestampToDate(task.dueDate) ?? undefined,
       tags: task.tags || [],
       assigns: task.assigns,
@@ -125,6 +255,7 @@ export class TaskDetailsComponent implements OnInit {
     } as Task;
   }
 
+  // ——— Getters ———
   getTaskTitle(): string {
     return this.task?.title || this.task?.task || 'Untitled Task';
   }
@@ -133,15 +264,31 @@ export class TaskDetailsComponent implements OnInit {
     return this.task?.description || this.task?.remarks || '';
   }
 
-  getTaskAssignees(): string[] {
+  getSelectedAssigneeIds(): string[] {
     if (!this.task) return [];
-    if (this.task.assigns && this.task.assigns.length > 0) {
-      return this.task.assigns.map(a => a.name || 'Unknown');
-    }
+    if (this.task.assigns && this.task.assigns.length > 0) return this.task.assigns.map(a => a.uid);
+    return this.task.assignees || [];
+  }
+
+  getTaskAssigneeNames(): string[] {
+    if (!this.task) return [];
+    if (this.task.assigns && this.task.assigns.length > 0) return this.task.assigns.map(a => a.name || 'Unknown');
     if (this.task.assignees && this.task.assignees.length > 0) {
       return this.task.assignees.map(id => this.assignees.find(a => a.id === id)?.name || id);
     }
     return [];
+  }
+
+  isAssigned(assigneeId: string): boolean {
+    return this.getSelectedAssigneeIds().includes(assigneeId);
+  }
+
+  toggleAssignee(assigneeId: string): void {
+    const current = this.getSelectedAssigneeIds();
+    const next = current.includes(assigneeId)
+      ? current.filter(id => id !== assigneeId)
+      : [...current, assigneeId];
+    this.saveField('assignees', next);
   }
 
   getProjectName(): string {
@@ -171,6 +318,7 @@ export class TaskDetailsComponent implements OnInit {
     return labels[c] || c;
   }
 
+  // ——— Inline edit ———
   startEditTitle(): void {
     if (!this.task) return;
     this.editTitleValue = this.getTaskTitle();
@@ -191,12 +339,12 @@ export class TaskDetailsComponent implements OnInit {
     if (!this.task?.id) return;
     const title = (this.editTitleValue || '').trim() || this.getTaskTitle();
     this.editingField = null;
+    // Optimistic local update — no reload, no spinner
+    this.task = { ...this.task, title, task: title, updatedAt: new Date() };
+    this.addHistoryEntry('updated title');
     this.firestore.collection('tasks').doc(this.task.id).update({
-      title,
-      task: title,
-      updatedAt: new Date()
+      title, task: title, updatedAt: new Date()
     }).then(() => {
-      this.loadTask(this.task!.id!);
       this.showNotification('Title saved', 'success');
     }).catch(() => this.showNotification('Error saving title', 'error'));
   }
@@ -205,14 +353,255 @@ export class TaskDetailsComponent implements OnInit {
     if (!this.task?.id) return;
     const description = this.editDescValue ?? this.getTaskDescription();
     this.editingField = null;
+    this.task = { ...this.task, description, remarks: description, updatedAt: new Date() };
+    this.addHistoryEntry('updated description');
     this.firestore.collection('tasks').doc(this.task.id).update({
-      description,
-      remarks: description,
-      updatedAt: new Date()
+      description, remarks: description, updatedAt: new Date()
     }).then(() => {
-      this.loadTask(this.task!.id!);
       this.showNotification('Description saved', 'success');
     }).catch(() => this.showNotification('Error saving description', 'error'));
+  }
+
+  // ——— Generic field save ———
+  saveField(field: string, value: any): void {
+    if (!this.task?.id) return;
+    const now = new Date();
+    const update: any = { [field]: value, updatedAt: now };
+
+    // Patch local task immediately — no reload, no spinner
+    const localPatch: any = { [field]: value, updatedAt: now };
+    if (field === 'projectId') {
+      update['projecttaged'] = value;
+      localPatch['projecttaged'] = value;
+    }
+    if (field === 'assignees') {
+      const assigns = (value as string[]).map(id => {
+        const a = this.assignees.find(x => x.id === id);
+        return { uid: id, name: a?.name || id };
+      });
+      update['assigns'] = assigns;
+      localPatch['assigns'] = assigns;
+    }
+    const taskId = this.task.id!;
+    this.task = { ...this.task, ...localPatch };
+    this.addHistoryEntry(`changed ${field} to ${Array.isArray(value) ? value.join(', ') : value}`);
+    this.firestore.collection('tasks').doc(taskId).update(update)
+      .then(() => this.showNotification('Saved', 'success'))
+      .catch(() => this.showNotification('Error saving', 'error'));
+  }
+
+  saveStartDate(value: Date | string | null): void {
+    if (!this.task?.id) return;
+    const startDate = value ? new Date(value as any) : undefined;
+    this.task = { ...this.task, startDate, updatedAt: new Date() };
+    this.addHistoryEntry(`set start date to ${startDate ? startDate.toLocaleDateString() : 'none'}`);
+    this.firestore.collection('tasks').doc(this.task.id).update({
+      startDate: startDate || null,
+      updatedAt: new Date()
+    }).then(() => this.showNotification('Start date saved', 'success'))
+      .catch(() => this.showNotification('Error saving start date', 'error'));
+  }
+
+  saveDueDate(value: Date | string | null): void {
+    if (!this.task?.id) return;
+    const dueDate = value ? new Date(value as any) : undefined;
+    this.task = { ...this.task, dueDate, updatedAt: new Date() };
+    this.addHistoryEntry(`set due date to ${dueDate ? dueDate.toLocaleDateString() : 'none'}`);
+    this.firestore.collection('tasks').doc(this.task.id).update({
+      dueDate: dueDate || null,
+      updatedAt: new Date()
+    }).then(() => this.showNotification('Due date saved', 'success'))
+      .catch(() => this.showNotification('Error saving due date', 'error'));
+  }
+
+  clearStartDate(): void {
+    this.saveStartDate(null);
+  }
+
+  clearDueDate(): void {
+    this.saveDueDate(null);
+  }
+
+  // ——— Attachments ———
+  private loadAttachments(taskId: string): void {
+    this.firestore
+      .collection('tasks').doc(taskId)
+      .collection('attachments', ref => ref.orderBy('createdAt', 'desc'))
+      .valueChanges({ idField: 'id' })
+      .subscribe((docs: any[]) => {
+        this.attachments = docs.map(d => ({
+          id: d.id,
+          name: d.name || 'Unnamed',
+          url: d.url || '',
+          fileref: d.fileref || '',
+          format: d.format || '',
+          size: d.size || '',
+          uploadedBy: d.uploadedBy || '',
+          uploadedByName: d.uploadedByName || 'Unknown',
+          createdAt: d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now())
+        }));
+      });
+  }
+
+  triggerFileInput(): void {
+    this.fileInputRef?.nativeElement?.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (files?.length) {
+      Array.from(files).forEach(f => this.uploadFile(f));
+    }
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+    const files = event.dataTransfer?.files;
+    if (files?.length) {
+      Array.from(files).forEach(f => this.uploadFile(f));
+    }
+  }
+
+  uploadFile(file: File): void {
+    if (!this.task?.id) return;
+    if (file.size > 20 * 1024 * 1024) {
+      this.showNotification('File must be under 20 MB', 'error');
+      return;
+    }
+    const taskId = this.task.id;
+    this.isUploading = true;
+    this.uploadProgress = 0;
+    const filePath = `tasks/${taskId}/attachments/${Date.now()}_${file.name}`;
+    const fileRef = this.storage.ref(filePath);
+    const uploadTask = this.storage.upload(filePath, file);
+
+    uploadTask.percentageChanges().subscribe(pct => {
+      this.uploadProgress = Math.round(pct ?? 0);
+    });
+
+    uploadTask.snapshotChanges().pipe(
+      finalize(() => {
+        fileRef.getDownloadURL().subscribe(url => {
+          const meta = {
+            name: file.name,
+            url,
+            fileref: filePath,
+            format: this.getFileExtension(file.name),
+            size: this.formatFileSize(file.size),
+            uploadedBy: localStorage.getItem('userid') || '',
+            uploadedByName: localStorage.getItem('username') || 'You',
+            createdAt: new Date()
+          };
+          this.firestore.collection('tasks').doc(taskId)
+            .collection('attachments').add(meta)
+            .then(() => {
+              this.isUploading = false;
+              this.uploadProgress = 0;
+              this.addHistoryEntry(`attached "${file.name}"`);
+              this.showNotification('File uploaded', 'success');
+            })
+            .catch(() => {
+              this.isUploading = false;
+              this.showNotification('Upload failed', 'error');
+            });
+        });
+      })
+    ).subscribe();
+  }
+
+  deleteAttachment(att: TaskAttachment): void {
+    if (!this.task?.id || !att.id) return;
+    if (!confirm(`Delete "${att.name}"?`)) return;
+    const taskId = this.task.id;
+    this.firestore.collection('tasks').doc(taskId)
+      .collection('attachments').doc(att.id).delete()
+      .then(() => {
+        if (att.fileref) {
+          this.storage.ref(att.fileref).delete().subscribe({ next: () => {}, error: () => {} });
+        }
+        this.addHistoryEntry(`deleted attachment "${att.name}"`);
+        this.showNotification('Attachment deleted', 'success');
+      })
+      .catch(() => this.showNotification('Delete failed', 'error'));
+  }
+
+  downloadAttachment(att: TaskAttachment): void {
+    const link = document.createElement('a');
+    link.href = att.url;
+    link.target = '_blank';
+    link.download = att.name;
+    link.click();
+  }
+
+  getFileExtension(filename: string): string {
+    return filename.split('.').pop()?.toLowerCase() || '';
+  }
+
+  getFileIcon(format: string): string {
+    const ext = (format || '').toLowerCase();
+    const map: Record<string, string[]> = {
+      image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'],
+      description: ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'],
+      table_chart: ['xls', 'xlsx', 'csv', 'ods'],
+      slideshow: ['ppt', 'pptx', 'odp'],
+      folder_zip: ['zip', 'rar', '7z', 'tar', 'gz'],
+      code: ['js', 'ts', 'html', 'css', 'json', 'xml', 'py', 'java'],
+      video_file: ['mp4', 'avi', 'mov', 'webm'],
+      audiotrack: ['mp3', 'wav', 'flac', 'aac']
+    };
+    for (const [icon, exts] of Object.entries(map)) {
+      if (exts.includes(ext)) return icon;
+    }
+    return 'insert_drive_file';
+  }
+
+  getFileIconColor(format: string): string {
+    const ext = (format || '').toLowerCase();
+    const colorMap: Record<string, string[]> = {
+      '#4caf50': ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'xls', 'xlsx', 'csv'],
+      '#2196f3': ['pdf', 'doc', 'docx', 'txt', 'rtf'],
+      '#ff9800': ['ppt', 'pptx'],
+      '#9c27b0': ['zip', 'rar', '7z', 'tar', 'gz'],
+      '#607d8b': ['js', 'ts', 'html', 'css', 'json', 'xml', 'py', 'java'],
+      '#f44336': ['mp4', 'avi', 'mov', 'webm'],
+      '#e91e63': ['mp3', 'wav', 'flac', 'aac']
+    };
+    for (const [color, exts] of Object.entries(colorMap)) {
+      if (exts.includes(ext)) return color;
+    }
+    return '#78909c';
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  isImageFile(format: string): boolean {
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes((format || '').toLowerCase());
+  }
+
+  private addHistoryEntry(action: string): void {
+    this.history.unshift({ who: 'You', action, time: new Date() });
   }
 
   onBack(): void {
@@ -223,7 +612,7 @@ export class TaskDetailsComponent implements OnInit {
     if (!this.task?.id) return;
     if (!confirm('Are you sure you want to delete this task?')) return;
     this.firestore.collection('tasks').doc(this.task.id).delete().then(() => {
-      this.showNotification('Task deleted successfully!', 'success');
+      this.showNotification('Task deleted!', 'success');
       this.router.navigate(['/admin', 'tasks']);
     }).catch(() => this.showNotification('Error deleting task', 'error'));
   }

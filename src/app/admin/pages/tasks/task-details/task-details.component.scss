@@ -1,409 +1,1216 @@
-// Task details page — clean, card-based layout
-$bg: #f5f5f7;
+// ClickUp-inspired task details page
+// Variables
+$bg: #f7f7f8;
 $surface: #ffffff;
-$text: #1d1d1f;
-$text2: #6e6e73;
-$border: rgba(0, 0, 0, 0.08);
-$radius: 16px;
-$radius-sm: 10px;
-$blue: #0071e3;
-$red: #ff3b30;
-$green: #34c759;
+$border: #e5e5e8;
+$text: #1c1c1f;
+$text2: #6b6b7b;
+$text3: #a0a0b0;
+$blue: #7b68ee;
+$blue-light: rgba(123, 104, 238, 0.1);
+$radius: 8px;
+$panel-w: 340px;
 
-.task-details-page {
-  min-height: 100vh;
-  background: $bg;
-  padding: 24px 32px 48px;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
-
-  @media (max-width: 768px) {
-    padding: 16px 20px 32px;
-  }
+// ── Global icon normalisation ─────────────────────────────────────
+// Forces all mat-icons in this component to render as inline-flex
+// so they align correctly on the text baseline. Individual overrides
+// below fine-tune the size for each specific context.
+::ng-deep .tdp-page mat-icon,
+::ng-deep .tdp-page .mat-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  vertical-align: middle !important;
+  overflow: hidden !important;
+  flex-shrink: 0;
 }
 
-// ——— States (loading / not found) ———
-.details-state {
+// ── Outer page shell ──────────────────────────────────────────────
+.tdp-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $bg;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+// ── States (loading / not found) ─────────────────────────────────
+.tdp-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
-  text-align: center;
+  flex: 1;
+  gap: 16px;
   color: $text2;
+  text-align: center;
 
   &--loading {
     flex-direction: row;
-    gap: 16px;
-    p { margin: 0; font-size: 1rem; }
+    p { margin: 0; font-size: 0.95rem; }
   }
 
   &--empty {
-    mat-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: $text;
-    }
-    p {
-      margin: 0 0 24px 0;
-      font-size: 1rem;
-    }
-    button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border-radius: $radius-sm;
-      font-weight: 500;
-    }
+    mat-icon { font-size: 56px !important; width: 56px !important; height: 56px !important; opacity: 0.4; }
+    h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: $text; }
+    p { margin: 0; font-size: 0.9rem; max-width: 320px; }
   }
 }
 
-// ——— Header bar ———
-.details-header {
-  margin-bottom: 24px;
+// ── Root (fills page) ─────────────────────────────────────────────
+.tdp-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-.details-header-inner {
+// ── Top breadcrumb bar ────────────────────────────────────────────
+.tdp-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  .back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border-radius: $radius-sm;
-    font-weight: 500;
-    color: $text2;
-    border-color: $border;
-    &:hover {
-      background: rgba(0, 0, 0, 0.04);
-      color: $text;
-    }
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    .delete-btn {
-      border-radius: $radius-sm;
-      font-weight: 500;
-      color: $red;
-      border-color: rgba(255, 59, 48, 0.5);
-      &:hover {
-        background: rgba(255, 59, 48, 0.08);
-      }
-      mat-icon { font-size: 20px; width: 20px; height: 20px; }
-    }
-  }
+  padding: 0 20px;
+  height: 48px;
+  border-bottom: 1px solid $border;
+  background: $surface;
+  flex-shrink: 0;
+  gap: 12px;
 }
 
-// ——— Hero (title + badges) ———
-.details-hero {
-  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: #fff;
-  border-radius: $radius;
-  padding: 32px 36px;
-  margin-bottom: 28px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  position: relative;
+.tdp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8125rem;
+  color: $text2;
+  min-width: 0;
+  line-height: 1;
+}
+
+.tdp-back-btn {
+  color: $text2 !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  margin-right: 4px;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-mdc-button-touch-target { width: 32px !important; height: 32px !important; }
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 1 !important;
+  }
+  &:hover { background: rgba(0,0,0,0.05) !important; }
+}
+
+.tdp-bc-item {
+  font-size: 0.8125rem;
+  white-space: nowrap;
   overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 60%;
-    height: 200%;
-    background: radial-gradient(ellipse, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    margin-right: 10px;
-    margin-bottom: 12px;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
-
-  .details-title {
-    margin: 0 0 12px 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
-    position: relative;
-  }
-  .details-title--static {
-    cursor: pointer;
-    outline: none;
-    border-radius: 8px;
-    padding: 4px 8px;
-    margin: -4px -8px 0 -8px;
-    transition: background 0.15s;
-    &:hover {
-      background: rgba(255, 255, 255, 0.12);
-    }
-  }
-  .details-title--input {
-    width: 100%;
-    max-width: 600px;
-    margin: 0;
-    padding: 8px 12px;
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 10px;
-    outline: none;
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-  }
-
-  .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 24px;
-    font-size: 0.875rem;
-    opacity: 0.9;
-    position: relative;
-
-    .meta-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        opacity: 0.85;
-      }
-    }
-    .category-tag {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 500;
-    }
-  }
+  text-overflow: ellipsis;
+  &--muted { color: $text2; }
 }
 
-// ——— Cards grid ———
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  max-width: 1200px;
+.tdp-bc-id {
+  color: $text3;
+  font-family: monospace;
+  font-size: 0.75rem;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tdp-bc-sep {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  line-height: 1 !important;
+  color: $text3;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tdp-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tdp-danger-btn {
+  color: #ef4444 !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-mdc-button-touch-target { width: 32px !important; height: 32px !important; }
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 1 !important;
+  }
+  &:hover { background: rgba(239, 68, 68, 0.08) !important; }
+}
+
+// ── Two-pane body ─────────────────────────────────────────────────
+.tdp-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+// ══ LEFT: main pane ══
+.tdp-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 28px 32px 48px;
+  background: $surface;
+  border-right: 1px solid $border;
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+    padding: 20px 16px 32px;
   }
 }
 
-.details-card {
-  background: $surface;
-  border-radius: $radius;
-  border: 1px solid $border;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: box-shadow 0.2s;
-
-  &:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  }
-
-  &--wide {
-    grid-column: 1 / -1;
-  }
-
-  .card-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 22px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, transparent 100%);
-    border-bottom: 1px solid $border;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: $text;
-
-    mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      color: $blue;
-    }
-  }
-
-  .card-body {
-    padding: 22px;
-  }
+// ── Title ─────────────────────────────────────────────────────────
+.tdp-title-wrap {
+  margin-bottom: 20px;
 }
 
-// ——— Card content ———
-.field {
-  margin-bottom: 18px;
-  &:last-child { margin-bottom: 0; }
+.tdp-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: $text;
+  margin: 0;
+  letter-spacing: -0.01em;
 
-  label {
+  &--static {
+    cursor: text;
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin: -4px -6px;
+    transition: background 0.12s;
+    outline: none;
     display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: $text2;
-    margin-bottom: 6px;
+    word-break: break-word;
+    border: 1.5px solid transparent;
+    &:hover { background: rgba(0,0,0,0.03); }
+    &:focus { border-color: $blue; background: rgba(123,104,238,0.04); }
+  }
+
+  &--input {
+    display: block;
+    width: 100%;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $text;
+    background: rgba(123,104,238,0.04);
+    border: 1.5px solid $blue;
+    border-radius: 6px;
+    padding: 4px 8px;
+    outline: none;
+    font-family: inherit;
+    &::placeholder { color: $text3; font-weight: 400; }
   }
 }
 
-.value {
+// ── Properties table ──────────────────────────────────────────────
+.tdp-props {
+  margin-bottom: 24px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.tdp-prop-row {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  border-bottom: 1px solid $border;
+  padding: 0;
+  transition: background 0.1s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: #fafafa; }
+}
+
+.tdp-prop-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9375rem;
-  color: $text;
+  width: 160px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text2;
+  border-right: 1px solid $border;
+  min-height: 38px;
 
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: $text2;
+    font-size: 15px !important;
+    width: 15px !important;
+    height: 15px !important;
+    opacity: 0.55;
     flex-shrink: 0;
   }
 
-  &--muted {
-    font-size: 0.8125rem;
-    color: $text2;
-  }
-  &--success { color: $green; }
-  &--chips {
-    flex-wrap: wrap;
-    gap: 8px;
+  @media (max-width: 680px) {
+    width: 120px;
+    font-size: 0.75rem;
   }
 }
 
-.chip {
+.tdp-prop-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 38px;
+}
+
+// ── Status button ─────────────────────────────────────────────────
+.tdp-status-btn {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  background: var(--sc, #6b7280);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: opacity 0.12s;
+  &:hover { opacity: 0.85; }
+}
+
+.tdp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  flex-shrink: 0;
+}
+
+// ── Dates row ─────────────────────────────────────────────────────
+.tdp-dates-row {
   gap: 6px;
-  padding: 6px 12px;
-  background: rgba(0, 113, 227, 0.1);
-  color: $blue;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-  &--tag {
-    background: rgba(0, 0, 0, 0.06);
-    color: $text2;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tdp-arrow {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: $text3;
+  flex-shrink: 0;
+}
+
+// ── Date pill (hidden input + visible button + clear) ─────────────
+.tdp-date-pill {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+
+  // The actual MatDatepicker input — invisible but present for the picker to attach to
+  .tdp-date-hidden-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+    border: none;
+    padding: 0;
   }
 }
 
-.no-content {
+.tdp-date-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 7px;
+  border: 1px dashed $border;
+  border-radius: 5px;
+  background: transparent;
+  color: $text3;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  &:hover {
+    border-color: $blue;
+    color: $blue;
+    background: rgba(123, 104, 238, 0.05);
+    border-style: solid;
+  }
+
+  // When a date is set — solid border, text color
+  &--set {
+    border-style: solid;
+    border-color: $border;
+    color: $text;
+    font-weight: 500;
+
+    &:hover {
+      border-color: $blue;
+      color: $blue;
+    }
+  }
+}
+
+.tdp-date-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: $text3;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+  margin-left: 2px;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+
+  mat-icon { font-size: 12px !important; width: 12px !important; height: 12px !important; }
+  &:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+}
+
+// ── Num (hours) field ─────────────────────────────────────────────
+.tdp-inline-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: border-color 0.12s, background 0.12s;
+
+  &:focus-within {
+    border-color: $blue;
+    background: rgba(123, 104, 238, 0.04);
+  }
+  &:hover:not(:focus-within) {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: $border;
+  }
+}
+
+.tdp-num-input {
+  width: 64px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: $text;
+  padding: 0;
+  -moz-appearance: textfield;
+
+  &::placeholder { color: $text3; }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+}
+
+.tdp-num-suffix {
+  font-size: 0.8125rem;
+  color: $text2;
+  font-weight: 500;
+}
+
+// ── Assignee avatars ──────────────────────────────────────────────
+.tdp-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7b68ee, #a78bfa);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  cursor: default;
+
+  &--sm {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+}
+
+.tdp-add-person-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px dashed $text3;
+  background: transparent;
+  color: $text3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  mat-icon { font-size: 15px !important; width: 15px !important; height: 15px !important; }
+  &:hover { border-color: $blue; color: $blue; }
+}
+
+.tdp-creator-name {
+  font-size: 0.8125rem;
+  color: $text;
+}
+
+// ── Generic prop button ───────────────────────────────────────────
+.tdp-prop-btn, .tdp-priority-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: $text;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  font-family: inherit;
+  mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+  &:hover { background: rgba(0,0,0,0.06); }
+}
+
+.tdp-priority-flag {
+  display: inline-flex;
+  align-items: center;
+  mat-icon { font-size: 15px !important; width: 15px !important; height: 15px !important; }
+}
+
+.tdp-chevron {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: $text3;
+}
+
+// ── Empty val ─────────────────────────────────────────────────────
+.tdp-empty-val {
+  font-size: 0.8125rem;
+  color: $text3;
+}
+
+// ── Tags ──────────────────────────────────────────────────────────
+.tdp-tags-row { flex-wrap: wrap; }
+
+.tdp-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  background: #f0edfd;
+  color: $blue;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+// ── Progress row ──────────────────────────────────────────────────
+.tdp-progress-row {
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+
+  mat-progress-bar { flex: 1; }
+  ::ng-deep .mat-mdc-progress-bar { height: 6px; border-radius: 3px; }
+}
+
+.tdp-progress-pct {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text2;
+  min-width: 32px;
+}
+
+// ── Menu extras ───────────────────────────────────────────────────
+.menu-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.menu-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $blue;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.menu-check {
+  margin-left: auto;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: $blue;
+}
+
+// ── Project menu search ───────────────────────────────────────────
+.tdp-menu-search {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid $border;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: $text3; flex-shrink: 0; }
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.875rem;
+    background: transparent;
+    color: $text;
+    &::placeholder { color: $text3; }
+  }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────
+.tdp-tabs-wrap {
+  margin-top: 4px;
+}
+
+.tdp-tabs {
+  display: flex;
+  border-bottom: 1px solid $border;
+  margin-bottom: 0;
+  gap: 0;
+}
+
+.tdp-tab {
+  padding: 10px 18px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text2;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  margin-bottom: -1px;
+  font-family: inherit;
+
+  &:hover { color: $text; }
+  &--active {
+    color: $blue;
+    border-bottom-color: $blue;
+    font-weight: 600;
+  }
+}
+
+.tdp-tab-panel {
+  padding: 20px 0 0;
+}
+
+// ── Description ───────────────────────────────────────────────────
+.tdp-desc-display {
+  min-height: 56px;
+  cursor: text;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: -10px -12px;
+  transition: background 0.12s;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: $text;
+  outline: none;
+  border: 1.5px solid transparent;
+
+  &:hover { background: rgba(0,0,0,0.025); }
+  &:focus { border-color: $blue; background: rgba(123,104,238,0.03); }
+
+  ::ng-deep p { margin: 0 0 10px; }
+  ::ng-deep p:last-child { margin: 0; }
+  ::ng-deep ul, ::ng-deep ol { margin: 0 0 10px; padding-left: 1.25em; }
+}
+
+.tdp-desc-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $text3;
+  font-size: 0.875rem;
+  mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+}
+
+.tdp-quill-wrap {
+  ::ng-deep .ql-toolbar {
+    border-radius: 6px 6px 0 0;
+    border-color: $border;
+    background: #fafafa;
+  }
+  ::ng-deep .ql-container {
+    border-radius: 0 0 6px 6px;
+    border-color: $border;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  ::ng-deep .ql-editor {
+    min-height: 160px;
+    color: $text;
+    line-height: 1.7;
+  }
+}
+
+.tdp-quill-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+
+  button {
+    border-radius: 6px;
+    font-size: 0.875rem;
+  }
+}
+
+// ── Details tab ───────────────────────────────────────────────────
+.tdp-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid $border;
+  font-size: 0.8125rem;
+
+  &:last-child { border-bottom: none; }
+}
+
+.tdp-detail-label {
+  width: 140px;
+  flex-shrink: 0;
+  color: $text2;
+  font-weight: 500;
+}
+
+.tdp-detail-val {
+  color: $text;
+  flex: 1;
+}
+
+.tdp-detail-divider {
+  padding: 12px 0 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text3;
+}
+
+// ══ RIGHT: Activity panel ══
+.tdp-activity-panel {
+  width: $panel-w;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: $surface;
+  border-left: 1px solid $border;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.tdp-activity-header {
+  padding: 14px 16px 0;
+  border-bottom: 1px solid $border;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.tdp-activity-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: 10px;
+}
+
+.tdp-activity-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.tdp-act-tab {
+  padding: 7px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text2;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  margin-bottom: -1px;
+  font-family: inherit;
+
+  &:hover { color: $text; }
+  &.active { color: $blue; border-bottom-color: $blue; font-weight: 600; }
+}
+
+// ── Comments list ─────────────────────────────────────────────────
+.tdp-comments-list, .tdp-history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tdp-comment {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tdp-comment-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7b68ee, #a78bfa);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &--me {
+    background: linear-gradient(135deg, #10b981, #34d399);
+  }
+}
+
+.tdp-comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.tdp-comment-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 3px;
+
+  strong {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $text;
+  }
+}
+
+.tdp-comment-time {
+  font-size: 0.7rem;
+  color: $text3;
+}
+
+.tdp-comment-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: $text;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+// ── History ───────────────────────────────────────────────────────
+.tdp-history-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tdp-history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $border;
+  border: 2px solid $text3;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.tdp-history-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tdp-history-who {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.tdp-history-action {
+  font-size: 0.8rem;
+  color: $text2;
+}
+
+.tdp-history-time {
+  font-size: 0.7rem;
+  color: $text3;
+}
+
+// ── No comments ───────────────────────────────────────────────────
+.tdp-no-comments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  color: $text3;
+  padding: 32px 0;
+  text-align: center;
+
+  mat-icon { font-size: 36px !important; width: 36px !important; height: 36px !important; opacity: 0.5; }
+  p { margin: 0; font-size: 0.8125rem; }
+}
+
+// ── Comment input ─────────────────────────────────────────────────
+.tdp-comment-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid $border;
+  background: $surface;
+  flex-shrink: 0;
+}
+
+.tdp-comment-input-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 20px;
+  padding: 6px 8px 6px 14px;
+  gap: 4px;
+  transition: border-color 0.12s;
+  &:focus-within { border-color: $blue; }
+}
+
+.tdp-comment-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: $text;
+  font-family: inherit;
+  &::placeholder { color: $text3; }
+}
+
+.tdp-comment-send {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $blue;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.12s;
+  mat-icon { font-size: 15px !important; width: 15px !important; height: 15px !important; }
+  &:disabled { opacity: 0.4; cursor: default; }
+  &:not(:disabled):hover { opacity: 0.85; }
+}
+
+// ── Tabs badge ───────────────────────────────────────────────────
+.tdp-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: $blue;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-left: 5px;
+  line-height: 1;
+}
+
+// ── Attachments ───────────────────────────────────────────────────
+
+// Drop zone
+.tdp-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 20px;
+  border: 2px dashed $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 16px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    color: $text3;
+    transition: color 0.15s;
+  }
+
+  &:hover, &--over {
+    border-color: $blue;
+    background: rgba(123, 104, 238, 0.04);
+    mat-icon { color: $blue; }
+  }
+
+  &--over {
+    border-style: solid;
+    background: rgba(123, 104, 238, 0.08);
+  }
+}
+
+.tdp-dz-text {
   margin: 0;
   font-size: 0.875rem;
   color: $text2;
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-  }
 }
 
-.task-description {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: $text;
-  ::ng-deep p { margin: 0 0 10px 0; }
-  ::ng-deep p:last-child { margin: 0; }
-  ::ng-deep ul, ::ng-deep ol { margin: 0 0 10px 0; padding-left: 1.25em; }
-}
-.task-description--editable {
-  cursor: pointer;
-  outline: none;
-  border-radius: 10px;
-  padding: 8px 12px;
-  margin: -8px -12px;
-  transition: background 0.15s;
-  min-height: 60px;
-  &:hover {
-    background: rgba(0, 0, 0, 0.03);
-  }
-}
-.description-textarea {
-  width: 100%;
-  min-height: 140px;
-  padding: 12px 14px;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: $text;
-  background: #fafafa;
-  border: 1px solid $border;
-  border-radius: 10px;
-  outline: none;
-  resize: vertical;
-  font-family: inherit;
-  &:focus {
-    border-color: $blue;
-    background: $surface;
-  }
+.tdp-dz-link {
+  color: $blue;
+  font-weight: 600;
+  text-decoration: underline;
 }
 
-.progress-wrap {
+.tdp-dz-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: $text3;
+}
+
+// Upload progress bar
+.tdp-upload-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(123, 104, 238, 0.06);
+  border: 1px solid rgba(123, 104, 238, 0.2);
+  border-radius: $radius;
+  margin-bottom: 12px;
+}
+
+.tdp-up-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: $blue;
+  flex-shrink: 0;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tdp-up-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: rgba(123, 104, 238, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tdp-up-bar {
+  height: 100%;
+  background: $blue;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.tdp-up-pct {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $blue;
+  min-width: 32px;
+  text-align: right;
+}
+
+// Attachment list
+.tdp-att-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tdp-att-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  ::ng-deep .mat-mdc-progress-bar { flex: 1; height: 8px; border-radius: 4px; }
-  .progress-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: $text2;
-    min-width: 36px;
+  padding: 10px 12px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $surface;
+  transition: box-shadow 0.12s, border-color 0.12s;
+
+  &:hover {
+    border-color: rgba(123, 104, 238, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 }
 
-.legacy-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px 24px;
+.tdp-att-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.tdp-att-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.tdp-att-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tdp-att-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tdp-att-meta {
+  font-size: 0.75rem;
+  color: $text2;
+}
+
+.tdp-att-by {
+  font-size: 0.7rem;
+  color: $text3;
+}
+
+.tdp-att-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+
+  .tdp-att-item:hover & { opacity: 1; }
+
+  button {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+  }
+
+  .tdp-att-del {
+    color: #ef4444 !important;
+    &:hover { background: rgba(239, 68, 68, 0.08) !important; }
+  }
+}
+
+// Empty state
+.tdp-att-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+  color: $text3;
+  text-align: center;
+
+  mat-icon { font-size: 32px !important; width: 32px !important; height: 32px !important; opacity: 0.4; }
+  p { margin: 0; font-size: 0.8125rem; }
+}
+
+// ── Datepicker hidden input (inside .tdp-date-pill) ──────────────
+// The MatDatepicker needs a real input to attach to; we hide it visually.
+.tdp-dates-row mat-form-field {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+  ::ng-deep * { pointer-events: none; }
 }

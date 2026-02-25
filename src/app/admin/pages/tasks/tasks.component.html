@@ -99,7 +99,8 @@
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -146,7 +147,8 @@
                 <span class="progress-num">{{ task.progress || 0 }}%</span>
               </div>
               <div class="card-actions">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -188,7 +190,8 @@
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
                 <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
@@ -222,7 +225,8 @@
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="card-actions">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Resume"><mat-icon>play_circle</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
@@ -432,9 +436,10 @@
             </div>
             <div class="list-cell list-cell--actions">
               <div class="list-actions">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+              <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+              <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </div>

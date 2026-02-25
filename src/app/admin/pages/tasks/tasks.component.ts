@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { TaskFormComponent, TaskFormData } from './task-form/task-form.component';
@@ -35,6 +36,7 @@ export interface Task {
   ownProjectTaskId?: string | null;
   /** When category === 'clientProject', client id (clients collection). */
   clientId?: string | null;
+  startDate?: Date;
   dueDate?: Date;
   estimatedHours?: number;
   actualHours?: number;
@@ -151,7 +153,8 @@ export class TasksComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -485,6 +488,10 @@ export class TasksComponent implements OnInit {
         }
       }
     });
+  }
+
+  openTaskDetails(taskId: string): void {
+    this.router.navigate(['/admin/tasks', taskId]);
   }
 
   openTaskView(task: Task): void {
