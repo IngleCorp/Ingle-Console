@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -74,6 +75,10 @@ export class TaskDetailsComponent implements OnInit {
     { id: '3', name: 'Ajmal', email: 'ajmal@example.com' }
   ];
   projects: Project[] = [];
+  /** Client projects from Firestore `projects` collection (have clientid field). */
+  clientProjects: (Project & { clientid?: string })[] = [];
+  /** Own projects from Firestore `ownProjects` collection. */
+  ownProjects: Project[] = [];
 
   priorities = [
     { value: 'low', label: 'Low', color: '#10b981' },
@@ -95,6 +100,8 @@ export class TaskDetailsComponent implements OnInit {
 
   projectSearchCtrl = new FormControl('');
   filteredProjects: Observable<Project[]>;
+  filteredClientProjects: Observable<(Project & { clientid?: string })[]>;
+  filteredOwnProjects: Observable<Project[]>;
 
   quillModules = {
     toolbar: [
@@ -118,11 +125,26 @@ export class TaskDetailsComponent implements OnInit {
     private router: Router,
     private firestore: AngularFirestore,
     private storage: AngularFireStorage,
+    private auth: AngularFireAuth,
     private snackBar: MatSnackBar
   ) {
     this.filteredProjects = this.projectSearchCtrl.valueChanges.pipe(
       startWith(''),
       map(value => this.filterProjects(value || ''))
+    );
+    this.filteredClientProjects = this.projectSearchCtrl.valueChanges.pipe(
+      startWith(''),
+      map(value => {
+        const q = (value || '').toLowerCase();
+        return this.clientProjects.filter(p => p.name.toLowerCase().includes(q));
+      })
+    );
+    this.filteredOwnProjects = this.projectSearchCtrl.valueChanges.pipe(
+      startWith(''),
+      map(value => {
+        const q = (value || '').toLowerCase();
+        return this.ownProjects.filter(p => p.name.toLowerCase().includes(q));
+      })
     );
   }
 
@@ -134,8 +156,11 @@ export class TaskDetailsComponent implements OnInit {
       return;
     }
     this.loadProjects();
+    this.loadClientProjects();
+    this.loadOwnProjects();
     this.loadTask(id);
     this.loadComments(id);
+    this.loadHistory(id);
     this.loadAttachments(id);
   }
 
@@ -149,6 +174,71 @@ export class TaskDetailsComponent implements OnInit {
     this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any) => {
       this.projects = projects;
     });
+  }
+
+  private loadClientProjects(): void {
+    this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+      this.clientProjects = projects.filter(p => p.clientid);
+    });
+  }
+
+  private loadOwnProjects(): void {
+    this.firestore.collection('ownProjects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+      this.ownProjects = projects.map(p => ({ id: p.id, name: p.name || p.title || p.id }));
+    });
+  }
+
+  /** Returns the effective category of the current task. */
+  getTaskCategory(): string {
+    if (!this.task) return 'general';
+    return this.task.category || (this.task.source === 'ownProject' ? 'ownProject' : (this.task.clientId ? 'clientProject' : 'general'));
+  }
+
+  /** Navigate to the linked project page in a new tab. */
+  openProjectPage(): void {
+    if (!this.task) return;
+    const cat = this.getTaskCategory();
+    if (cat === 'ownProject') {
+      const id = this.task.ownProjectId || this.task.projectId;
+      if (id) this.router.navigate(['/admin/own-projects', id]);
+    } else if (cat === 'clientProject') {
+      const projectId = this.task.projectId || this.task.projecttaged;
+      const proj = this.clientProjects.find(p => p.id === projectId);
+      const clientId = this.task.clientId || (proj as any)?.clientid;
+      if (clientId && projectId) {
+        this.router.navigate(['/admin/clients', clientId, 'projects', projectId]);
+      }
+    }
+  }
+
+  /** Saves category and resets the project-related fields. */
+  saveCategory(value: string): void {
+    if (!this.task?.id) return;
+    const now = new Date();
+    const update: any = { category: value, projectId: null, projecttaged: null, clientId: null, ownProjectId: null, updatedAt: now };
+    const taskId = this.task.id!;
+    this.task = { ...this.task, category: value as any, projectId: null, projecttaged: null, clientId: null, ownProjectId: null, updatedAt: now };
+    this.addHistoryEntry(`changed category to ${value}`);
+    this.firestore.collection('tasks').doc(taskId).update(update)
+      .then(() => this.showNotification('Category saved', 'success'))
+      .catch(() => this.showNotification('Error saving category', 'error'));
+  }
+
+  /** Saves the selected project (client or own project). */
+  saveProjectSelection(projectId: string | null, extra: { clientId?: string; ownProjectId?: string } = {}): void {
+    if (!this.task?.id) return;
+    const now = new Date();
+    const update: any = { projectId, projecttaged: projectId, updatedAt: now };
+    const localPatch: any = { projectId, projecttaged: projectId, updatedAt: now };
+    if (extra.clientId !== undefined) { update['clientId'] = extra.clientId; localPatch['clientId'] = extra.clientId; }
+    if (extra.ownProjectId !== undefined) { update['ownProjectId'] = extra.ownProjectId; localPatch['ownProjectId'] = extra.ownProjectId; }
+    const taskId = this.task.id!;
+    const proj = [...this.clientProjects, ...this.ownProjects, ...this.projects].find(p => p.id === projectId);
+    this.addHistoryEntry(`changed project to ${proj?.name || projectId || 'none'}`);
+    this.task = { ...this.task, ...localPatch };
+    this.firestore.collection('tasks').doc(taskId).update(update)
+      .then(() => this.showNotification('Project saved', 'success'))
+      .catch(() => this.showNotification('Error saving project', 'error'));
   }
 
   private reloadTask(id: string): void {
@@ -293,11 +383,17 @@ export class TaskDetailsComponent implements OnInit {
 
   getProjectName(): string {
     if (!this.task) return '';
+    const cat = this.getTaskCategory();
+    if (cat === 'ownProject') {
+      const id = this.task.ownProjectId || this.task.projectId || this.task.projecttaged;
+      if (!id) return '';
+      if (this.task.projectName) return this.task.projectName;
+      return this.ownProjects.find(p => p.id === id)?.name || id;
+    }
     const projectId = this.task.projectId || this.task.projecttaged;
     if (!projectId) return '';
-    if (this.task.source === 'ownProject' && this.task.projectName) return this.task.projectName;
-    const project = this.projects.find(p => p.id === projectId);
-    return project?.name || projectId;
+    const allProjects = [...this.clientProjects, ...this.projects];
+    return allProjects.find(p => p.id === projectId)?.name || projectId;
   }
 
   getPriorityInfo(): { label: string; color: string } {
@@ -600,8 +696,31 @@ export class TaskDetailsComponent implements OnInit {
     return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes((format || '').toLowerCase());
   }
 
-  private addHistoryEntry(action: string): void {
-    this.history.unshift({ who: 'You', action, time: new Date() });
+  private loadHistory(taskId: string): void {
+    this.firestore
+      .collection('tasks').doc(taskId)
+      .collection('history', ref => ref.orderBy('time', 'desc'))
+      .valueChanges({ idField: 'id' })
+      .subscribe((docs: any[]) => {
+        this.history = docs.map(d => ({
+          who: d.who || 'Unknown',
+          action: d.action || '',
+          time: d.time?.toDate ? d.time.toDate() : new Date(d.time || Date.now())
+        }));
+      });
+  }
+
+  private async addHistoryEntry(action: string): Promise<void> {
+    if (!this.task?.id) return;
+    const user = await this.auth.currentUser;
+    const who = user?.displayName || user?.email || 'Unknown';
+    await this.firestore
+      .collection('tasks').doc(this.task.id)
+      .collection('history').add({
+        who,
+        action,
+        time: new Date()
+      });
   }
 
   onBack(): void {

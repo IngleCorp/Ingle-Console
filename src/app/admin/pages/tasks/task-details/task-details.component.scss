@@ -494,6 +494,41 @@ $panel-w: 340px;
   color: $text;
 }
 
+// ── Project value row ─────────────────────────────────────────────
+.tdp-project-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tdp-open-proj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: $text3;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    line-height: 14px !important;
+  }
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+  }
+}
+
 // ── Generic prop button ───────────────────────────────────────────
 .tdp-prop-btn, .tdp-priority-btn {
   display: inline-flex;

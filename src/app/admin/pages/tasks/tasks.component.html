@@ -122,10 +122,11 @@
             *ngFor="let task of todoTasks"
             cdkDrag
             [cdkDragData]="task"
-            [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'">
+            [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'"
+            (click)="openTaskDetails(task.id!)">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
@@ -191,14 +192,15 @@
         </div>
 
         <div class="column-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="inProgressTasks" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="card" *ngFor="let task of inProgressTasks" cdkDrag [cdkDragData]="task">
+          <article class="card" *ngFor="let task of inProgressTasks" cdkDrag [cdkDragData]="task"
+            (click)="openTaskDetails(task.id!)">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
               <div class="progress-inline">
                 <mat-progress-bar [value]="task.progress || 0" color="primary" mode="determinate"></mat-progress-bar>
                 <span class="progress-num">{{ task.progress || 0 }}%</span>
               </div>
-              <div class="card-actions">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
@@ -263,10 +265,11 @@
         </div>
 
         <div class="column-cards" cdkDropList [id]="'done'" [cdkDropListData]="doneTasks" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="card" *ngFor="let task of doneTasks" cdkDrag [cdkDragData]="task">
+          <article class="card" *ngFor="let task of doneTasks" cdkDrag [cdkDragData]="task"
+            (click)="openTaskDetails(task.id!)">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
@@ -325,10 +328,11 @@
         </div>
 
         <div class="column-cards" cdkDropList [id]="'hold'" [cdkDropListData]="holdTasks" (cdkDropListDropped)="onTaskDrop($event)">
-          <article class="card" *ngFor="let task of holdTasks" cdkDrag [cdkDragData]="task">
+          <article class="card" *ngFor="let task of holdTasks" cdkDrag [cdkDragData]="task"
+            (click)="openTaskDetails(task.id!)">
             <div class="card-top">
               <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions">
+              <div class="card-actions" (click)="$event.stopPropagation()">
                 <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
                 <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
                 <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
