@@ -720,19 +720,104 @@ $panel-w: 340px;
 
 // ── Progress row ──────────────────────────────────────────────────
 .tdp-progress-row {
+  display: flex;
+  align-items: center;
   gap: 10px;
   width: 100%;
-  max-width: 280px;
-
-  mat-progress-bar { flex: 1; }
-  ::ng-deep .mat-mdc-progress-bar { height: 6px; border-radius: 3px; }
+  max-width: 320px;
 }
 
-.tdp-progress-pct {
+// ── Range slider ───────────────────────────────────────────────────
+.tdp-prog-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(
+    to right,
+    $blue 0%,
+    $blue calc(var(--prog, 0) * 1%),
+    #e5e7eb calc(var(--prog, 0) * 1%),
+    #e5e7eb 100%
+  );
+
+  // Thumb — Chrome / Safari
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid $blue;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  &:hover::-webkit-slider-thumb,
+  &:focus::-webkit-slider-thumb {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+  }
+
+  // Thumb — Firefox
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid $blue;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  &:hover::-moz-range-thumb,
+  &:focus::-moz-range-thumb {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+  }
+
+  // Track — Firefox
+  &::-moz-range-track {
+    height: 6px;
+    border-radius: 99px;
+    background: #e5e7eb;
+  }
+  &::-moz-range-progress {
+    height: 6px;
+    border-radius: 99px;
+    background: $blue;
+  }
+}
+
+.tdp-prog-input {
+  width: 40px;
+  height: 26px;
+  padding: 0 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: transparent;
   font-size: 0.8rem;
   font-weight: 600;
-  color: $text2;
-  min-width: 32px;
+  color: $text;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+  &:focus { border-color: $blue; }
+}
+
+.tdp-progress-pct-sym {
+  font-size: 0.8rem;
+  color: $text3;
+  margin-left: -6px;
 }
 
 // ── Menu extras ───────────────────────────────────────────────────

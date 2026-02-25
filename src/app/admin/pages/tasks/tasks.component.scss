@@ -353,47 +353,28 @@ $hdr-h:    44px;
 .card {
   background: $surface;
   border-radius: 6px;
-  padding: 10px 12px 8px;
+  padding: 10px 12px 10px;
   margin-bottom: 6px;
-  border: 1px solid transparent;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-left-width: 3px;
+  border-left-style: solid;
+  transition: box-shadow 0.15s;
   cursor: grab;
   position: relative;
 
   &:last-child { margin-bottom: 0; }
 
   &:hover {
-    border-color: rgba(0,0,0,0.08);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+    .card-footer { opacity: 1; max-height: 36px; }
     .card-actions { opacity: 1; pointer-events: auto; }
   }
 
-  &.card--urgent {
-    border-left: 3px solid $red !important;
-  }
-
-  // ── Top row: priority bar + progress + actions ──
-  .card-top {
+  .progress-inline {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 6px;
-    min-height: 22px;
-  }
-
-  .card-priority {
-    width: 3px;
-    height: 14px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .progress-inline {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
     ::ng-deep .mat-mdc-progress-bar {
       height: 4px;
       border-radius: 2px;
@@ -407,41 +388,33 @@ $hdr-h:    44px;
     }
   }
 
-  // Actions: hidden until hover, right-aligned
+  // ── Footer: action bar — slides in at bottom on hover ──
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.15s, max-height 0.15s;
+
+    @media (hover: none) { opacity: 1; max-height: 36px; }
+  }
+
   .card-actions {
     display: flex;
-    gap: 1px;
-    margin-left: auto;
-    opacity: 0;
+    align-items: center;
+    gap: 2px;
     pointer-events: none;
     transition: opacity 0.15s;
-    flex-shrink: 0;
 
-    button {
-      width: 26px !important;
-      height: 26px !important;
-      min-width: 26px !important;
-      padding: 0 !important;
-      border-radius: 4px !important;
-      color: $text2 !important;
-
-      mat-icon {
-        font-size: 15px !important;
-        width: 15px !important;
-        height: 15px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        line-height: 1 !important;
-      }
-
-      &:hover {
-        background: rgba(0,0,0,0.06) !important;
-        color: $text !important;
-      }
-    }
-
-    @media (hover: none) { opacity: 1; pointer-events: auto; }
+    @media (hover: none) { pointer-events: auto; }
   }
+
+  &:hover .card-actions { pointer-events: auto; }
 
   // ── Body ──
   .card-body {
@@ -502,6 +475,25 @@ $hdr-h:    44px;
         }
       }
     }
+
+    .card-creator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 0.6875rem;
+      color: $text3;
+
+      mat-icon {
+        font-size: 13px !important;
+        width: 13px !important;
+        height: 13px !important;
+        line-height: 13px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        color: $text3;
+      }
+    }
   }
 }
 
@@ -543,6 +535,49 @@ $hdr-h:    44px;
   .cdk-drag-animating { transition: transform 0.18s ease; }
 }
 .card.cdk-drag-dragging { cursor: grabbing; }
+
+// ── Card action button (replaces mat-icon-button) ─────────────────
+.ca-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: $text2;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+
+  mat-icon {
+    font-size: 15px !important;
+    width: 15px !important;
+    height: 15px !important;
+    line-height: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.07);
+    color: $text;
+  }
+
+  &--danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: $red;
+  }
+
+  &--success:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+}
 
 // ─── List View ────────────────────────────────────────────────────
 .list-view {
@@ -731,29 +766,10 @@ $hdr-h:    44px;
 
 .list-actions {
   display: flex;
-  gap: 1px;
+  align-items: center;
+  gap: 2px;
   opacity: 0;
   transition: opacity 0.15s;
-
-  button {
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
-    padding: 0 !important;
-    border-radius: 4px !important;
-    color: $text2 !important;
-
-    mat-icon {
-      font-size: 15px !important;
-      width: 15px !important;
-      height: 15px !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      line-height: 1 !important;
-    }
-
-    &:hover { background: rgba(0,0,0,0.06) !important; color: $text !important; }
-  }
 
   @media (hover: none) { opacity: 1; }
 }

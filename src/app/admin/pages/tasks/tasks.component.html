@@ -122,19 +122,8 @@
             *ngFor="let task of todoTasks"
             cdkDrag
             [cdkDragData]="task"
-            [class.card--urgent]="task.priority === 'high' || task.priority === 'urgent'"
+            [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="openTaskDetails(task.id!)">
-            <div class="card-top">
-              <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
-              </div>
-            </div>
             <div class="card-body">
               <h3 class="card-title">{{ getTaskTitle(task) }}</h3>
               <div class="card-tags">
@@ -151,6 +140,19 @@
                 </span>
                 <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon>{{ task.estimatedHours }}h</span>
+              </div>
+              <div class="card-creator">
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
+              </div>
+            </div>
+            <div class="card-footer" (click)="$event.stopPropagation()">
+              <div class="card-actions">
+                <button class="ca-btn" (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Start"><mat-icon>play_circle</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button class="ca-btn ca-btn--danger" (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
@@ -193,22 +195,13 @@
 
         <div class="column-cards" cdkDropList [id]="'in-progress'" [cdkDropListData]="inProgressTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of inProgressTasks" cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="openTaskDetails(task.id!)">
-            <div class="card-top">
-              <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
+            <div class="card-body">
               <div class="progress-inline">
                 <mat-progress-bar [value]="task.progress || 0" color="primary" mode="determinate"></mat-progress-bar>
                 <span class="progress-num">{{ task.progress || 0 }}%</span>
               </div>
-              <div class="card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-              </div>
-            </div>
-            <div class="card-body">
               <h3 class="card-title">{{ getTaskTitle(task) }}</h3>
               <div class="card-tags">
                 <span class="tag tag--category" [class]="'tag--' + getTaskCategory(task)">{{ getTaskCategoryLabel(getTaskCategory(task)) }}</span>
@@ -224,6 +217,18 @@
                 </span>
                 <span class="meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.estimatedHours"><mat-icon>schedule</mat-icon>{{ task.estimatedHours }}h</span>
+              </div>
+              <div class="card-creator">
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
+              </div>
+            </div>
+            <div class="card-footer" (click)="$event.stopPropagation()">
+              <div class="card-actions">
+                <button class="ca-btn" (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="ca-btn ca-btn--success" (click)="updateTaskStatus(task.id!, 'done')" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'hold')" matTooltip="Hold"><mat-icon>pause_circle</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
               </div>
             </div>
           </article>
@@ -266,17 +271,8 @@
 
         <div class="column-cards" cdkDropList [id]="'done'" [cdkDropListData]="doneTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of doneTasks" cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="openTaskDetails(task.id!)">
-            <div class="card-top">
-              <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
-              </div>
-            </div>
             <div class="card-body">
               <h3 class="card-title">{{ getTaskTitle(task) }}</h3>
               <div class="card-tags">
@@ -287,6 +283,18 @@
               <div class="card-meta">
                 <span class="meta" *ngIf="task.updatedAt"><mat-icon>check_circle</mat-icon>{{ task.updatedAt | date:'MMM d' }}</span>
                 <span class="meta" *ngIf="task.timeTaken"><mat-icon>timer</mat-icon>{{ task.timeTaken }}h</span>
+              </div>
+              <div class="card-creator">
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
+              </div>
+            </div>
+            <div class="card-footer" (click)="$event.stopPropagation()">
+              <div class="card-actions">
+                <button class="ca-btn" (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Reopen"><mat-icon>undo</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button class="ca-btn ca-btn--danger" (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
@@ -329,18 +337,8 @@
 
         <div class="column-cards" cdkDropList [id]="'hold'" [cdkDropListData]="holdTasks" (cdkDropListDropped)="onTaskDrop($event)">
           <article class="card" *ngFor="let task of holdTasks" cdkDrag [cdkDragData]="task"
+            [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="openTaskDetails(task.id!)">
-            <div class="card-top">
-              <span class="card-priority" [style.background-color]="getPriorityColor(task.priority)"></span>
-              <div class="card-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
-                <button mat-icon-button (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Resume"><mat-icon>play_circle</mat-icon></button>
-                <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
-              </div>
-            </div>
             <div class="card-body">
               <h3 class="card-title">{{ getTaskTitle(task) }}</h3>
               <div class="card-tags">
@@ -353,6 +351,19 @@
                   <mat-icon>folder</mat-icon>{{ task.source === 'ownProject' ? (task.projectName || getTaskProjectId(task)) : getProjectName(getTaskProjectId(task)) }}
                 </span>
                 <span class="meta" *ngIf="task.updatedAt"><mat-icon>schedule</mat-icon>{{ task.updatedAt | date:'MMM d' }}</span>
+              </div>
+              <div class="card-creator">
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
+              </div>
+            </div>
+            <div class="card-footer" (click)="$event.stopPropagation()">
+              <div class="card-actions">
+                <button class="ca-btn" (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDetails(task.id!)" matTooltip="Open"><mat-icon>open_in_new</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'todo')" matTooltip="Back to Todo"><mat-icon>undo</mat-icon></button>
+                <button class="ca-btn" (click)="updateTaskStatus(task.id!, 'in-progress')" matTooltip="Resume"><mat-icon>play_circle</mat-icon></button>
+                <button class="ca-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button class="ca-btn ca-btn--danger" (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </article>
@@ -544,10 +555,10 @@
             </div>
             <div class="list-cell list-cell--actions">
               <div class="list-actions">
-              <button mat-icon-button (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
-              <button mat-icon-button (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
-              <button mat-icon-button (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+              <button class="ca-btn" (click)="openTaskView(task)" matTooltip="Quick view"><mat-icon>visibility</mat-icon></button>
+              <button class="ca-btn" (click)="openTaskDetails(task.id!)" matTooltip="Open in page"><mat-icon>open_in_new</mat-icon></button>
+              <button class="ca-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+              <button class="ca-btn ca-btn--danger" (click)="deleteTask(task.id!)" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
               </div>
             </div>
           </div>

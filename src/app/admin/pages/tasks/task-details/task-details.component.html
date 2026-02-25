@@ -359,14 +359,28 @@
           </div>
 
           <!-- Progress -->
-          <div class="tdp-prop-row" *ngIf="task.status === 'in-progress' || task.status === 'done'">
+          <div class="tdp-prop-row">
             <div class="tdp-prop-label">
               <mat-icon>donut_large</mat-icon>
               Progress
             </div>
             <div class="tdp-prop-value tdp-progress-row">
-              <mat-progress-bar [value]="task.progress || 0" mode="determinate" color="primary"></mat-progress-bar>
-              <span class="tdp-progress-pct">{{ task.progress || 0 }}%</span>
+              <input
+                class="tdp-prog-slider"
+                type="range"
+                min="0" max="100" step="1"
+                [value]="task.progress || 0"
+                [style.--prog]="task.progress || 0"
+                (input)="onProgressSliderInput($event)"
+                (change)="onProgressSliderChange($event)">
+              <input
+                class="tdp-prog-input"
+                type="number"
+                min="0" max="100"
+                [value]="task.progress || 0"
+                (change)="onProgressInputChange($event)"
+                (keydown.enter)="onProgressInputChange($event)">
+              <span class="tdp-progress-pct-sym">%</span>
             </div>
           </div>
 

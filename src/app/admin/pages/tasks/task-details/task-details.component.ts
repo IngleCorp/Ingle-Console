@@ -550,6 +550,36 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   // ——— Generic field save ———
+  /** Live preview while dragging — updates local value + CSS var, no DB write */
+  onProgressSliderInput(event: Event): void {
+    if (!this.task) return;
+    const el = event.target as HTMLInputElement;
+    const pct = parseInt(el.value, 10);
+    el.style.setProperty('--prog', String(pct));
+    this.task = { ...this.task, progress: pct };
+  }
+
+  /** Persist on mouse/touch release */
+  onProgressSliderChange(event: Event): void {
+    const pct = parseInt((event.target as HTMLInputElement).value, 10);
+    this.saveProgress(pct);
+  }
+
+  onProgressInputChange(event: Event): void {
+    const raw = parseInt((event.target as HTMLInputElement).value, 10);
+    const pct = isNaN(raw) ? 0 : Math.min(100, Math.max(0, raw));
+    (event.target as HTMLInputElement).value = String(pct);
+    this.saveProgress(pct);
+  }
+
+  private saveProgress(pct: number): void {
+    if (!this.task?.id) return;
+    this.task = { ...this.task, progress: pct, updatedAt: new Date() };
+    this.addHistoryEntry(`set progress to ${pct}%`);
+    this.firestore.collection('tasks').doc(this.task.id!).update({ progress: pct, updatedAt: new Date() })
+      .catch(() => this.showNotification('Error saving progress', 'error'));
+  }
+
   saveField(field: string, value: any): void {
     if (!this.task?.id) return;
     const now = new Date();
