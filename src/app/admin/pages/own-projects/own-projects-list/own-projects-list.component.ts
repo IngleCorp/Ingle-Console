@@ -16,6 +16,7 @@ const OWN_PROJECTS_COLLECTION = 'ownProjects';
 export class OwnProjectsListComponent implements OnInit {
   projects: any[] = [];
   isLoading = false;
+  viewMode: 'grid' | 'list' = 'grid';
 
   constructor(
     private afs: AngularFirestore,
