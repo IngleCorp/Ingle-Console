@@ -69,6 +69,32 @@ export class TaskDetailsComponent implements OnInit {
   /** History (local log for this session) */
   history: TaskHistoryEntry[] = [];
 
+  /** Labels / Tags */
+  allLabels: string[] = [];
+  labelInput = '';
+  showLabelDropdown = false;
+
+  get filteredLabels(): string[] {
+    const q = this.labelInput.trim().toLowerCase();
+    const current = this.task?.tags || [];
+    // Exclude already-added tags; filter by search query
+    return this.allLabels.filter(l => !current.includes(l) && (!q || l.toLowerCase().includes(q)));
+  }
+
+  /** True when the typed text exactly matches a label already on this task (case-insensitive). */
+  get labelAlreadyAdded(): boolean {
+    const q = this.labelInput.trim().toLowerCase();
+    return !!q && (this.task?.tags || []).some(t => t.toLowerCase() === q);
+  }
+
+  /** Existing label from the global list that exactly matches the input (case-insensitive), not yet added. */
+  get exactMatchLabel(): string | null {
+    const q = this.labelInput.trim().toLowerCase();
+    if (!q) return null;
+    const current = this.task?.tags || [];
+    return this.allLabels.find(l => l.toLowerCase() === q && !current.includes(l)) ?? null;
+  }
+
   assignees: TaskAssignee[] = [
     { id: '1', name: 'Jasmal', email: 'jasmal@example.com' },
     { id: '2', name: 'Ramshin', email: 'ramshin@example.com' },
@@ -158,6 +184,7 @@ export class TaskDetailsComponent implements OnInit {
     this.loadProjects();
     this.loadClientProjects();
     this.loadOwnProjects();
+    this.loadLabels();
     this.loadTask(id);
     this.loadComments(id);
     this.loadHistory(id);
@@ -186,6 +213,70 @@ export class TaskDetailsComponent implements OnInit {
     this.firestore.collection('ownProjects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
       this.ownProjects = projects.map(p => ({ id: p.id, name: p.name || p.title || p.id }));
     });
+  }
+
+  private loadLabels(): void {
+    this.firestore.collection('labels', ref => ref.orderBy('name')).valueChanges({ idField: 'id' }).subscribe((docs: any[]) => {
+      this.allLabels = docs.map(d => d.name).filter(Boolean);
+    });
+  }
+
+  onLabelInputFocus(): void {
+    this.showLabelDropdown = true;
+  }
+
+  onLabelInputBlur(): void {
+    // Delay so click on dropdown item registers first
+    setTimeout(() => { this.showLabelDropdown = false; }, 200);
+  }
+
+  onLabelInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const val = this.labelInput.trim();
+      if (val) this.addLabel(val);
+    } else if (event.key === 'Escape') {
+      this.showLabelDropdown = false;
+      this.labelInput = '';
+    }
+  }
+
+  selectLabel(label: string): void {
+    this.addLabel(label);
+    this.labelInput = '';
+    this.showLabelDropdown = true; // keep open to add more
+  }
+
+  addLabel(label: string): void {
+    if (!this.task?.id || !label.trim()) return;
+    const current: string[] = this.task.tags ? [...this.task.tags] : [];
+    // Use canonical casing from global list if it exists there
+    const canonical = this.allLabels.find(l => l.toLowerCase() === label.trim().toLowerCase()) ?? label.trim();
+    // Prevent duplicate (case-insensitive)
+    if (current.some(t => t.toLowerCase() === canonical.toLowerCase())) {
+      this.showNotification(`"${canonical}" is already added`, 'error');
+      this.labelInput = '';
+      return;
+    }
+    const next = [...current, canonical];
+    this.labelInput = '';
+    // Persist label globally if truly new
+    if (!this.allLabels.some(l => l.toLowerCase() === canonical.toLowerCase())) {
+      this.firestore.collection('labels').add({ name: canonical, createdAt: new Date() });
+    }
+    this.task = { ...this.task, tags: next };
+    this.addHistoryEntry(`added label "${canonical}"`);
+    this.firestore.collection('tasks').doc(this.task.id!).update({ tags: next, updatedAt: new Date() })
+      .catch(() => this.showNotification('Error saving label', 'error'));
+  }
+
+  removeLabel(label: string): void {
+    if (!this.task?.id) return;
+    const next = (this.task.tags || []).filter(t => t !== label);
+    this.task = { ...this.task, tags: next };
+    this.addHistoryEntry(`removed label "${label}"`);
+    this.firestore.collection('tasks').doc(this.task.id!).update({ tags: next, updatedAt: new Date() })
+      .catch(() => this.showNotification('Error removing label', 'error'));
   }
 
   /** Returns the effective category of the current task. */

@@ -291,15 +291,70 @@
             </div>
           </div>
 
-          <!-- Tags -->
-          <div class="tdp-prop-row">
+          <!-- Tags / Labels -->
+          <div class="tdp-prop-row tdp-labels-row">
             <div class="tdp-prop-label">
               <mat-icon>label_outline</mat-icon>
-              Tags
+              Labels
             </div>
-            <div class="tdp-prop-value tdp-tags-row">
-              <span class="tdp-tag" *ngFor="let tag of (task.tags || [])">{{ tag }}</span>
-              <span class="tdp-empty-val" *ngIf="!task.tags?.length">Empty</span>
+            <div class="tdp-prop-value tdp-tags-wrap">
+              <!-- Existing chips -->
+              <span class="tdp-tag" *ngFor="let tag of (task.tags || [])">
+                {{ tag }}
+                <button class="tdp-tag-remove" (click)="removeLabel(tag)" matTooltip="Remove">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </span>
+
+              <!-- Inline input with dropdown -->
+              <div class="tdp-label-input-wrap">
+                <input
+                  class="tdp-label-input"
+                  [(ngModel)]="labelInput"
+                  placeholder="Add label…"
+                  (focus)="onLabelInputFocus()"
+                  (blur)="onLabelInputBlur()"
+                  (keydown)="onLabelInputKeydown($event)">
+
+                <!-- Suggestions dropdown -->
+                <div class="tdp-label-dropdown" *ngIf="showLabelDropdown">
+
+                  <!-- Already added warning -->
+                  <div class="tdp-label-already" *ngIf="labelAlreadyAdded">
+                    <mat-icon>check_circle</mat-icon>
+                    "<strong>{{ labelInput.trim() }}</strong>" already added
+                  </div>
+
+                  <!-- Exact match in global list — "Use existing" -->
+                  <div class="tdp-label-use-existing"
+                    *ngIf="!labelAlreadyAdded && exactMatchLabel"
+                    (mousedown)="selectLabel(exactMatchLabel!)">
+                    <mat-icon>label</mat-icon>
+                    Use "<strong>{{ exactMatchLabel }}</strong>"
+                  </div>
+
+                  <!-- Type-to-create — only when no exact match exists anywhere -->
+                  <div class="tdp-label-create"
+                    *ngIf="!labelAlreadyAdded && !exactMatchLabel && labelInput.trim()"
+                    (mousedown)="addLabel(labelInput.trim())">
+                    <mat-icon>add</mat-icon>
+                    Create "<strong>{{ labelInput.trim() }}</strong>"
+                  </div>
+
+                  <!-- Existing suggestions (excludes exact match row to avoid duplication) -->
+                  <div class="tdp-label-option"
+                    *ngFor="let l of filteredLabels"
+                    (mousedown)="selectLabel(l)">
+                    <mat-icon>label</mat-icon>
+                    {{ l }}
+                  </div>
+
+                  <div class="tdp-label-empty"
+                    *ngIf="!filteredLabels.length && !labelInput.trim()">
+                    No labels yet — type to create one
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
