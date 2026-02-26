@@ -166,6 +166,7 @@ export class TasksComponent implements OnInit {
   ];
 
   projects: Project[] = [];
+  ownProjects: Project[] = [];
 
   constructor(
     private firestore: AngularFirestore,
@@ -180,6 +181,7 @@ export class TasksComponent implements OnInit {
   ngOnInit(): void {
     this.loadTasks();
     this.loadProjects();
+    this.loadOwnProjects();
   }
 
   ngAfterViewInit() {
@@ -351,9 +353,7 @@ export class TasksComponent implements OnInit {
         list = list.filter(t => !this.getTaskProjectId(t));
       } else {
         list = list.filter(t => {
-          const label = t.source === 'ownProject'
-            ? (t.projectName || this.getTaskProjectId(t))
-            : this.getProjectName(this.getTaskProjectId(t));
+          const label = t.projectName || this.getProjectName(this.getTaskProjectId(t));
           return label === this.listFilterProject;
         });
       }
@@ -402,12 +402,8 @@ export class TasksComponent implements OnInit {
             vb = this.getTaskAssignees(b)[0] || '';
             return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
           case 'project':
-            va = a.source === 'ownProject'
-              ? (a.projectName || this.getTaskProjectId(a))
-              : this.getProjectName(this.getTaskProjectId(a));
-            vb = b.source === 'ownProject'
-              ? (b.projectName || this.getTaskProjectId(b))
-              : this.getProjectName(this.getTaskProjectId(b));
+            va = a.projectName || this.getProjectName(this.getTaskProjectId(a));
+            vb = b.projectName || this.getProjectName(this.getTaskProjectId(b));
             va = (va || '').toLowerCase();
             vb = (vb || '').toLowerCase();
             return (va < vb ? -1 : va > vb ? 1 : 0) * dir;
@@ -452,6 +448,12 @@ export class TasksComponent implements OnInit {
       console.error('Error loading projects:', error);
       this.showNotification('Error loading projects', 'error');
     }
+  }
+
+  loadOwnProjects(): void {
+    this.firestore.collection('ownProjects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+      this.ownProjects = projects.map(p => ({ id: p.id, name: p.name || p.title || p.id }));
+    });
   }
 
   async loadTasks(): Promise<void> {
@@ -802,10 +804,7 @@ export class TasksComponent implements OnInit {
       if (!projectId) {
         return;
       }
-      const label =
-        task.source === 'ownProject'
-          ? (task.projectName || projectId)
-          : this.getProjectName(projectId);
+      const label = task.projectName || this.getProjectName(projectId);
       if (label) {
         labels.add(label);
       }
@@ -859,7 +858,8 @@ export class TasksComponent implements OnInit {
   }
 
   getProjectName(projectId: string): string {
-    const project = this.projects.find(p => p.id === projectId);
-    return project?.name || projectId;
+    if (!projectId) return '';
+    const allProjects = [...this.projects, ...this.ownProjects];
+    return allProjects.find(p => p.id === projectId)?.name || projectId;
   }
 } 

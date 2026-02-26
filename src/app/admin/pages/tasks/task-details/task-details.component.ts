@@ -345,13 +345,31 @@ export class TaskDetailsComponent implements OnInit {
   saveProjectSelection(projectId: string | null, extra: { clientId?: string; ownProjectId?: string } = {}): void {
     if (!this.task?.id) return;
     const now = new Date();
-    const update: any = { projectId, projecttaged: projectId, updatedAt: now };
-    const localPatch: any = { projectId, projecttaged: projectId, updatedAt: now };
-    if (extra.clientId !== undefined) { update['clientId'] = extra.clientId; localPatch['clientId'] = extra.clientId; }
-    if (extra.ownProjectId !== undefined) { update['ownProjectId'] = extra.ownProjectId; localPatch['ownProjectId'] = extra.ownProjectId; }
+
+    // Resolve the human-readable project name from whichever list applies
+    const allProjects = [...this.clientProjects, ...this.ownProjects, ...this.projects];
+    const proj = projectId ? allProjects.find(p => p.id === projectId) : null;
+    const projectName = proj?.name || null;
+
+    const update: any = {
+      projectId,
+      projecttaged: projectId,
+      projectName,
+      updatedAt: now
+    };
+    const localPatch: any = { ...update };
+
+    if (extra.clientId !== undefined) {
+      update['clientId'] = extra.clientId;
+      localPatch['clientId'] = extra.clientId;
+    }
+    if (extra.ownProjectId !== undefined) {
+      update['ownProjectId'] = extra.ownProjectId;
+      localPatch['ownProjectId'] = extra.ownProjectId;
+    }
+
     const taskId = this.task.id!;
-    const proj = [...this.clientProjects, ...this.ownProjects, ...this.projects].find(p => p.id === projectId);
-    this.addHistoryEntry(`changed project to ${proj?.name || projectId || 'none'}`);
+    this.addHistoryEntry(`changed project to ${projectName || projectId || 'none'}`);
     this.task = { ...this.task, ...localPatch };
     this.firestore.collection('tasks').doc(taskId).update(update)
       .then(() => this.showNotification('Project saved', 'success'))
@@ -500,17 +518,24 @@ export class TaskDetailsComponent implements OnInit {
 
   getProjectName(): string {
     if (!this.task) return '';
+
+    // Always prefer the stored projectName — it's written by saveProjectSelection on every change
+    if (this.task.projectName) return this.task.projectName;
+
     const cat = this.getTaskCategory();
+
     if (cat === 'ownProject') {
-      const id = this.task.ownProjectId || this.task.projectId || this.task.projecttaged;
+      const id = (this.task as any).ownProjectId || this.task.projectId || this.task.projecttaged;
       if (!id) return '';
-      if (this.task.projectName) return this.task.projectName;
-      return this.ownProjects.find(p => p.id === id)?.name || id;
+      return this.ownProjects.find(p => p.id === id)?.name || '';
     }
+
     const projectId = this.task.projectId || this.task.projecttaged;
     if (!projectId) return '';
-    const allProjects = [...this.clientProjects, ...this.projects];
-    return allProjects.find(p => p.id === projectId)?.name || projectId;
+
+    // Search across all loaded project lists
+    const allProjects = [...this.clientProjects, ...this.projects, ...this.ownProjects];
+    return allProjects.find(p => p.id === projectId)?.name || '';
   }
 
   getPriorityInfo(): { label: string; color: string } {
