@@ -12,77 +12,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { TaskFormComponent, TaskFormData } from './task-form/task-form.component';
 import { TaskViewComponent, TaskViewData } from './task-view/task-view.component';
+import { Task, TaskCategory, TaskAssignee, Project } from './task.model';
 
-export type TaskCategory = 'general' | 'clientProject' | 'ownProject';
-
-export interface Task {
-  // ✅ New Interface Fields
-  id?: string;
-  title?: string;
-  task: string;
-  description?: string;
-  status: 'todo' | 'in-progress' | 'done' | 'hold';
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
-  assignees?: string[];
-  projectId?: string | null;
-  projectName?: string | null;
-  /** Task category: general (main Tasks), clientProject, or ownProject. */
-  category?: TaskCategory;
-  /** Source of the task, e.g. 'ownProject' when synced from an own project board. */
-  source?: string;
-  /** When source === 'ownProject', id of the ownProjects document. */
-  ownProjectId?: string | null;
-  /** When source === 'ownProject', id of the subcollection task under the own project. */
-  ownProjectTaskId?: string | null;
-  /** When category === 'clientProject', client id (clients collection). */
-  clientId?: string | null;
-  startDate?: Date;
-  dueDate?: Date;
-  estimatedHours?: number;
-  actualHours?: number;
-  tags?: string[];
-  isActive?: boolean;
-  createdAt: Date;
-  createdBy: string;
-  createdByName: string;
-  updatedAt?: Date;
-  updatedBy?: string;
-  updatedByName?: string;
-  progress?: number;
-  timeTaken?: number;
-  remarks?: string;
-
-  // 🟡 Legacy/Deprecated Fields — For Backward Compatibility
-  req_id_name?: string;            // Deprecated: use `id` or external mapping
-  req_task_id?: number;            // Legacy tracking id
-  packageName?: string;            // Maybe map to tags or categories
-  section?: string;                // Possibly map to tags
-  milestone?: string;              // Consider mapping to tags or metadata
-  projecttaged?: string | null;           // Duplicate of projectId
-  createdby?: string;              // Duplicate of createdByName
-  createdbyid?: string;            // Duplicate of createdBy
-  assigns?: {
-    createdAt?: {
-      seconds: number;
-      nanoseconds: number;
-    };
-    uid: string;
-    name: string;
-  }[];                             // Legacy assignee format
-}
-
-export interface TaskAssignee {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  // Add other project fields if they exist
-}
+export type { TaskCategory };
+export type { Task, TaskAssignee, Project };
 
 @Component({
   selector: 'app-tasks',

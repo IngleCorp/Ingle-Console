@@ -66,7 +66,7 @@
             [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="goToTaskDetail(task.id)">
             <div class="opt-card-body">
-              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <h3 class="opt-card-title">{{ getTaskTitle(task) }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
               <div class="opt-card-assignees">
                 <ng-container *ngIf="getAssigneesList(task).length; else noAssignees">
@@ -88,7 +88,7 @@
                 </span>
               </div>
               <div class="opt-card-creator">
-                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
               </div>
             </div>
             <div class="opt-card-footer" (click)="$event.stopPropagation()">
@@ -144,7 +144,7 @@
                 </div>
                 <span class="opt-prog-pct">{{ task.progress }}%</span>
               </div>
-              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <h3 class="opt-card-title">{{ getTaskTitle(task) }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
               <div class="opt-card-assignees">
                 <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesInProgress">
@@ -166,7 +166,7 @@
                 </span>
               </div>
               <div class="opt-card-creator">
-                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
               </div>
             </div>
             <div class="opt-card-footer" (click)="$event.stopPropagation()">
@@ -233,7 +233,7 @@
                 </span>
               </div>
               <div class="opt-card-creator">
-                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
               </div>
             </div>
             <div class="opt-card-footer" (click)="$event.stopPropagation()">
@@ -281,7 +281,7 @@
             [style.border-left-color]="getPriorityColor(task.priority)"
             (click)="goToTaskDetail(task.id)">
             <div class="opt-card-body">
-              <h3 class="opt-card-title">{{ task.title }}</h3>
+              <h3 class="opt-card-title">{{ getTaskTitle(task) }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
               <div class="opt-card-assignees">
                 <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesHold">
@@ -300,7 +300,7 @@
                 </span>
               </div>
               <div class="opt-card-creator">
-                <mat-icon>account_circle</mat-icon>{{ task.createdByName || task.createdBy || 'Unknown' }}
+                <mat-icon>account_circle</mat-icon>{{ getTaskCreatedBy(task) }}
               </div>
             </div>
             <div class="opt-card-footer" (click)="$event.stopPropagation()">

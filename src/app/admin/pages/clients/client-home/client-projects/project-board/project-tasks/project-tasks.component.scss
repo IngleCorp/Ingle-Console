@@ -150,7 +150,12 @@ mat-icon {
         background: linear-gradient(135deg, $warning-color 0%, #ffb74d 100%);
         color: white;
       }
-      
+
+      &.inprogress {
+        background: linear-gradient(135deg, $info-color 0%, #64b5f6 100%);
+        color: white;
+      }
+
       &.completed {
         background: linear-gradient(135deg, $success-color 0%, #66bb6a 100%);
         color: white;
@@ -475,23 +480,53 @@ mat-icon {
   box-shadow: $shadow-light;
   transition: $transition;
   border: 1px solid $border-color;
-  
+  border-left: 4px solid $border-color;
+  cursor: pointer;
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow-medium;
   }
-  
-  &.in-progress {
-    border-left: 4px solid $warning-color;
+
+  &.inprogress {
+    border-left-color: $info-color;
   }
-  
+
+  &.in-progress {
+    border-left-width: 4px;
+  }
+
   &.completed {
-    border-left: 4px solid $success-color;
+    border-left-width: 4px;
     opacity: 0.8;
   }
-  
+
   &.onhold {
-    border-left: 4px solid $info-color;
+    border-left-width: 4px;
+  }
+
+  .task-priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #fff;
+    margin-left: 8px;
+  }
+
+  .task-due-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: $text-secondary;
+    margin-left: 8px;
+    mat-icon { font-size: 14px !important; width: 14px !important; height: 14px !important; }
+  }
+
+  .assignee-empty {
+    font-size: 0.75rem;
+    color: $text-secondary;
   }
 }
 

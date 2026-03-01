@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
+import { getTaskTitle as modelGetTaskTitle, getTaskCreatedBy as modelGetTaskCreatedBy, PRIORITY_COLORS } from '../../../tasks/task.model';
 
 const OWN_PROJECTS_COLLECTION = 'ownProjects';
 const ROOT_TASKS_COLLECTION = 'tasks';
@@ -33,12 +34,7 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
 
   private tasksSub?: Subscription;
 
-  private readonly priorityColors: Record<string, string> = {
-    low: '#10b981',
-    medium: '#f59e0b',
-    high: '#ef4444',
-    urgent: '#dc2626'
-  };
+  private readonly priorityColors: Record<string, string> = { ...PRIORITY_COLORS };
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -103,12 +99,14 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
     const createdBy = localStorage.getItem('userid') || '';
     const createdByName = localStorage.getItem('username') || 'Unknown';
     const payload = {
+      task: text,
       title: text,
       description: '',
       status: 'todo',
       priority: 'medium',
       progress: 0,
-      assigns: [],
+      assignees: [] as string[],
+      assigns: [] as { uid: string; name: string }[],
       dueDate: null,
       estimatedHours: null,
       createdAt: new Date(),
@@ -341,6 +339,14 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
     return this.normalizeAssignees(task);
   }
 
+  getTaskTitle(task: any): string {
+    return modelGetTaskTitle(task);
+  }
+
+  getTaskCreatedBy(task: any): string {
+    return modelGetTaskCreatedBy(task);
+  }
+
   getPriorityLabel(priority: string): string {
     const map: Record<string, string> = { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' };
     return map[priority] || priority || 'Medium';
@@ -369,12 +375,14 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
     const createdByName = localStorage.getItem('username') || 'Unknown';
     const now = new Date();
     const payload = {
+      task: title,
       title,
       description: '',
       status: this.quickAddColumn!,
       priority: 'medium',
       progress: 0,
-      assigns: [],
+      assignees: [] as string[],
+      assigns: [] as { uid: string; name: string }[],
       dueDate: null,
       estimatedHours: null,
       createdAt: now,

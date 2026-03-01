@@ -15,8 +15,17 @@
                         <mat-icon>pending</mat-icon>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">{{ tasktodo?.length || 0 }}</span>
+                        <span class="stat-number">{{ tasktodo.length }}</span>
                         <span class="stat-label">To Do</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon inprogress">
+                        <mat-icon>play_circle</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">{{ taskinprogress.length }}</span>
+                        <span class="stat-label">In Progress</span>
                     </div>
                 </div>
                 <div class="stat-item">
@@ -24,7 +33,7 @@
                         <mat-icon>check_circle</mat-icon>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">{{ taskdone?.length || 0 }}</span>
+                        <span class="stat-number">{{ taskdone.length }}</span>
                         <span class="stat-label">Completed</span>
                     </div>
                 </div>
@@ -33,7 +42,7 @@
                         <mat-icon>pause_circle</mat-icon>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">{{ taskonhold?.length || 0 }}</span>
+                        <span class="stat-number">{{ taskonhold.length }}</span>
                         <span class="stat-label">On Hold</span>
                     </div>
                 </div>
@@ -75,7 +84,7 @@
                         <div class="title-content">
                             <mat-icon class="column-icon">pending</mat-icon>
                             <h3>To Do</h3>
-                            <span class="task-count">{{ tasktodo?.length || 0 }}</span>
+                            <span class="task-count">{{ tasktodo.length }}</span>
                         </div>
                         <button class="copy-btn" (click)="copyTodoTaskList()" matTooltip="Copy all tasks">
                             <mat-icon>content_copy</mat-icon>
@@ -102,74 +111,36 @@
                 
                 <div class="task-list">
                     <div *ngFor="let task of tasktodo" class="task-item">
-                        <div class="task-card" [class.in-progress]="task?.progress">
-                            <!-- Progress Bar -->
-                            <mat-progress-bar 
-                                *ngIf="task?.progress" 
-                                class="progress-bar" 
-                                mode="determinate" 
-                                [value]="task.progress || 0"
-                                color="accent">
-                            </mat-progress-bar>
-                            
-                            <!-- Task Header -->
+                        <div class="task-card" [style.border-left-color]="getPriorityColor(task.priority)" [class.in-progress]="task?.progress" (click)="openTaskDetails(task.id)">
+                            <mat-progress-bar *ngIf="task?.progress" class="progress-bar" mode="determinate" [value]="task.progress || 0" color="accent"></mat-progress-bar>
                             <div class="task-header">
                                 <div class="assignees">
-                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
-                                        <span class="assignee-name">{{ user.name }}</span>
-                                    </div>
+                                    <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesTodo">
+                                        <div *ngFor="let user of getAssigneesList(task)" class="assignee-badge">
+                                            <span class="assignee-name">{{ user.name }}</span>
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #noAssigneesTodo><span class="assignee-empty">Unassigned</span></ng-template>
                                 </div>
-                                <div class="task-actions">
-                                    <button 
-                                        class="action-btn view-btn" 
-                                        (click)="openTaskView(task)" 
-                                        matTooltip="View task details">
-                                        <mat-icon>visibility</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn edit-btn" 
-                                        (click)="openTaskDialog(true, task)" 
-                                        matTooltip="Edit task">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn progress-btn" 
-                                        (click)="setProgress(task)" 
-                                        [matTooltip]="task?.progress ? 'Stop progress' : 'Mark as in progress'">
-                                        <mat-icon>{{ task?.progress ? 'pause_circle' : 'play_circle' }}</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn complete-btn" 
-                                        (click)="updateTask(task)" 
-                                        matTooltip="Mark as completed">
-                                        <mat-icon>check_circle</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn hold-btn" 
-                                        (click)="holdTask(task.id)" 
-                                        matTooltip="Put on hold">
-                                        <mat-icon>pause</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn delete-btn" 
-                                        (click)="removeTask(task.id)" 
-                                        matTooltip="Delete task">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
+                                <div class="task-actions" (click)="$event.stopPropagation()">
+                                    <button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View task details"><mat-icon>visibility</mat-icon></button>
+                                    <button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit task"><mat-icon>edit</mat-icon></button>
+                                    <button class="action-btn progress-btn" (click)="setProgress(task); $event.stopPropagation()" [matTooltip]="task?.status === 'in-progress' ? 'Move back to To Do' : 'Mark as in progress'"><mat-icon>{{ task?.status === 'in-progress' ? 'pause_circle' : 'play_circle' }}</mat-icon></button>
+                                    <button class="action-btn complete-btn" (click)="updateTask(task); $event.stopPropagation()" matTooltip="Mark as completed"><mat-icon>check_circle</mat-icon></button>
+                                    <button class="action-btn hold-btn" (click)="holdTask(task.id); $event.stopPropagation()" matTooltip="Put on hold"><mat-icon>pause</mat-icon></button>
+                                    <button class="action-btn delete-btn" (click)="removeTask(task.id); $event.stopPropagation()" matTooltip="Delete task"><mat-icon>delete</mat-icon></button>
                                 </div>
                             </div>
-                            
-                            <!-- Task Content -->
                             <div class="task-content">
-                                <h4 class="task-title">{{ task.task }}</h4>
+                                <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+                                <span class="task-priority-badge" *ngIf="task.priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</span>
+                                <span class="task-due-meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                             </div>
-                            
-                            <!-- Task Footer -->
                             <div class="task-footer">
                                 <div class="task-meta">
-                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
-                                        <mat-icon>person</mat-icon>
-                                        <span>{{ task.createdby?.[0] || '?' }}</span>
+                                    <div class="creator" [matTooltip]="'Created by: ' + getTaskCreatedBy(task)">
+                                        <mat-icon>account_circle</mat-icon>
+                                        <span>{{ getTaskCreatedBy(task) }}</span>
                                     </div>
                                     <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
                                         <mat-icon>schedule</mat-icon>
@@ -177,25 +148,15 @@
                                     </div>
                                 </div>
                                 <div class="task-actions-footer">
-                                    <button 
-                                        class="assign-btn" 
-                                        (click)="assignTask(task?.id)" 
-                                        matTooltip="Assign task">
-                                        <mat-icon>person_add</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="details-btn" 
-                                        (click)="openTaskDetails(task.id)" 
-                                        matTooltip="Open full task details">
-                                        <mat-icon>launch</mat-icon>
-                                    </button>
+                                    <button class="assign-btn" (click)="assignTask(task?.id); $event.stopPropagation()" matTooltip="Assign task"><mat-icon>person_add</mat-icon></button>
+                                    <button class="details-btn" (click)="openTaskDetails(task.id); $event.stopPropagation()" matTooltip="Open full task details"><mat-icon>launch</mat-icon></button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Empty State -->
-                    <div *ngIf="!tasktodo?.length" class="empty-state">
+                    <div *ngIf="!tasktodo.length" class="empty-state">
                         <mat-icon class="empty-icon">assignment</mat-icon>
                         <p>No tasks to do</p>
                         <span>Add a new task to get started</span>
@@ -203,6 +164,60 @@
                 </div>
             </div>
             
+            <!-- In Progress Column -->
+            <div class="kanban-column inprogress-column">
+                <div class="column-header">
+                    <div class="column-title">
+                        <div class="title-content">
+                            <mat-icon class="column-icon">play_circle</mat-icon>
+                            <h3>In Progress</h3>
+                            <span class="task-count">{{ taskinprogress.length }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="task-list">
+                    <div *ngFor="let task of taskinprogress" class="task-item">
+                        <div class="task-card inprogress" [style.border-left-color]="getPriorityColor(task.priority)" (click)="openTaskDetails(task.id)">
+                            <mat-progress-bar *ngIf="task?.progress != null" class="progress-bar" mode="determinate" [value]="task.progress || 0" color="accent"></mat-progress-bar>
+                            <div class="task-header">
+                                <div class="assignees">
+                                    <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesProgress">
+                                        <div *ngFor="let user of getAssigneesList(task)" class="assignee-badge"><span class="assignee-name">{{ user.name }}</span></div>
+                                    </ng-container>
+                                    <ng-template #noAssigneesProgress><span class="assignee-empty">Unassigned</span></ng-template>
+                                </div>
+                                <div class="task-actions" (click)="$event.stopPropagation()">
+                                    <button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                                    <button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                                    <button class="action-btn complete-btn" (click)="updateTask(task); $event.stopPropagation()" matTooltip="Complete"><mat-icon>check_circle</mat-icon></button>
+                                    <button class="action-btn hold-btn" (click)="holdTask(task.id); $event.stopPropagation()" matTooltip="Hold"><mat-icon>pause</mat-icon></button>
+                                    <button class="action-btn delete-btn" (click)="removeTask(task.id); $event.stopPropagation()" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
+                                </div>
+                            </div>
+                            <div class="task-content">
+                                <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+                                <span class="task-priority-badge" *ngIf="task.priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</span>
+                                <span class="task-due-meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
+                            </div>
+                            <div class="task-footer">
+                                <div class="task-meta">
+                                    <div class="creator" [matTooltip]="'Created by: ' + getTaskCreatedBy(task)"><mat-icon>account_circle</mat-icon><span>{{ getTaskCreatedBy(task) }}</span></div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)"><mat-icon>schedule</mat-icon><span>{{ getCreatedDateDisplay(task.createdAt) }}</span></div>
+                                </div>
+                                <div class="task-actions-footer">
+                                    <button class="details-btn" (click)="openTaskDetails(task.id); $event.stopPropagation()" matTooltip="Open details"><mat-icon>launch</mat-icon></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="!taskinprogress.length" class="empty-state">
+                        <mat-icon class="empty-icon">play_circle</mat-icon>
+                        <p>No tasks in progress</p>
+                        <span>Start a task to see it here</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Completed Column -->
             <div class="kanban-column completed-column">
                 <div class="column-header">
@@ -210,87 +225,51 @@
                         <div class="title-content">
                             <mat-icon class="column-icon">check_circle</mat-icon>
                             <h3>Completed</h3>
-                            <span class="task-count">{{ taskdone?.length || 0 }}</span>
+                            <span class="task-count">{{ taskdone.length }}</span>
                         </div>
                     </div>
                 </div>
-                
                 <div class="task-list">
                     <div *ngFor="let task of taskdone" class="task-item">
-                        <div class="task-card completed">
-                            <!-- Task Header -->
+                        <div class="task-card completed" [style.border-left-color]="getPriorityColor(task.priority)" (click)="openTaskDetails(task.id)">
                             <div class="task-header">
                                 <div class="assignees">
-                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
-                                        <span class="assignee-name">{{ user.name }}</span>
-                                    </div>
+                                    <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesDone">
+                                        <div *ngFor="let user of getAssigneesList(task)" class="assignee-badge"><span class="assignee-name">{{ user.name }}</span></div>
+                                    </ng-container>
+                                    <ng-template #noAssigneesDone><span class="assignee-empty">Unassigned</span></ng-template>
                                 </div>
-                                <div class="task-actions">
-                                    <button 
-                                        class="action-btn view-btn" 
-                                        (click)="openTaskView(task)" 
-                                        matTooltip="View task details">
-                                        <mat-icon>visibility</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn edit-btn" 
-                                        (click)="openTaskDialog(true, task)" 
-                                        matTooltip="Edit task">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn undo-btn" 
-                                        (click)="undoTask(task.id)" 
-                                        matTooltip="Move back to To Do">
-                                        <mat-icon>undo</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn delete-btn" 
-                                        (click)="removeTask(task.id)" 
-                                        matTooltip="Delete task">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
+                                <div class="task-actions" (click)="$event.stopPropagation()">
+                                    <button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                                    <button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                                    <button class="action-btn undo-btn" (click)="undoTask(task.id); $event.stopPropagation()" matTooltip="Move back to To Do"><mat-icon>undo</mat-icon></button>
+                                    <button class="action-btn delete-btn" (click)="removeTask(task.id); $event.stopPropagation()" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
                                 </div>
                             </div>
-                            
-                            <!-- Task Content -->
                             <div class="task-content">
-                                <h4 class="task-title">{{ task.task }}</h4>
+                                <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+                                <span class="task-priority-badge" *ngIf="task.priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</span>
+                                <span class="task-due-meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                             </div>
-                            
-                            <!-- Task Footer -->
                             <div class="task-footer">
                                 <div class="task-meta">
-                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
-                                        <mat-icon>person</mat-icon>
-                                        <span>{{ task.createdby?.[0] || '?' }}</span>
-                                    </div>
-                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
-                                        <mat-icon>schedule</mat-icon>
-                                        <span>{{ getCreatedDateDisplay(task.createdAt) }}</span>
-                                    </div>
+                                    <div class="creator" [matTooltip]="'Created by: ' + getTaskCreatedBy(task)"><mat-icon>account_circle</mat-icon><span>{{ getTaskCreatedBy(task) }}</span></div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)"><mat-icon>schedule</mat-icon><span>{{ getCreatedDateDisplay(task.createdAt) }}</span></div>
                                 </div>
                                 <div class="task-actions-footer">
-                                    <button 
-                                        class="details-btn" 
-                                        (click)="openTaskDetails(task.id)" 
-                                        matTooltip="Open full task details">
-                                        <mat-icon>launch</mat-icon>
-                                    </button>
+                                    <button class="details-btn" (click)="openTaskDetails(task.id); $event.stopPropagation()" matTooltip="Open details"><mat-icon>launch</mat-icon></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Empty State -->
-                    <div *ngIf="!taskdone?.length" class="empty-state">
+                    <div *ngIf="!taskdone.length" class="empty-state">
                         <mat-icon class="empty-icon">check_circle</mat-icon>
                         <p>No completed tasks</p>
                         <span>Complete tasks to see them here</span>
                     </div>
                 </div>
             </div>
-            
+
             <!-- On Hold Column -->
             <div class="kanban-column onhold-column">
                 <div class="column-header">
@@ -298,80 +277,45 @@
                         <div class="title-content">
                             <mat-icon class="column-icon">pause_circle</mat-icon>
                             <h3>On Hold</h3>
-                            <span class="task-count">{{ taskonhold?.length || 0 }}</span>
+                            <span class="task-count">{{ taskonhold.length }}</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="task-list">
                     <div *ngFor="let task of taskonhold" class="task-item">
-                        <div class="task-card onhold">
-                            <!-- Task Header -->
+                        <div class="task-card onhold" [style.border-left-color]="getPriorityColor(task.priority)" (click)="openTaskDetails(task.id)">
                             <div class="task-header">
                                 <div class="assignees">
-                                    <div *ngFor="let user of task?.assigns" class="assignee-badge">
-                                        <span class="assignee-name">{{ user.name }}</span>
-                                    </div>
+                                    <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesHold">
+                                        <div *ngFor="let user of getAssigneesList(task)" class="assignee-badge"><span class="assignee-name">{{ user.name }}</span></div>
+                                    </ng-container>
+                                    <ng-template #noAssigneesHold><span class="assignee-empty">Unassigned</span></ng-template>
                                 </div>
-                                <div class="task-actions">
-                                    <button 
-                                        class="action-btn view-btn" 
-                                        (click)="openTaskView(task)" 
-                                        matTooltip="View task details">
-                                        <mat-icon>visibility</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn edit-btn" 
-                                        (click)="openTaskDialog(true, task)" 
-                                        matTooltip="Edit task">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn undo-btn" 
-                                        (click)="undoTask(task.id)" 
-                                        matTooltip="Move back to To Do">
-                                        <mat-icon>undo</mat-icon>
-                                    </button>
-                                    <button 
-                                        class="action-btn delete-btn" 
-                                        (click)="removeTask(task.id)" 
-                                        matTooltip="Delete task">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
+                                <div class="task-actions" (click)="$event.stopPropagation()">
+                                    <button class="action-btn view-btn" (click)="openTaskView(task)" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+                                    <button class="action-btn edit-btn" (click)="openTaskDialog(true, task)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                                    <button class="action-btn undo-btn" (click)="undoTask(task.id); $event.stopPropagation()" matTooltip="Move back to To Do"><mat-icon>undo</mat-icon></button>
+                                    <button class="action-btn delete-btn" (click)="removeTask(task.id); $event.stopPropagation()" matTooltip="Delete"><mat-icon>delete</mat-icon></button>
                                 </div>
                             </div>
-                            
-                            <!-- Task Content -->
                             <div class="task-content">
-                                <h4 class="task-title">{{ task.task }}</h4>
+                                <h4 class="task-title">{{ getTaskTitle(task) }}</h4>
+                                <span class="task-priority-badge" *ngIf="task.priority" [style.background-color]="getPriorityColor(task.priority)">{{ task.priority }}</span>
+                                <span class="task-due-meta" *ngIf="task.dueDate"><mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}</span>
                             </div>
-                            
-                            <!-- Task Footer -->
                             <div class="task-footer">
                                 <div class="task-meta">
-                                    <div class="creator" [matTooltip]="'Created by: ' + (task?.createdby || 'Unknown')">
-                                        <mat-icon>person</mat-icon>
-                                        <span>{{ task.createdby?.[0] || '?' }}</span>
-                                    </div>
-                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)">
-                                        <mat-icon>schedule</mat-icon>
-                                        <span>{{ getCreatedDateDisplay(task.createdAt) }}</span>
-                                    </div>
+                                    <div class="creator" [matTooltip]="'Created by: ' + getTaskCreatedBy(task)"><mat-icon>account_circle</mat-icon><span>{{ getTaskCreatedBy(task) }}</span></div>
+                                    <div class="created-date" [matTooltip]="getCreatedDateTooltip(task.createdAt)"><mat-icon>schedule</mat-icon><span>{{ getCreatedDateDisplay(task.createdAt) }}</span></div>
                                 </div>
                                 <div class="task-actions-footer">
-                                    <button 
-                                        class="details-btn" 
-                                        (click)="openTaskDetails(task.id)" 
-                                        matTooltip="Open full task details">
-                                        <mat-icon>launch</mat-icon>
-                                    </button>
+                                    <button class="details-btn" (click)="openTaskDetails(task.id); $event.stopPropagation()" matTooltip="Open details"><mat-icon>launch</mat-icon></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Empty State -->
-                    <div *ngIf="!taskonhold?.length" class="empty-state">
+                    <div *ngIf="!taskonhold.length" class="empty-state">
                         <mat-icon class="empty-icon">pause_circle</mat-icon>
                         <p>No tasks on hold</p>
                         <span>Put tasks on hold to see them here</span>

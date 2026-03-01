@@ -3,11 +3,18 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TimetakenComponent } from './timetaken/timetaken.component';
-// Import the project-specific task components
 import { ProjectTaskFormComponent, ProjectTaskFormData } from './project-task-form/project-task-form.component';
 import { ProjectTaskViewComponent, ProjectTaskViewData } from './project-task-view/project-task-view.component';
+import {
+  Task,
+  TaskAssigneeRef,
+  getTaskTitle as modelGetTaskTitle,
+  getTaskCreatedBy as modelGetTaskCreatedBy,
+  PRIORITY_COLORS,
+  TASK_STATUSES,
+  TASK_PRIORITIES
+} from '../../../../../tasks/task.model';
 
-// Local interfaces for task management
 interface TaskAssignee {
   id: string;
   name: string;
@@ -28,30 +35,19 @@ interface Project {
   styleUrls: ['./project-tasks.component.scss']
 })
 export class ProjectTasksComponent implements OnInit {
-  taskdata: any;
+  taskdata: any[] = [];
   task: string = '';
   projectId: string | null = null;
   clientId: string | null = null;
   projectname: string = '';
-  tasktodo: any;
-  taskdone: any;
-  taskonhold: any;
+  tasktodo: any[] = [];
+  taskinprogress: any[] = [];
+  taskdone: any[] = [];
+  taskonhold: any[] = [];
   buffervalue: number = 75;
 
-  // Task management data
-  priorities = [
-    { value: 'low', label: 'Low', color: '#10b981' },
-    { value: 'medium', label: 'Medium', color: '#f59e0b' },
-    { value: 'high', label: 'High', color: '#ef4444' },
-    { value: 'urgent', label: 'Urgent', color: '#dc2626' }
-  ];
-
-  statuses = [
-    { value: 'todo', label: 'To Do', color: '#6b7280' },
-    { value: 'in-progress', label: 'In Progress', color: '#3b82f6' },
-    { value: 'done', label: 'Done', color: '#10b981' },
-    { value: 'hold', label: 'On Hold', color: '#f59e0b' }
-  ];
+  priorities = TASK_PRIORITIES;
+  statuses = TASK_STATUSES;
 
   assignees: TaskAssignee[] = [
     { id: '1', name: 'Jasmal', email: 'jasmal@example.com' },
@@ -92,29 +88,54 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   getTasks(): void {
-    console.log('Fetching tasks for project ID:', this.projectId);
     if (!this.projectId) return;
-    this.afs.collection('tasks', ref => ref.where('projecttaged', '==', this.projectId).orderBy('createdAt', 'desc')).valueChanges({ idField: 'id' }).subscribe((res: any) => {
-      this.taskdata = res;
-      this.tasktodo = this.taskdata.filter((x: any) => x.status === 'todo');
-      this.taskdone = this.taskdata.filter((x: any) => x.status === 'done');
-      this.taskonhold = this.taskdata.filter((x: any) => x.status === 'hold');
+    this.afs.collection('tasks', ref =>
+      ref.where('projecttaged', '==', this.projectId).orderBy('createdAt', 'desc')
+    ).valueChanges({ idField: 'id' }).subscribe((res: any) => {
+      this.applyTaskData(res || []);
     });
   }
 
+  private applyTaskData(res: any[]): void {
+    this.taskdata = res || [];
+    this.tasktodo = this.taskdata.filter((x: any) => (x.status || 'todo') === 'todo');
+    this.taskinprogress = this.taskdata.filter((x: any) => x.status === 'in-progress');
+    this.taskdone = this.taskdata.filter((x: any) => x.status === 'done');
+    this.taskonhold = this.taskdata.filter((x: any) => x.status === 'hold');
+  }
+
   filtertask(filterby: string): void {
-    this.tasktodo = this.taskdata.filter((x: any) => x.status === 'todo');
-    if (filterby != 'all') {
-      this.tasktodo = this.tasktodo.filter((x: any) => x?.assigns.filter((y: any) => y.name === filterby).length > 0);
+    this.tasktodo = this.taskdata.filter((x: any) => (x.status || 'todo') === 'todo');
+    if (filterby !== 'all') {
+      this.tasktodo = this.tasktodo.filter((x: any) =>
+        (x?.assigns || []).some((y: any) => y?.name === filterby)
+      );
     }
   }
 
   returnfiltertask(filterby: string): any[] {
-    let tasktodo = this.taskdata.filter((x: any) => x.status === 'todo');
-    if (filterby != 'all') {
-      tasktodo = tasktodo.filter((x: any) => x?.assigns.filter((y: any) => y.name === filterby).length > 0);
+    let list = this.taskdata.filter((x: any) => (x.status || 'todo') === 'todo');
+    if (filterby !== 'all') {
+      list = list.filter((x: any) => (x?.assigns || []).some((y: any) => y?.name === filterby));
     }
-    return tasktodo;
+    return list;
+  }
+
+  getTaskTitle(task: Partial<Task> | null): string {
+    return modelGetTaskTitle(task);
+  }
+
+  getTaskCreatedBy(task: Partial<Task> | null): string {
+    return modelGetTaskCreatedBy(task);
+  }
+
+  getPriorityColor(priority: string | undefined): string {
+    return (priority && PRIORITY_COLORS[priority]) || PRIORITY_COLORS['medium'] || '#f59e0b';
+  }
+
+  getAssigneesList(task: Partial<Task> | null): TaskAssigneeRef[] {
+    if (!task || !(task as any).assigns?.length) return [];
+    return (task as any).assigns;
   }
 
   copyTodoTaskList(): void {
@@ -147,15 +168,11 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   setProgress(task: any): void {
-    let sts;
-    if (task.progress) {
-      sts = false;
+    if (task.status === 'in-progress') {
+      this.afs.doc('tasks/' + task.id).update({ status: 'todo', progress: 0 });
     } else {
-      sts = true;
+      this.afs.doc('tasks/' + task.id).update({ status: 'in-progress', progress: task.progress ?? 0 });
     }
-    this.afs.doc('tasks/' + task.id).update({
-      progress: sts
-    });
   }
 
   updateTask(task: any): void {
@@ -212,8 +229,12 @@ export class ProjectTasksComponent implements OnInit {
       const data: any = {
         task: this.task,
         title: this.task,
-        createdAt: new Date(),
+        description: '',
         status: 'todo',
+        priority: 'medium',
+        assignees: [],
+        assigns: [],
+        createdAt: new Date(),
         createdby: localStorage.getItem('username'),
         createdbyid: localStorage.getItem('userid'),
         createdBy: localStorage.getItem('userid'),
@@ -222,7 +243,7 @@ export class ProjectTasksComponent implements OnInit {
         projecttaged: this.projectId,
         projectname: this.projectname,
         projectName: this.projectname,
-        assigns: [],
+        dueDate: null,
         category: 'clientProject',
       };
       if (this.clientId) data.clientId = this.clientId;
@@ -332,53 +353,57 @@ export class ProjectTasksComponent implements OnInit {
   }
 
   private updateTaskFromDialog(taskId: string, formData: any): void {
-    const updateData = {
+    const assigneeIds = formData.assignees || [];
+    const assigns = assigneeIds.map((id: string) => {
+      const assignee = this.assignees.find(a => a.id === id);
+      return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
+    });
+    const updateData: any = {
       task: formData.title,
+      title: formData.title,
       description: formData.description,
-      priority: formData.priority,
+      priority: formData.priority || 'medium',
       status: formData.status,
-      // Convert assignee IDs back to assigns format for compatibility
-      assigns: formData.assignees ? formData.assignees.map((id: string) => {
-        const assignee = this.assignees.find(a => a.id === id);
-        return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
-      }) : [],
+      assignees: assigneeIds,
+      assigns,
       estimatedHours: formData.estimatedHours,
       dueDate: formData.dueDate,
       tags: formData.tags,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-
     this.afs.doc('tasks/' + taskId).update(updateData);
   }
 
   private addTaskFromDialog(formData: any): void {
-    if (this.projectId) {
-      const data: any = {
-        task: formData.title,
-        title: formData.title,
-        description: formData.description || '',
-        priority: formData.priority || 'medium',
-        status: formData.status || 'todo',
-        createdAt: new Date(),
-        createdby: localStorage.getItem('username'),
-        createdbyid: localStorage.getItem('userid'),
-        createdBy: localStorage.getItem('userid'),
-        createdByName: localStorage.getItem('username'),
-        projectId: this.projectId,
-        projecttaged: this.projectId,
-        projectname: this.projectname,
-        projectName: this.projectname,
-        assigns: formData.assignees ? formData.assignees.map((id: string) => {
-          const assignee = this.assignees.find(a => a.id === id);
-          return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
-        }) : [],
-        estimatedHours: formData.estimatedHours,
-        dueDate: formData.dueDate,
-        tags: formData.tags,
-        category: 'clientProject',
-      };
-      if (this.clientId) data.clientId = this.clientId;
-      this.afs.collection('tasks').add(data);
-    }
+    if (!this.projectId) return;
+    const assigneeIds = formData.assignees || [];
+    const assigns = assigneeIds.map((id: string) => {
+      const assignee = this.assignees.find(a => a.id === id);
+      return assignee ? { uid: id, name: assignee.name } : { uid: id, name: 'Unknown' };
+    });
+    const data: any = {
+      task: formData.title,
+      title: formData.title,
+      description: formData.description || '',
+      priority: formData.priority || 'medium',
+      status: formData.status || 'todo',
+      assignees: assigneeIds,
+      assigns,
+      createdAt: new Date(),
+      createdby: localStorage.getItem('username'),
+      createdbyid: localStorage.getItem('userid'),
+      createdBy: localStorage.getItem('userid'),
+      createdByName: localStorage.getItem('username'),
+      projectId: this.projectId,
+      projecttaged: this.projectId,
+      projectname: this.projectname,
+      projectName: this.projectname,
+      dueDate: formData.dueDate || null,
+      estimatedHours: formData.estimatedHours,
+      tags: formData.tags,
+      category: 'clientProject',
+    };
+    if (this.clientId) data.clientId = this.clientId;
+    this.afs.collection('tasks').add(data);
   }
 }

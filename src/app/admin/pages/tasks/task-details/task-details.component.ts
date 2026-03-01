@@ -341,12 +341,13 @@ export class TaskDetailsComponent implements OnInit {
       .catch(() => this.showNotification('Error saving category', 'error'));
   }
 
-  /** Saves the selected project (client or own project). */
+  /** Saves the selected project (client or own project). When assigning to an own project, ensures a linked doc exists in that project's tasks subcollection so the task appears on the own-project board. */
   saveProjectSelection(projectId: string | null, extra: { clientId?: string; ownProjectId?: string } = {}): void {
     if (!this.task?.id) return;
     const now = new Date();
+    const taskId = this.task.id!;
+    const t = this.task as any;
 
-    // Resolve the human-readable project name from whichever list applies
     const allProjects = [...this.clientProjects, ...this.ownProjects, ...this.projects];
     const proj = projectId ? allProjects.find(p => p.id === projectId) : null;
     const projectName = proj?.name || null;
@@ -368,9 +369,82 @@ export class TaskDetailsComponent implements OnInit {
       localPatch['ownProjectId'] = extra.ownProjectId;
     }
 
-    const taskId = this.task.id!;
     this.addHistoryEntry(`changed project to ${projectName || projectId || 'none'}`);
     this.task = { ...this.task, ...localPatch };
+
+    const ownProjectId = extra.ownProjectId ?? t.ownProjectId;
+
+    if (ownProjectId && projectId === ownProjectId) {
+      update['source'] = 'ownProject';
+      update['category'] = 'ownProject';
+      localPatch['source'] = 'ownProject';
+      localPatch['category'] = 'ownProject';
+
+      const existingOwnTaskId = t.ownProjectTaskId;
+      const isSameProject = existingOwnTaskId && t.ownProjectId === ownProjectId;
+
+      if (isSameProject) {
+        // Already linked to this own project: just update root task and sync to existing subcollection doc
+        this.firestore.collection('tasks').doc(taskId).update(update)
+          .then(() => {
+            this.syncRootTaskToOwnProject(this.task);
+            this.showNotification('Project saved', 'success');
+          })
+          .catch(() => this.showNotification('Error saving project', 'error'));
+        return;
+      }
+
+      // Remove from previous own project's board if switching
+      if (t.ownProjectId && t.ownProjectTaskId && t.ownProjectId !== ownProjectId) {
+        this.firestore.collection('ownProjects').doc(t.ownProjectId).collection('tasks').doc(t.ownProjectTaskId).delete().catch(() => {});
+      }
+
+      // Create a doc in ownProjects/{ownProjectId}/tasks so the task appears on that board
+      const ownTaskPayload: any = {
+        task: t.title || t.task,
+        title: t.title || t.task,
+        description: t.description ?? '',
+        status: t.status ?? 'todo',
+        priority: t.priority ?? 'medium',
+        progress: t.progress ?? 0,
+        assignees: t.assignees ?? (t.assigns ? t.assigns.map((a: any) => a.uid) : []),
+        assigns: t.assigns ?? [],
+        dueDate: t.dueDate ?? null,
+        startDate: t.startDate ?? null,
+        createdAt: t.createdAt || now,
+        createdBy: t.createdBy || '',
+        createdByName: t.createdByName || 'Unknown',
+        rootTaskId: taskId,
+        updatedAt: now
+      };
+      this.firestore.collection('ownProjects').doc(ownProjectId).collection('tasks').add(ownTaskPayload)
+        .then((docRef) => {
+          update['ownProjectTaskId'] = docRef.id;
+          localPatch['ownProjectTaskId'] = docRef.id;
+          (this.task as any).ownProjectTaskId = docRef.id;
+          return this.firestore.collection('tasks').doc(taskId).update(update);
+        })
+        .then(() => this.showNotification('Project saved', 'success'))
+        .catch(() => this.showNotification('Error saving project', 'error'));
+      return;
+    }
+
+    // Not an own project (or clearing): update root task only
+    if (extra.ownProjectId === null || (projectId == null && t.ownProjectId)) {
+      update['ownProjectId'] = null;
+      update['ownProjectTaskId'] = null;
+      update['source'] = null;
+      localPatch['ownProjectId'] = null;
+      localPatch['ownProjectTaskId'] = null;
+      localPatch['source'] = null;
+      (this.task as any).ownProjectId = null;
+      (this.task as any).ownProjectTaskId = null;
+      (this.task as any).source = undefined;
+      if (t.ownProjectId && t.ownProjectTaskId) {
+        this.firestore.collection('ownProjects').doc(t.ownProjectId).collection('tasks').doc(t.ownProjectTaskId).delete().catch(() => {});
+      }
+    }
+
     this.firestore.collection('tasks').doc(taskId).update(update)
       .then(() => this.showNotification('Project saved', 'success'))
       .catch(() => this.showNotification('Error saving project', 'error'));
