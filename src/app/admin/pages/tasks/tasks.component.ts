@@ -651,7 +651,10 @@ export class TasksComponent implements OnInit {
         const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();
         const data = taskSnap?.data() as any;
         if (data?.source === 'ownProject' && data?.ownProjectId && data?.ownProjectTaskId) {
-          const assigns = (formData.assignees || []).map((uid: string) => ({ uid, name: '', email: '' }));
+          const assigns = (formData.assignees || []).map((uid: string) => {
+            const a = this.assignees.find(x => x.id === uid);
+            return { uid, name: a?.name || uid, email: a?.email || '' };
+          });
           await this.firestore.collection('ownProjects').doc(data.ownProjectId).collection('tasks').doc(data.ownProjectTaskId).update({
             title: formData.title,
             description: formData.description ?? '',
@@ -659,6 +662,7 @@ export class TasksComponent implements OnInit {
             priority: formData.priority,
             progress: updateData.progress ?? 0,
             assigns,
+            assignees: formData.assignees || [],
             dueDate: formData.dueDate ?? null,
             estimatedHours: formData.estimatedHours ?? null,
             tags: formData.tags ?? [],

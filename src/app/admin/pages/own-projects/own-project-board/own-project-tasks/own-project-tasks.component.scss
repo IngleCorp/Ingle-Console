@@ -343,6 +343,65 @@ $border:  rgba(0,0,0,0.07);
   text-align: right;
 }
 
+// Assignees row (chips with initial + name)
+.opt-card-assignees {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.opt-assignee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 2px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  font-size: 0.6875rem;
+  color: $text;
+  max-width: 100%;
+}
+
+.opt-assignee-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: $blue;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.625rem;
+  flex-shrink: 0;
+}
+
+.opt-assignee-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.opt-assignees-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: $text3;
+  font-style: italic;
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    opacity: 0.7;
+  }
+}
+
 // Meta row
 .opt-card-meta {
   display: flex;

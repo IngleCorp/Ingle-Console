@@ -314,10 +314,31 @@ export class OwnProjectTasksComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Normalize assignees from task: supports assigns (array of {uid, name?, email?}) or assignees (array of IDs). */
+  private normalizeAssignees(task: any): { name: string }[] {
+    const assigns = task?.assigns || [];
+    if (assigns.length) {
+      return assigns.map((a: any) => ({
+        name: (a.name || a.email || a.uid || 'Unknown').trim() || 'Unknown'
+      }));
+    }
+    // Some docs may only have assignees (array of UIDs) when synced from root task
+    const assigneeIds = task?.assignees || [];
+    if (assigneeIds.length) {
+      return assigneeIds.map((id: string) => ({ name: id }));
+    }
+    return [];
+  }
+
   getAssigneesDisplay(task: any): string {
-    const assigns = task.assigns || [];
-    if (!assigns.length) return '';
-    return assigns.map((a: any) => a.name || a.email || '?').join(', ');
+    const list = this.normalizeAssignees(task);
+    if (!list.length) return '';
+    return list.map(a => a.name).join(', ');
+  }
+
+  /** Returns assignee list for display as chips/badges; empty array when unassigned. */
+  getAssigneesList(task: any): { name: string }[] {
+    return this.normalizeAssignees(task);
   }
 
   getPriorityLabel(priority: string): string {

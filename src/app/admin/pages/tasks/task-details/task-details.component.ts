@@ -395,6 +395,8 @@ export class TaskDetailsComponent implements OnInit {
         if (doc.exists) {
           const raw = (doc.data() || {}) as any;
           this.task = this.transformLegacyTask({ id: doc.id, ...raw });
+          // One-time sync: push root task data to own-project task doc so board shows correct assignees etc.
+          this.syncRootTaskToOwnProject(this.task);
         } else {
           this.task = null;
           this.notFound = true;
@@ -408,6 +410,28 @@ export class TaskDetailsComponent implements OnInit {
         this.showNotification('Error loading task', 'error');
       }
     });
+  }
+
+  /** Sync root task fields (assigns, status, dueDate, etc.) to the linked own-project task doc. Run on load and when saving. */
+  private syncRootTaskToOwnProject(taskData: Task | null): void {
+    const ownProjectId = (taskData as any)?.ownProjectId;
+    const ownProjectTaskId = (taskData as any)?.ownProjectTaskId;
+    if (!ownProjectId || !ownProjectTaskId) return;
+    const payload: any = {
+      title: taskData!.title || (taskData as any).task,
+      description: (taskData as any).description ?? '',
+      status: taskData!.status ?? 'todo',
+      priority: taskData!.priority ?? 'medium',
+      progress: taskData!.progress ?? 0,
+      dueDate: (taskData as any).dueDate ?? null,
+      startDate: (taskData as any).startDate ?? null,
+      estimatedHours: (taskData as any).estimatedHours ?? null,
+      tags: (taskData as any).tags ?? [],
+      updatedAt: new Date(),
+      assigns: (taskData as any).assigns ?? [],
+      assignees: (taskData as any).assigns?.map((a: any) => a.uid) ?? (taskData as any).assignees ?? []
+    };
+    this.firestore.collection('ownProjects').doc(ownProjectId).collection('tasks').doc(ownProjectTaskId).update(payload).catch(() => {});
   }
 
   private loadComments(taskId: string): void {
@@ -628,6 +652,7 @@ export class TaskDetailsComponent implements OnInit {
     this.task = { ...this.task, progress: pct, updatedAt: new Date() };
     this.addHistoryEntry(`set progress to ${pct}%`);
     this.firestore.collection('tasks').doc(this.task.id!).update({ progress: pct, updatedAt: new Date() })
+      .then(() => this.syncRootTaskToOwnProject(this.task))
       .catch(() => this.showNotification('Error saving progress', 'error'));
   }
 
@@ -654,6 +679,24 @@ export class TaskDetailsComponent implements OnInit {
     this.task = { ...this.task, ...localPatch };
     this.addHistoryEntry(`changed ${field} to ${Array.isArray(value) ? value.join(', ') : value}`);
     this.firestore.collection('tasks').doc(taskId).update(update)
+      .then(() => {
+        // Sync to own-project task doc when this task is linked from own project board
+        const task = this.task;
+        const ownProjectId = (task as any)?.ownProjectId;
+        const ownProjectTaskId = (task as any)?.ownProjectTaskId;
+        if (ownProjectId && ownProjectTaskId) {
+          const ownUpdate: any = { updatedAt: now };
+          if (field === 'assignees' || field === 'assigns') {
+            const assigns = localPatch.assigns ?? (task as any)?.assigns ?? [];
+            ownUpdate.assigns = assigns;
+            ownUpdate.assignees = (assigns as any[])?.map((a: any) => a.uid) ?? [];
+          } else {
+            ownUpdate[field] = value;
+          }
+          return this.firestore.collection('ownProjects').doc(ownProjectId).collection('tasks').doc(ownProjectTaskId).update(ownUpdate);
+        }
+        return Promise.resolve();
+      })
       .then(() => this.showNotification('Saved', 'success'))
       .catch(() => this.showNotification('Error saving', 'error'));
   }
@@ -666,8 +709,10 @@ export class TaskDetailsComponent implements OnInit {
     this.firestore.collection('tasks').doc(this.task.id).update({
       startDate: startDate || null,
       updatedAt: new Date()
-    }).then(() => this.showNotification('Start date saved', 'success'))
-      .catch(() => this.showNotification('Error saving start date', 'error'));
+    }).then(() => {
+      this.syncRootTaskToOwnProject(this.task);
+      this.showNotification('Start date saved', 'success');
+    }).catch(() => this.showNotification('Error saving start date', 'error'));
   }
 
   saveDueDate(value: Date | string | null): void {
@@ -678,8 +723,10 @@ export class TaskDetailsComponent implements OnInit {
     this.firestore.collection('tasks').doc(this.task.id).update({
       dueDate: dueDate || null,
       updatedAt: new Date()
-    }).then(() => this.showNotification('Due date saved', 'success'))
-      .catch(() => this.showNotification('Error saving due date', 'error'));
+    }).then(() => {
+      this.syncRootTaskToOwnProject(this.task);
+      this.showNotification('Due date saved', 'success');
+    }).catch(() => this.showNotification('Error saving due date', 'error'));
   }
 
   clearStartDate(): void {

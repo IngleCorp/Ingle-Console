@@ -68,10 +68,18 @@
             <div class="opt-card-body">
               <h3 class="opt-card-title">{{ task.title }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-assignees">
+                <ng-container *ngIf="getAssigneesList(task).length; else noAssignees">
+                  <span class="opt-assignee-chip" *ngFor="let a of getAssigneesList(task)" [matTooltip]="a.name">
+                    <span class="opt-assignee-initial">{{ (a.name || '?')[0] | uppercase }}</span>
+                    <span class="opt-assignee-name">{{ a.name }}</span>
+                  </span>
+                </ng-container>
+                <ng-template #noAssignees>
+                  <span class="opt-assignees-empty"><mat-icon>person_outline</mat-icon> Unassigned</span>
+                </ng-template>
+              </div>
               <div class="opt-card-meta">
-                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
-                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
-                </span>
                 <span class="opt-meta" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
                 </span>
@@ -138,10 +146,18 @@
               </div>
               <h3 class="opt-card-title">{{ task.title }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-assignees">
+                <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesInProgress">
+                  <span class="opt-assignee-chip" *ngFor="let a of getAssigneesList(task)" [matTooltip]="a.name">
+                    <span class="opt-assignee-initial">{{ (a.name || '?')[0] | uppercase }}</span>
+                    <span class="opt-assignee-name">{{ a.name }}</span>
+                  </span>
+                </ng-container>
+                <ng-template #noAssigneesInProgress>
+                  <span class="opt-assignees-empty"><mat-icon>person_outline</mat-icon> Unassigned</span>
+                </ng-template>
+              </div>
               <div class="opt-card-meta">
-                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
-                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
-                </span>
                 <span class="opt-meta" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
                 </span>
@@ -200,10 +216,18 @@
             (click)="goToTaskDetail(task.id)">
             <div class="opt-card-body">
               <h3 class="opt-card-title opt-card-title--done">{{ task.title }}</h3>
+              <div class="opt-card-assignees">
+                <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesDone">
+                  <span class="opt-assignee-chip" *ngFor="let a of getAssigneesList(task)" [matTooltip]="a.name">
+                    <span class="opt-assignee-initial">{{ (a.name || '?')[0] | uppercase }}</span>
+                    <span class="opt-assignee-name">{{ a.name }}</span>
+                  </span>
+                </ng-container>
+                <ng-template #noAssigneesDone>
+                  <span class="opt-assignees-empty"><mat-icon>person_outline</mat-icon> Unassigned</span>
+                </ng-template>
+              </div>
               <div class="opt-card-meta">
-                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
-                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
-                </span>
                 <span class="opt-meta" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
                 </span>
@@ -259,10 +283,18 @@
             <div class="opt-card-body">
               <h3 class="opt-card-title">{{ task.title }}</h3>
               <p class="opt-card-desc" *ngIf="task.description">{{ task.description }}</p>
+              <div class="opt-card-assignees">
+                <ng-container *ngIf="getAssigneesList(task).length; else noAssigneesHold">
+                  <span class="opt-assignee-chip" *ngFor="let a of getAssigneesList(task)" [matTooltip]="a.name">
+                    <span class="opt-assignee-initial">{{ (a.name || '?')[0] | uppercase }}</span>
+                    <span class="opt-assignee-name">{{ a.name }}</span>
+                  </span>
+                </ng-container>
+                <ng-template #noAssigneesHold>
+                  <span class="opt-assignees-empty"><mat-icon>person_outline</mat-icon> Unassigned</span>
+                </ng-template>
+              </div>
               <div class="opt-card-meta">
-                <span class="opt-meta" *ngIf="getAssigneesDisplay(task)">
-                  <mat-icon>person</mat-icon>{{ getAssigneesDisplay(task) }}
-                </span>
                 <span class="opt-meta" *ngIf="task.dueDate">
                   <mat-icon>event</mat-icon>{{ task.dueDate | date:'MMM d' }}
                 </span>
