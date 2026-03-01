@@ -24,6 +24,7 @@ export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
   projectSearchCtrl = new FormControl('');
   filteredProjects: Observable<Project[]>;
+  advancedOpen = false;
 
   // Quill editor configuration for rich text description
   quillModules = {
@@ -63,10 +64,23 @@ export class TaskFormComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.isEditing && this.data.task) {
+      const t = this.data.task as any;
+      const tags = t.tags && Array.isArray(t.tags) ? t.tags : [];
       this.taskForm.patchValue({
-        ...this.data.task,
-        // Ensure assignee IDs are correctly patched
-        assignees: this.data.task.assignees || []
+        title: t.title || t.task || '',
+        description: t.description ?? '',
+        priority: t.priority || 'medium',
+        status: t.status || 'todo',
+        assignees: t.assignees || [],
+        projectId: t.projectId || t.projecttaged || null,
+        dueDate: t.dueDate || null,
+        estimatedHours: t.estimatedHours ?? null,
+        category: t.category || 'general',
+        startDate: t.startDate || null,
+        progress: t.progress ?? 0,
+        isActive: t.isActive !== false,
+        tags,
+        tagsInput: tags.length ? tags.join(', ') : ''
       });
     }
   }
@@ -114,17 +128,24 @@ export class TaskFormComponent implements OnInit {
       status: ['todo', Validators.required],
       assignees: [[]],
       projectId: [null],
-      dueDate: [''],
-      estimatedHours: [''],
+      dueDate: [null],
+      estimatedHours: [null],
       tags: [[]],
-      isActive: [true]
+      tagsInput: [''], // comma-separated; synced to tags on save
+      isActive: [true],
+      category: ['general'],
+      startDate: [null],
+      progress: [0]
     });
   }
 
   onSave(): void {
-    if (this.taskForm.valid) {
-      this.dialogRef.close(this.taskForm.value);
-    }
+    if (!this.taskForm.valid) return;
+    const raw = this.taskForm.getRawValue();
+    const tagsInput = (raw.tagsInput || '').trim();
+    const tags = tagsInput ? tagsInput.split(/\s*,\s*/).filter(Boolean) : (raw.tags || []);
+    const { tagsInput: _ti, ...rest } = raw;
+    this.dialogRef.close({ ...rest, tags });
   }
 
   onCancel(): void {

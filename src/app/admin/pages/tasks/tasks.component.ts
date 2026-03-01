@@ -531,13 +531,15 @@ export class TasksComponent implements OnInit {
           createdAt: new Date(),
           createdBy: user.uid,
           createdByName: user.displayName || user.email || 'Unknown User',
-          progress: 0,
-          isActive: true,
+          progress: formData.progress ?? 0,
+          isActive: formData.isActive !== false,
           assignees: formData.assignees || [],
           projectId: selectedProject?.id || null,
           projectName: selectedProject?.name || null,
           projecttaged: selectedProject?.id || null,
-          category: 'general',
+          category: formData.category || 'general',
+          startDate: formData.startDate ?? undefined,
+          tags: formData.tags ?? [],
         };
 
         const docRef = await this.firestore.collection('tasks').add(taskData);

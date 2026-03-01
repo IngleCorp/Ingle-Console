@@ -1,155 +1,261 @@
-.form-container {
+// Task form — compact style inspired by task-details
+$bg: #f7f7f8;
+$surface: #ffffff;
+$border: #e5e5e8;
+$text: #1c1c1f;
+$text2: #6b6b7b;
+$primary: #7b68ee;
+$radius: 8px;
+
+::ng-deep .tfm-container mat-icon,
+::ng-deep .tfm-container .mat-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  vertical-align: middle !important;
+}
+
+.tfm-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-
-  .form-header {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    padding: 20px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-
-    .form-title {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .close-btn {
-      color: white;
-    }
-  }
-
-  mat-dialog-content {
-    padding: 24px;
-    
-    .task-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-
-        &.full-width {
-          grid-column: 1 / -1;
-        }
-
-        .form-field {
-          width: 100%;
-
-          &.full-width {
-            grid-column: 1 / -1;
-          }
-        }
-
-        // Rich text editor styling
-        .rich-text-field {
-          grid-column: 1 / -1;
-          
-          .rich-text-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: rgba(0, 0, 0, 0.6);
-            margin-bottom: 8px;
-          }
-
-          ::ng-deep {
-            .ql-editor {
-              min-height: 150px;
-              font-family: inherit;
-              font-size: 14px;
-              line-height: 1.5;
-            }
-
-            .ql-toolbar {
-              border-top: 1px solid #e0e0e0;
-              border-left: 1px solid #e0e0e0;
-              border-right: 1px solid #e0e0e0;
-              border-radius: 4px 4px 0 0;
-            }
-
-            .ql-container {
-              border-bottom: 1px solid #e0e0e0;
-              border-left: 1px solid #e0e0e0;
-              border-right: 1px solid #e0e0e0;
-              border-radius: 0 0 4px 4px;
-              font-family: inherit;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  mat-dialog-actions.form-actions {
-    padding: 16px 24px;
-    justify-content: flex-end;
-    border-top: 1px solid rgba(0,0,0,0.12);
-
-    .cancel-btn {
-      border-radius: 12px;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .submit-btn {
-      border-radius: 12px;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-  }
+  min-height: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: $surface;
 }
 
-// Styles for the project search input
-.mat-select-search-container {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: white;
-  padding: 8px 16px;
-  border-bottom: 1px solid #e0e0e0;
+.tfm-header {
   display: flex;
   align-items: center;
-
-  .mat-select-search-input {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    color: #333;
-  }
-
-  .mat-select-search-icon {
-    color: #999;
-  }
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+  background: $bg;
 }
 
-// Priority and status option styling
-.priority-option,
-.status-option {
+.tfm-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $text;
   display: flex;
   align-items: center;
   gap: 8px;
-  
-  .priority-dot,
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+}
+
+.tfm-title-icon {
+  color: $primary !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.tfm-close {
+  color: $text2 !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  &:hover { background: rgba(0, 0, 0, 0.06) !important; }
+}
+
+.tfm-link-bar {
+  padding: 8px 16px;
+  background: rgba(123, 104, 238, 0.06);
+  border-bottom: 1px solid $border;
+}
+
+.tfm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: $primary;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.tfm-content {
+  padding: 16px !important;
+  overflow-y: auto !important;
+  flex: 1;
+  min-height: 0;
+}
+
+.tfm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tfm-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  &.full { grid-column: 1 / -1; }
+}
+
+.tfm-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $text2;
+  margin: 0;
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    color: $text2 !important;
   }
+}
+
+.tfm-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tfm-ff {
+  width: 100%;
+
+  &.full { grid-column: 1 / -1; }
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  ::ng-deep .mat-mdc-text-field-wrapper { padding: 0 12px; }
+  ::ng-deep .mat-mdc-form-field-infix { padding-top: 10px; padding-bottom: 10px; min-height: 44px; }
+  ::ng-deep .mdc-notched-outline .mdc-notched-outline__leading,
+  ::ng-deep .mdc-notched-outline .mdc-notched-outline__notch,
+  ::ng-deep .mdc-notched-outline .mdc-notched-outline__trailing { border-radius: $radius; }
+}
+
+.tfm-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.tfm-rich-wrap {
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  min-height: 100px;
+
+  ::ng-deep .ql-toolbar {
+    border: none;
+    border-bottom: 1px solid $border;
+    padding: 6px 8px;
+    background: $bg;
+  }
+  ::ng-deep .ql-container {
+    border: none;
+    font-size: 13px;
+  }
+  ::ng-deep .ql-editor {
+    min-height: 90px;
+    padding: 10px 12px;
+  }
+  ::ng-deep .quill-editor,
+  ::ng-deep .ql-container { font-family: inherit; }
+}
+
+.tfm-accordion {
+  margin-top: 4px !important;
+  border: 1px solid $border !important;
+  border-radius: $radius !important;
+  box-shadow: none !important;
+  background: $surface !important;
+
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 14px;
+    height: 44px;
+    font-size: 0.875rem;
+  }
+  ::ng-deep .mat-expansion-panel-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+    color: $text;
+  }
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 12px 14px 16px;
+    border-top: 1px solid $border;
+  }
+}
+
+.tfm-accordion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tfm-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  min-height: 44px;
+
+  mat-slider {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+.tfm-progress-val {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text2;
+  min-width: 36px;
+  text-align: right;
+}
+
+.tfm-toggle-block {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.tfm-actions {
+  padding: 12px 16px !important;
+  border-top: 1px solid $border !important;
+  gap: 10px !important;
+  flex-shrink: 0;
+  min-height: auto !important;
+}
+
+.tfm-btn-cancel,
+.tfm-btn-save {
+  border-radius: $radius;
+  font-weight: 500;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+.tfm-btn-save {
+  padding: 8px 16px;
+}
+
+.tfm-btn-cancel {
+  padding: 8px 14px;
 }

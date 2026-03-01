@@ -1,157 +1,174 @@
-<div class="form-container">
-  <div class="form-header">
-    <h3 class="form-title">
-      <mat-icon>{{ data.isEditing ? 'edit' : 'add' }}</mat-icon>
-      {{ data.isEditing ? 'Edit Task' : 'Add New Task' }}
-    </h3>
-    <button mat-icon-button class="close-btn" [mat-dialog-close]="null" aria-label="Close">
+<div class="tfm-container">
+  <div class="tfm-header">
+    <h2 class="tfm-title">
+      <mat-icon class="tfm-title-icon">{{ data.isEditing ? 'edit' : 'add_circle_outline' }}</mat-icon>
+      {{ data.isEditing ? 'Edit Task' : 'New Task' }}
+    </h2>
+    <button mat-icon-button class="tfm-close" [mat-dialog-close]="null" aria-label="Close">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <div *ngIf="isOwnProjectTask" class="own-project-link">
-    <a
-      [routerLink]="ownProjectTaskLink"
-      (click)="dialogRef.close(null)"
-      class="own-project-link-btn"
-    >
-      <mat-icon>open_in_new</mat-icon>
-      Open in Own Project
+  <div *ngIf="isOwnProjectTask" class="tfm-link-bar">
+    <a [routerLink]="ownProjectTaskLink" (click)="dialogRef.close(null)" class="tfm-link">
+      <mat-icon>open_in_new</mat-icon> Open in Own Project
     </a>
   </div>
-  <div *ngIf="isClientProjectTask && clientProjectTaskLink" class="own-project-link">
-    <a
-      [routerLink]="clientProjectTaskLink"
-      (click)="dialogRef.close(null)"
-      class="own-project-link-btn"
-    >
-      <mat-icon>open_in_new</mat-icon>
-      Open in Client Project
+  <div *ngIf="isClientProjectTask && clientProjectTaskLink" class="tfm-link-bar">
+    <a [routerLink]="clientProjectTaskLink" (click)="dialogRef.close(null)" class="tfm-link">
+      <mat-icon>open_in_new</mat-icon> Open in Client Project
     </a>
   </div>
 
-  <mat-dialog-content>
-    <form [formGroup]="taskForm" class="task-form">
-      <!-- Task Title - First field -->
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="form-field full-width">
-          <mat-label>Task Title</mat-label>
-          <input matInput formControlName="title" placeholder="Enter task title">
-          <mat-icon matPrefix>assignment</mat-icon>
-          <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
-          <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">Title must be at least 3 characters</mat-error>
+  <mat-dialog-content class="tfm-content">
+    <form [formGroup]="taskForm" class="tfm-form">
+      <!-- Core: Title -->
+      <div class="tfm-block">
+        <label class="tfm-label"><mat-icon>assignment</mat-icon> Title</label>
+        <mat-form-field appearance="outline" class="tfm-ff full">
+          <input matInput formControlName="title" placeholder="Task title">
+          <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Required</mat-error>
+          <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">At least 3 characters</mat-error>
         </mat-form-field>
       </div>
 
-      <!-- Task Description - Second field with Rich Text Editor -->
-      <div class="form-row">
-        <div class="form-field full-width rich-text-field">
-          <mat-label class="rich-text-label">
-            <mat-icon>description</mat-icon>
-            Task Description
-          </mat-label>
-          <quill-editor 
-            formControlName="description" 
-            [modules]="quillModules" 
-            [styles]="quillStyles"
-            placeholder="Enter detailed task description...">
-          </quill-editor>
+      <!-- Core: Description (compact) -->
+      <div class="tfm-block">
+        <label class="tfm-label"><mat-icon>description</mat-icon> Description</label>
+        <div class="tfm-rich-wrap">
+          <quill-editor formControlName="description" [modules]="quillModules" [styles]="quillStyles"
+            placeholder="Description (optional)..."></quill-editor>
         </div>
       </div>
 
-      <!-- Priority and Status Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Priority</mat-label>
-          <mat-select formControlName="priority">
-            <mat-option *ngFor="let priority of data.priorities" [value]="priority.value">
-              <div class="priority-option">
-                <div class="priority-dot" [style.background-color]="priority.color"></div>
-                {{ priority.label }}
-              </div>
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>priority_high</mat-icon>
-          <mat-error *ngIf="taskForm.get('priority')?.hasError('required')">Priority is required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option *ngFor="let status of data.statuses" [value]="status.value">
-              <div class="status-option">
-                <div class="status-dot" [style.background-color]="status.color"></div>
-                {{ status.label }}
-              </div>
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>flag</mat-icon>
-          <mat-error *ngIf="taskForm.get('status')?.hasError('required')">Status is required</mat-error>
-        </mat-form-field>
+      <!-- Core: Status, Priority, Due, Estimate row -->
+      <div class="tfm-row">
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>radio_button_checked</mat-icon> Status</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let s of data.statuses" [value]="s.value">
+                <span class="tfm-dot" [style.background-color]="s.color"></span>{{ s.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>flag</mat-icon> Priority</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let p of data.priorities" [value]="p.value">
+                <span class="tfm-dot" [style.background-color]="p.color"></span>{{ p.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="tfm-row">
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>event</mat-icon> Due date</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <input matInput [matDatepicker]="duePicker" formControlName="dueDate" placeholder="Optional">
+            <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
+            <mat-datepicker #duePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>schedule</mat-icon> Est. hours</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0" step="0.5">
+          </mat-form-field>
+        </div>
       </div>
 
-      <!-- Due Date and Estimated Hours Row -->
-      <div class="form-row">
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Due Date (Optional)</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="Choose a date">
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          <mat-icon matPrefix>event</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Estimated Hours (Optional)</mat-label>
-          <input matInput type="number" formControlName="estimatedHours" placeholder="Enter estimated hours">
-          <mat-icon matPrefix>schedule</mat-icon>
-        </mat-form-field>
+      <!-- Core: Assignees, Project -->
+      <div class="tfm-row">
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>person_outline</mat-icon> Assignees</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <mat-select formControlName="assignees" multiple placeholder="Select">
+              <mat-option *ngFor="let a of data.assignees" [value]="a.id">{{ a.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="tfm-block">
+          <label class="tfm-label"><mat-icon>folder</mat-icon> Project</label>
+          <mat-form-field appearance="outline" class="tfm-ff">
+            <mat-select formControlName="projectId" placeholder="None">
+              <mat-option [value]="null">No project</mat-option>
+              <mat-option *ngFor="let project of filteredProjects | async" [value]="project.id">
+                {{ project.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
-      <!-- Project and Assignees Row -->
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Project (Optional)</mat-label>
-          <mat-select formControlName="projectId">
-            <div class="mat-select-search-container">
-              <input matInput class="mat-select-search-input" [formControl]="projectSearchCtrl" placeholder="Search projects...">
-              <mat-icon class="mat-select-search-icon">search</mat-icon>
+      <!-- Advanced: Accordion -->
+      <mat-expansion-panel class="tfm-accordion" [expanded]="advancedOpen">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>tune</mat-icon>
+            <span>Advanced</span>
+          </mat-panel-title>
+          <mat-panel-description>Category, dates, progress, tags</mat-panel-description>
+        </mat-expansion-panel-header>
+        <div class="tfm-accordion-body">
+          <div class="tfm-row">
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>category</mat-icon> Category</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <mat-select formControlName="category" placeholder="General">
+                  <mat-option value="general">General</mat-option>
+                  <mat-option value="clientProject">Client Project</mat-option>
+                  <mat-option value="ownProject">Own Project</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
-            <mat-option [value]="null">No Project</mat-option>
-            <mat-option *ngFor="let project of filteredProjects | async" [value]="project.id">
-              {{ project.name }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>folder</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Assignees</mat-label>
-          <mat-select formControlName="assignees" multiple>
-            <mat-option *ngFor="let assignee of data.assignees" [value]="assignee.id">
-              {{ assignee.name }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>group</mat-icon>
-        </mat-form-field>
-      </div>
-
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>calendar_today</mat-icon> Start date</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="Optional">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="tfm-row">
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>trending_up</mat-icon> Progress</label>
+              <div class="tfm-progress-wrap">
+                <mat-slider min="0" max="100" step="1" discrete>
+                  <input matSliderThumb formControlName="progress">
+                </mat-slider>
+                <span class="tfm-progress-val">{{ taskForm.get('progress')?.value ?? 0 }}%</span>
+              </div>
+            </div>
+            <div class="tfm-block tfm-toggle-block">
+              <label class="tfm-label"><mat-icon>toggle_on</mat-icon> Active</label>
+              <mat-slide-toggle formControlName="isActive" color="primary"></mat-slide-toggle>
+            </div>
+          </div>
+          <div class="tfm-block">
+            <label class="tfm-label"><mat-icon>label</mat-icon> Tags</label>
+            <mat-form-field appearance="outline" class="tfm-ff full">
+              <input matInput formControlName="tagsInput" placeholder="Comma-separated tags (e.g. bug, ui)">
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-expansion-panel>
     </form>
   </mat-dialog-content>
 
-  <mat-dialog-actions class="form-actions">
-    <button type="button" mat-stroked-button class="cancel-btn" [mat-dialog-close]="null">
+  <mat-dialog-actions class="tfm-actions">
+    <button type="button" mat-stroked-button class="tfm-btn-cancel" [mat-dialog-close]="null">
       Cancel
     </button>
-    <button 
-      type="button" 
-      mat-raised-button 
-      color="primary" 
-      class="submit-btn"
-      [mat-dialog-close]="taskForm.value"
+    <button type="button" mat-raised-button color="primary" class="tfm-btn-save"
+      (click)="onSave()"
       [disabled]="taskForm.invalid">
       <mat-icon>{{ data.isEditing ? 'save' : 'add' }}</mat-icon>
-      {{ data.isEditing ? 'Update Task' : 'Add Task' }}
+      {{ data.isEditing ? 'Update' : 'Add Task' }}
     </button>
   </mat-dialog-actions>
 </div>
