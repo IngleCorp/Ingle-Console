@@ -99,6 +99,8 @@ export class TasksComponent implements OnInit {
   ];
 
   projects: Project[] = [];
+  /** Projects that belong to a client (have clientid). */
+  clientProjects: (Project & { clientid?: string })[] = [];
   ownProjects: Project[] = [];
 
   constructor(
@@ -373,12 +375,13 @@ export class TasksComponent implements OnInit {
 
   async loadProjects(): Promise<void> {
     try {
-      this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any) => {
-        this.projects = projects;
+      this.firestore.collection('projects').valueChanges({ idField: 'id' }).subscribe((projects: any[]) => {
+        this.projects = projects || [];
+        this.clientProjects = (projects || []).filter((p: any) => p.clientid);
         this.updateProjectFilterLabels();
       });
     } catch (error) {
-      console.error('Error loading projects:', error);
+      console.error('Error loading projects', error);
       this.showNotification('Error loading projects', 'error');
     }
   }
@@ -463,6 +466,8 @@ export class TasksComponent implements OnInit {
       isEditing,
       task,
       projects: this.projects,
+      clientProjects: this.clientProjects,
+      ownProjects: this.ownProjects,
       assignees: this.assignees,
       priorities: this.priorities,
       statuses: this.statuses
@@ -518,13 +523,29 @@ export class TasksComponent implements OnInit {
     });
   }
 
+  /** Resolve project id, name, and category-specific ids from form data. */
+  private resolveProjectFromForm(formData: any): { projectId: string | null; projectName: string | null; clientId: string | null; ownProjectId: string | null } {
+    const cat = formData.category || 'general';
+    const pid = formData.projectId || null;
+    if (!pid) return { projectId: null, projectName: null, clientId: formData.clientId || null, ownProjectId: formData.ownProjectId || null };
+    if (cat === 'clientProject') {
+      const p = this.clientProjects.find((x: any) => x.id === pid);
+      return { projectId: pid, projectName: p?.name || null, clientId: (p as any)?.clientid || formData.clientId || null, ownProjectId: null };
+    }
+    if (cat === 'ownProject') {
+      const p = this.ownProjects.find(p => p.id === pid);
+      return { projectId: pid, projectName: p?.name || null, clientId: null, ownProjectId: pid };
+    }
+    const p = this.projects.find(p => p.id === pid);
+    return { projectId: pid, projectName: p?.name || null, clientId: null, ownProjectId: null };
+  }
+
   async addTask(formData: any): Promise<void> {
     this.isLoading = true;
     try {
       const user = await this.auth.currentUser;
       if (user) {
-        const selectedProject = this.projects.find(p => p.id === formData.projectId);
-        
+        const resolved = this.resolveProjectFromForm(formData);
         const taskData: Task = {
           ...formData,
           task: formData.title,
@@ -534,16 +555,44 @@ export class TasksComponent implements OnInit {
           progress: formData.progress ?? 0,
           isActive: formData.isActive !== false,
           assignees: formData.assignees || [],
-          projectId: selectedProject?.id || null,
-          projectName: selectedProject?.name || null,
-          projecttaged: selectedProject?.id || null,
+          projectId: resolved.projectId,
+          projectName: resolved.projectName,
+          projecttaged: resolved.projectId,
+          clientId: resolved.clientId,
+          ownProjectId: resolved.ownProjectId,
           category: formData.category || 'general',
           startDate: formData.startDate ?? undefined,
           tags: formData.tags ?? [],
         };
+        if (resolved.ownProjectId) (taskData as any).source = 'ownProject';
 
         const docRef = await this.firestore.collection('tasks').add(taskData);
-        // Record activity
+
+        if (resolved.ownProjectId && docRef.id) {
+          const ownPayload = {
+            task: formData.title,
+            title: formData.title,
+            description: formData.description ?? '',
+            status: formData.status ?? 'todo',
+            priority: formData.priority ?? 'medium',
+            progress: formData.progress ?? 0,
+            assignees: formData.assignees || [],
+            assigns: (formData.assignees || []).map((uid: string) => {
+              const a = this.assignees.find(x => x.id === uid);
+              return { uid, name: a?.name || uid, email: a?.email || '' };
+            }),
+            dueDate: formData.dueDate ?? null,
+            startDate: formData.startDate ?? null,
+            createdAt: taskData.createdAt,
+            createdBy: taskData.createdBy,
+            createdByName: taskData.createdByName,
+            rootTaskId: docRef.id,
+            updatedAt: new Date()
+          };
+          const ownDocRef = await this.firestore.collection('ownProjects').doc(resolved.ownProjectId).collection('tasks').add(ownPayload);
+          await this.firestore.collection('tasks').doc(docRef.id).update({ ownProjectTaskId: ownDocRef.id });
+        }
+
         await this.firestore.collection('activities').add({
           type: 'task',
           action: 'Created',
@@ -570,7 +619,7 @@ export class TasksComponent implements OnInit {
     try {
       const user = await this.auth.currentUser;
       if (user) {
-        const selectedProject = this.projects.find(p => p.id === formData.projectId);
+        const resolved = this.resolveProjectFromForm(formData);
         const updateData = {
           ...formData,
           task: formData.title,
@@ -578,9 +627,11 @@ export class TasksComponent implements OnInit {
           updatedBy: user.uid,
           updatedByName: user.displayName || user.email || 'Unknown User',
           assignees: formData.assignees || [],
-          projectId: selectedProject?.id || null,
-          projectName: selectedProject?.name || null,
-          projecttaged: selectedProject?.id || null,
+          projectId: resolved.projectId,
+          projectName: resolved.projectName,
+          projecttaged: resolved.projectId,
+          clientId: resolved.clientId,
+          ownProjectId: resolved.ownProjectId,
         };
         await this.firestore.collection('tasks').doc(taskId).update(updateData);
         const taskSnap = await this.firestore.collection('tasks').doc(taskId).get().toPromise();

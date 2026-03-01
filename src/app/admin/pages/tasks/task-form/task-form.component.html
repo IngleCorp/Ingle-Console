@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <!-- Core: Status, Priority, Due, Estimate row -->
+      <!-- Core: Status, Assignees -->
       <div class="tfm-row">
         <div class="tfm-block">
           <label class="tfm-label"><mat-icon>radio_button_checked</mat-icon> Status</label>
@@ -53,52 +53,13 @@
             </mat-select>
           </mat-form-field>
         </div>
-        <div class="tfm-block">
-          <label class="tfm-label"><mat-icon>flag</mat-icon> Priority</label>
-          <mat-form-field appearance="outline" class="tfm-ff">
-            <mat-select formControlName="priority">
-              <mat-option *ngFor="let p of data.priorities" [value]="p.value">
-                <span class="tfm-dot" [style.background-color]="p.color"></span>{{ p.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
       </div>
-      <div class="tfm-row">
-        <div class="tfm-block">
-          <label class="tfm-label"><mat-icon>event</mat-icon> Due date</label>
-          <mat-form-field appearance="outline" class="tfm-ff">
-            <input matInput [matDatepicker]="duePicker" formControlName="dueDate" placeholder="Optional">
-            <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
-            <mat-datepicker #duePicker></mat-datepicker>
-          </mat-form-field>
-        </div>
-        <div class="tfm-block">
-          <label class="tfm-label"><mat-icon>schedule</mat-icon> Est. hours</label>
-          <mat-form-field appearance="outline" class="tfm-ff">
-            <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0" step="0.5">
-          </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Core: Assignees, Project -->
       <div class="tfm-row">
         <div class="tfm-block">
           <label class="tfm-label"><mat-icon>person_outline</mat-icon> Assignees</label>
           <mat-form-field appearance="outline" class="tfm-ff">
             <mat-select formControlName="assignees" multiple placeholder="Select">
               <mat-option *ngFor="let a of data.assignees" [value]="a.id">{{ a.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="tfm-block">
-          <label class="tfm-label"><mat-icon>folder</mat-icon> Project</label>
-          <mat-form-field appearance="outline" class="tfm-ff">
-            <mat-select formControlName="projectId" placeholder="None">
-              <mat-option [value]="null">No project</mat-option>
-              <mat-option *ngFor="let project of filteredProjects | async" [value]="project.id">
-                {{ project.name }}
-              </mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -111,10 +72,21 @@
             <mat-icon>tune</mat-icon>
             <span>Advanced</span>
           </mat-panel-title>
-          <mat-panel-description>Category, dates, progress, tags</mat-panel-description>
+          <mat-panel-description>Priority, category, dates, progress, tags</mat-panel-description>
         </mat-expansion-panel-header>
         <div class="tfm-accordion-body">
+          <!-- Priority and Category -->
           <div class="tfm-row">
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>flag</mat-icon> Priority</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <mat-select formControlName="priority">
+                  <mat-option *ngFor="let p of data.priorities" [value]="p.value">
+                    <span class="tfm-dot" [style.background-color]="p.color"></span>{{ p.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
             <div class="tfm-block">
               <label class="tfm-label"><mat-icon>category</mat-icon> Category</label>
               <mat-form-field appearance="outline" class="tfm-ff">
@@ -125,12 +97,50 @@
                 </mat-select>
               </mat-form-field>
             </div>
+            <div class="tfm-block" *ngIf="isProjectCategory">
+              <label class="tfm-label"><mat-icon>folder</mat-icon> Project</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <mat-select formControlName="projectId" [placeholder]="(taskForm.get('category')?.value) === 'ownProject' ? 'Select own project' : 'Select client project'" (selectionChange)="onProjectIdChange($event.value)">
+                  <mat-option [value]="null">None</mat-option>
+                  <mat-option *ngFor="let project of filteredProjectListByCategory | async" [value]="project.id">
+                    {{ project.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="tfm-block" *ngIf="!isProjectCategory">
+              <label class="tfm-label"><mat-icon>calendar_today</mat-icon> Start date</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="Optional">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="tfm-row" *ngIf="isProjectCategory">
             <div class="tfm-block">
               <label class="tfm-label"><mat-icon>calendar_today</mat-icon> Start date</label>
               <mat-form-field appearance="outline" class="tfm-ff">
                 <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="Optional">
                 <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
                 <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- Due date and Est. hours -->
+          <div class="tfm-row">
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>event</mat-icon> Due date</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <input matInput [matDatepicker]="duePicker" formControlName="dueDate" placeholder="Optional">
+                <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
+                <mat-datepicker #duePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="tfm-block">
+              <label class="tfm-label"><mat-icon>schedule</mat-icon> Est. hours</label>
+              <mat-form-field appearance="outline" class="tfm-ff">
+                <input matInput type="number" formControlName="estimatedHours" placeholder="0" min="0" step="0.5">
               </mat-form-field>
             </div>
           </div>

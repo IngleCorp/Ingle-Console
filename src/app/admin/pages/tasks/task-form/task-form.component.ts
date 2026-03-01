@@ -6,10 +6,16 @@ import { FormControl } from '@angular/forms';
 import { startWith, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
+export interface ClientProject extends Project {
+  clientid?: string;
+}
+
 export interface TaskFormData {
   isEditing: boolean;
   task?: Task;
   projects: Project[];
+  clientProjects?: ClientProject[];
+  ownProjects?: Project[];
   assignees: TaskAssignee[];
   priorities: { value: string; label: string; color: string; }[];
   statuses: { value: string; label: string; color: string; }[];
@@ -24,7 +30,10 @@ export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
   projectSearchCtrl = new FormControl('');
   filteredProjects: Observable<Project[]>;
+  filteredClientProjects: Observable<ClientProject[]>;
+  filteredOwnProjects: Observable<Project[]>;
   advancedOpen = false;
+  private skipCategoryClear = false;
 
   // Quill editor configuration for rich text description
   quillModules = {
@@ -56,16 +65,25 @@ export class TaskFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: TaskFormData
   ) {
     this.taskForm = this.createForm();
-    this.filteredProjects = this.projectSearchCtrl.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filterProjects(value || ''))
+    const search$ = this.projectSearchCtrl.valueChanges.pipe(startWith(''));
+    this.filteredProjects = search$.pipe(map(v => this._filterProjects(this.data.projects, v || '')));
+    this.filteredClientProjects = search$.pipe(
+      map(v => this._filterProjects(this.data.clientProjects || [], v || ''))
     );
+    this.filteredOwnProjects = search$.pipe(
+      map(v => this._filterProjects(this.data.ownProjects || [], v || ''))
+    );
+    this.taskForm.get('category')?.valueChanges.subscribe(() => {
+      if (this.skipCategoryClear) return;
+      this.taskForm.patchValue({ projectId: null, clientId: null, ownProjectId: null }, { emitEvent: false });
+    });
   }
 
   ngOnInit(): void {
     if (this.data.isEditing && this.data.task) {
       const t = this.data.task as any;
       const tags = t.tags && Array.isArray(t.tags) ? t.tags : [];
+      this.skipCategoryClear = true;
       this.taskForm.patchValue({
         title: t.title || t.task || '',
         description: t.description ?? '',
@@ -73,6 +91,8 @@ export class TaskFormComponent implements OnInit {
         status: t.status || 'todo',
         assignees: t.assignees || [],
         projectId: t.projectId || t.projecttaged || null,
+        clientId: t.clientId ?? null,
+        ownProjectId: t.ownProjectId ?? null,
         dueDate: t.dueDate || null,
         estimatedHours: t.estimatedHours ?? null,
         category: t.category || 'general',
@@ -82,6 +102,7 @@ export class TaskFormComponent implements OnInit {
         tags,
         tagsInput: tags.length ? tags.join(', ') : ''
       });
+      setTimeout(() => { this.skipCategoryClear = false; }, 0);
     }
   }
 
@@ -115,9 +136,62 @@ export class TaskFormComponent implements OnInit {
       : null;
   }
 
-  private _filterProjects(value: string): Project[] {
-    const filterValue = value.toLowerCase();
-    return this.data.projects.filter(project => project.name.toLowerCase().includes(filterValue));
+  private _filterProjects<T extends { id?: string; name?: string }>(list: T[], value: string, _?: string): T[] {
+    const q = value.toLowerCase().trim();
+    if (!q) return list;
+    return list.filter(p => (p.name || '').toLowerCase().includes(q));
+  }
+
+  /** True when category is Own Project or Client Project — show project dropdown. */
+  get isProjectCategory(): boolean {
+    const cat = this.taskForm?.get('category')?.value;
+    return cat === 'ownProject' || cat === 'clientProject';
+  }
+
+  get projectListByCategory(): Project[] {
+    const cat = this.taskForm?.get('category')?.value;
+    if (cat === 'clientProject') return this.data.clientProjects || [];
+    if (cat === 'ownProject') return this.data.ownProjects || [];
+    return this.data.projects || [];
+  }
+
+  get filteredProjectListByCategory(): Observable<Project[]> {
+    const cat = this.taskForm?.get('category')?.value;
+    if (cat === 'clientProject') return this.filteredClientProjects;
+    if (cat === 'ownProject') return this.filteredOwnProjects;
+    return this.filteredProjects;
+  }
+
+  onProjectIdChange(projectId: string | null): void {
+    const cat = this.taskForm.get('category')?.value;
+    if (!projectId) {
+      this.taskForm.patchValue({ clientId: null, ownProjectId: null }, { emitEvent: false });
+      return;
+    }
+    if (cat === 'clientProject') {
+      const cp = (this.data.clientProjects || []).find(p => p.id === projectId) as ClientProject | undefined;
+      this.taskForm.patchValue({
+        clientId: cp?.clientid ?? null,
+        ownProjectId: null
+      }, { emitEvent: false });
+    } else if (cat === 'ownProject') {
+      this.taskForm.patchValue({
+        clientId: null,
+        ownProjectId: projectId
+      }, { emitEvent: false });
+    } else {
+      this.taskForm.patchValue({ clientId: null, ownProjectId: null }, { emitEvent: false });
+    }
+  }
+
+  getSelectedProjectName(): string {
+    const projectId = this.taskForm?.get('projectId')?.value;
+    const cat = this.taskForm?.get('category')?.value;
+    if (!projectId) return '';
+    const list = cat === 'clientProject' ? (this.data.clientProjects || [])
+      : cat === 'ownProject' ? (this.data.ownProjects || [])
+      : this.data.projects || [];
+    return list.find(p => p.id === projectId)?.name || '';
   }
 
   createForm(): FormGroup {
@@ -128,6 +202,8 @@ export class TaskFormComponent implements OnInit {
       status: ['todo', Validators.required],
       assignees: [[]],
       projectId: [null],
+      clientId: [null],
+      ownProjectId: [null],
       dueDate: [null],
       estimatedHours: [null],
       tags: [[]],
